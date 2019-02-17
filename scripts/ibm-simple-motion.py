@@ -1,3 +1,4 @@
+
 import numpy as np
 import cv2
 
@@ -44,8 +45,9 @@ while(True):
     cv2.putText(frame2, "Standard Deviation - {}".format(round(stDev[0][0],0)), (70, 70), font, 1, (255, 0, 255), 1, cv2.LINE_AA)
     if stDev > sdThresh:
         print("motion detected {:04d}".format(counter));
-        cv2.imwrite('/home/pi/images/dist-{:04d}.jpg'.format(counter), mod)
-        cv2.imwrite('/home/pi/images/frame-{:04d}.jpg'.format(counter), frame2)
+        cv2.imshow('dist', mod)
+        # cv2.imwrite('/home/pi/images/dist-{:04d}.jpg'.format(counter), mod)
+        # cv2.imwrite('/home/pi/images/frame-{:04d}.jpg'.format(counter), frame2)
         # cv2.imwrite('/home/pi/images/frame-{:04d}.jpg'.format(counter), mod)
         counter = counter + 1
 
