@@ -28,6 +28,8 @@ while(True):
     _, frame3 = cap.read()
     rows, cols, _ = np.shape(frame3)
     cv2.imshow('dist', frame3)
+    
+    # how far apart are frame1 and frame3?
     dist = distMap(frame1, frame3)
 
     frame1 = frame2
