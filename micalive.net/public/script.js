@@ -6,9 +6,13 @@ window.chartColors = {
 }
 
 window.onload = function () {
+
+  // 1. Request charting data from Adafruit IO
   fetch("https://io.adafruit.com/api/v2/ab_home/feeds/motion/data/chart?hours=720").then(function (response) {
     return response.json()
   }).then(function (response) {
+
+    // 2. Parse the data from Adafruit IO to put it in a format Chart.js is okay with.
     var labels = response.data.map(function (point) {
       return point[0]
     })
@@ -16,6 +20,8 @@ window.onload = function () {
       return parseFloat(point[1])
     })
     console.log("loaded", data, labels)
+
+    // 3. Generate the chart
     var ctx = document.getElementById("data-chart");
     var myChart = new Chart(ctx, {
       type: 'line',
@@ -75,6 +81,8 @@ window.onload = function () {
         }
       }
     });
+
   });
+
 }
 
