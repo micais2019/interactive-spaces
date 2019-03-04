@@ -1,9 +1,13 @@
-
-
+#####################
+## COMPUTER VISION!
+## Adapted from https://software.intel.com/en-us/node/754940
+#####################
 import numpy as np
 import cv2
 
-# pip3 install adafruit-io
+#####################
+## Adafruit IO
+#####################
 from Adafruit_IO import Client
 from datetime import datetime
 import os
@@ -15,11 +19,13 @@ if ADAFRUIT_IO_USERNAME == None or ADAFRUIT_IO_KEY == None:
     print("make sure ADAFRUIT_IO_USERNAME and ADAFRUIT_IO_KEY are set as environment variables")
     exit(1)
 
-sdThresh = 10
-font = cv2.FONT_HERSHEY_SIMPLEX
-
+## setup Adafruit IO client
 aio = Client(ADAFRUIT_IO_USERNAME, ADAFRUIT_IO_KEY)
 motion = aio.feeds('motion')
+
+## setup motion detection support functions
+sdThresh = 10
+font = cv2.FONT_HERSHEY_SIMPLEX
 
 def distMap(frame1, frame2):
     """outputs pythagorean distance between two frames"""
@@ -43,13 +49,15 @@ publish_delay_seconds = 30
 
 while(True):
 
+    # take a new frame of video
     _, frame3 = cap.read()
     rows, cols, _ = np.shape(frame3)
     cv2.imshow('dist', frame3)
-    
+
     # how far apart are frame1 and frame3?
     dist = distMap(frame1, frame3)
 
+    # rotate frames
     frame1 = frame2
     frame2 = frame3
 
@@ -59,9 +67,10 @@ while(True):
     # apply thresholding
     _, thresh = cv2.threshold(mod, 100, 255, 0)
 
-    # calculate st dev test
+    # calculate standard deviation test
     _, stDev = cv2.meanStdDev(mod)
 
+    # render text to the screen
     cv2.putText(frame2, "Standard Deviation - {}".format(round(stDev[0][0],0)), (70, 70), font, 1, (255, 0, 255), 1, cv2.LINE_AA)
     if stDev > sdThresh:
         print("motion detected {:04d}".format(counter));
@@ -69,11 +78,13 @@ while(True):
         # cv2.imwrite('/home/pi/images/dist-{:04d}.jpg'.format(counter), mod)
         # cv2.imwrite('/home/pi/images/frame-{:04d}.jpg'.format(counter), frame2)
         # cv2.imwrite('/home/pi/images/frame-{:04d}.jpg'.format(counter), mod)
+
+        # increase the counter value when motion is detected in a frame
         counter = counter + 1
-        
-    # send data every publish_delay_seconds
+
+    # send accumulated data every publish_delay_seconds
     now = datetime.utcnow()
-    if (now - last_pub).seconds > publish_delay_seconds:  
+    if (now - last_pub).seconds > publish_delay_seconds:
         print('')
         print("------------------------ {}".format(now))
         print("motion published {:04d}".format(counter));
