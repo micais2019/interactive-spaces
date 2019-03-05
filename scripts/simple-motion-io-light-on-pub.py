@@ -16,7 +16,7 @@ from datetime import datetime
 import os
 
 ADAFRUIT_IO_USERNAME="ab_home"
-ADAFRUIT_IO_KEY="3a9f2b3bac204522a133fc4494c983ad"
+ADAFRUIT_IO_KEY=""
 # ADAFRUIT_IO_USERNAME = os.environ.get('ADAFRUIT_IO_USERNAME')
 # ADAFRUIT_IO_KEY = os.environ.get('ADAFRUIT_IO_KEY')
 
