@@ -9,11 +9,36 @@ h1 {
   text-align:center;
   width: 100%;
 }
+
+.container {
+}
+
+.row:after {
+  display: block;
+  content: "";
+  clear: both;
+}
+
 .chart-container {
   position: relative;
-  width: 640px;
-  height: 333px;
+  width: 800px;
+  height: 600px;
   margin: 64px auto 0;
+}
+
+.tables-container {
+  width: 640px;
+  margin: 64px auto 0;
+}
+
+.table {
+  width: 100%;
+  font-family: monospace;
+  color: #fff;
+}
+
+.table .time {
+  width: 40%;
 }
 
 @media (min-width: 1024px) {

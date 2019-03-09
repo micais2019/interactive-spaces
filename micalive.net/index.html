@@ -7,9 +7,31 @@
   </head>
   <body>
     <h1>#MICALIVE</h1>
-    <div class="chart-container">
-      <canvas id="data-chart" width="640" height="480" />
+
+    <div class="container">
+      <div class="row">
+        <div class="tables-container">
+          <h4><a href="https://io.adafruit.com/mica_ia/feeds/motion-1">MOTION 001</a></h4>
+          <table class="table">
+            <thead><tr><th class="time">TIME</th><th class="value">VALUE</th></tr></thead>
+            <tbody id="motion-1-data"></tbody>
+          </table>
+
+          <h4><a href="https://io.adafruit.com/mica_ia/feeds/motion-2">MOTION 002</a></h4>
+          <table class="table">
+            <thead><tr><th class="time">TIME</th><th class="value">VALUE</th></tr></thead>
+            <tbody id="motion-2-data"></tbody>
+          </table>
+        </div>
+      </div>
+
+      <div class="row">
+        <div class="chart-container">
+          <canvas id="data-chart" width="640" height="480" />
+        </div>
+      </div>
     </div>
+
     <script src="/public/script.js"></script>
   </body>
 </html>

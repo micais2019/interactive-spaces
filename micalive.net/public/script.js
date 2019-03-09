@@ -5,10 +5,17 @@ window.chartColors = {
   white: '#fff',
 }
 
-window.onload = function () {
+function buildTable(node, data) {
+  data.forEach(d => {
+    var row = document.createElement('tr')
+    row.innerHTML = `<td class="time">${d.created_at}</td><td class="value">${d.value}</td>`
+    node.appendChild(row)
+  })
+}
 
+window.onload = function () {
   // 1. Request charting data from Adafruit IO
-  fetch("https://io.adafruit.com/api/v2/ab_home/feeds/motion/data/chart?hours=720").then(function (response) {
+  fetch("https://io.adafruit.com/api/v2/mica_ia/feeds/motion/data/chart?hours=720").then(function (response) {
     return response.json()
   }).then(function (response) {
 
@@ -19,7 +26,7 @@ window.onload = function () {
     var data = response.data.map(function (point) {
       return parseFloat(point[1])
     })
-    console.log("loaded", data, labels)
+    // console.log("loaded", data, labels)
 
     // 3. Generate the chart
     var ctx = document.getElementById("data-chart");
@@ -82,7 +89,24 @@ window.onload = function () {
       }
     });
 
+
   });
+
+  fetch("https://io.adafruit.com/api/v2/mica_ia/feeds/motion/data?limit=10").then(function (response) {
+    return response.json()
+  }).then(data => {
+    console.log("GOT", data)
+    var tbl = document.querySelector("#motion-1-data")
+    buildTable(tbl, data)
+  })
+
+  fetch("https://io.adafruit.com/api/v2/mica_ia/feeds/motion-2/data?limit=10").then(function (response) {
+    return response.json()
+  }).then(data => {
+    console.log("GOT", data)
+    var tbl = document.querySelector("#motion-2-data")
+    buildTable(tbl, data)
+  })
 
 }
 
