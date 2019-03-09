@@ -11,12 +11,16 @@ import cv2
 from Adafruit_IO import Client
 from datetime import datetime
 import os
+from secrets import secrets
 
-ADAFRUIT_IO_USERNAME = os.environ.get('ADAFRUIT_IO_USERNAME')
-ADAFRUIT_IO_KEY = os.environ.get('ADAFRUIT_IO_KEY')
+ADAFRUIT_IO_USERNAME = secrets.get('ADAFRUIT_IO_USERNAME')
+ADAFRUIT_IO_KEY = secrets.get('ADAFRUIT_IO_KEY')
 
 if ADAFRUIT_IO_USERNAME == None or ADAFRUIT_IO_KEY == None:
-    print("make sure ADAFRUIT_IO_USERNAME and ADAFRUIT_IO_KEY are set as environment variables")
+    print("make sure ADAFRUIT_IO_USERNAME and ADAFRUIT_IO_KEY are set in secrets.py:")
+    print("")
+    print("  secrets = {'ADAFRUIT_IO_USERNAME': 'io username', 'ADAFRUIT_IO_KEY': 'io key'}")
+    print("")
     exit(1)
 
 ## setup Adafruit IO client
