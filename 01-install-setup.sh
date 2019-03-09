@@ -1,9 +1,9 @@
 sudo apt update
 
-sudo apt-get remove --purge libreoffice*
-sudo apt-get remove --purge "Minecraft Pi"
-sudo apt-get clean
-sudo apt-get autoremove
+sudo apt-get remove -y --purge libreoffice*
+sudo apt-get remove -y --purge "Minecraft Pi"
+sudo apt-get clean -y
+sudo apt-get autoremove -y
 
 sudo apt-get update
 sudo apt-get upgrade -y
