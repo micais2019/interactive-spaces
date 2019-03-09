@@ -13,3 +13,4 @@ sudo apt install -y  --fix-broken libqtgui4 libqt4-test libcblas3 libsz2 \
 sudo pip3 install opencv-python
 sudo pip3 install opencv-contrib-python
 
+sudo pip3 install rpi_ws281x adafruit-circuitpython-neopixel
