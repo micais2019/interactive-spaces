@@ -1,6 +1,6 @@
 [Unit]
-Description=MICALIVE Detector Process
-After=network.target
+Description=MICALIVE Motion Detector Process
+After=network-online.target
 
 [Service]
 ExecStart=/usr/bin/python3 -u simple-motion.py

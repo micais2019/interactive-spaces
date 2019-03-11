@@ -1,6 +1,6 @@
 [Unit]
-Description=MICALIVE Detector Process
-After=network.target
+Description=MICALIVE Sound Detector Process
+After=network-online.target
 
 [Service]
 ExecStart=/usr/bin/python3 -u simple-sound.py
