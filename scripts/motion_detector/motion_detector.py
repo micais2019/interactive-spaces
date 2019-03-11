@@ -4,7 +4,12 @@
 #####################
 import numpy
 import cv2
+
+# defaults
+import sys
+import signal
 from datetime import datetime
+import time
 
 class MotionDetector:
     def __init__(
@@ -31,7 +36,7 @@ class MotionDetector:
             # print("call {} with args {}".format(handler_method, ', '.join(str(a) for a in args)))
             method(*args)
 
-    def interrupt(self, sig, frame):
+    def shutdown(self, sig, frame):
         print("stop signal detected")
         self.capture_device.release()
         sys.exit(0)
@@ -45,8 +50,8 @@ class MotionDetector:
         _, self.frame2 = self.capture_device.read()
 
         # attach interrupt handler for clean shutdown on SIGINT
-        signal.signal(signal.SIGINT, self.interrupt)
-        signal.signal(signal.SIGTERM, self.interrupt)
+        signal.signal(signal.SIGINT, self.shutdown)
+        signal.signal(signal.SIGTERM, self.shutdown)
 
         self.call_handler("on_setup", self)
 
@@ -115,6 +120,7 @@ class MotionDetector:
             if cv2.waitKey(1) & 0xFF == 27:
                 break
 
+        self.shutdown()
 
     def __dist_map(self, frame1, frame2):
         """outputs pythagorean distance between two frames"""

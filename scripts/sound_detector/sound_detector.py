@@ -2,6 +2,8 @@ import pyaudio
 # import wave
 # import audioop # if you want to use audioop.rms
 import numpy as np
+
+# defaults
 import sys
 import signal
 from datetime import datetime
