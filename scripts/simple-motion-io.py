@@ -37,7 +37,6 @@ def linMap(value, leftMin, leftMax, rightMin, rightMax):
 #####################
 from Adafruit_IO import Client
 from datetime import datetime
-import os
 from secrets import secrets
 
 ADAFRUIT_IO_USERNAME = secrets.get('ADAFRUIT_IO_USERNAME')
