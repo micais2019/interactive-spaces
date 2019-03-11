@@ -45,8 +45,8 @@ class MotionDetector:
         # give camera time to load
         time.sleep(5)
 
-        # capture video stream from camera source. 0 refers to first camera, 1 refers to 2nd and so on.
-        self.capture_device = cv2.VideoCapture(0)
+        # capture video stream from camera source. -1 -> get any camera
+        self.capture_device = cv2.VideoCapture(-1)
 
         # hold 2 frames as reference
         _, self.frame1 = self.capture_device.read()
