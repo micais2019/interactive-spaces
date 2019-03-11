@@ -12,7 +12,7 @@ class DetectionHandler:
         self.feed_key = feed_key
 
     def on_setup(self, *args):
-        message = "starting {}".format(identity.get_identity())
+        message = "starting motion detector on {}".format(identity.get_identity())
         print(message)
         self.client.send_data('monitor', message)
         # TODO: LED startup signal <here>
