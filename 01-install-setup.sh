@@ -10,4 +10,5 @@ sudo apt-get upgrade -y
 sudo rpi-update
 
 sudo apt install -y build-essential cmake pkg-config gfortran git-all vim
+sudo apt install -y libportaudio0 libportaudio2  libportaudiocpp0 portaudio19-dev
 
