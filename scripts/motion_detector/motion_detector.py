@@ -42,6 +42,9 @@ class MotionDetector:
         sys.exit(0)
 
     def setup(self):
+        # give camera time to load
+        time.sleep(5)
+
         # capture video stream from camera source. 0 refers to first camera, 1 refers to 2nd and so on.
         self.capture_device = cv2.VideoCapture(0)
 
