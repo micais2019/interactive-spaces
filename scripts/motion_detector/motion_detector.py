@@ -31,6 +31,11 @@ class MotionDetector:
             # print("call {} with args {}".format(handler_method, ', '.join(str(a) for a in args)))
             method(*args)
 
+    def interrupt(self, sig, frame):
+        print("stop signal detected")
+        self.capture_device.release()
+        sys.exit(0)
+
     def setup(self):
         # capture video stream from camera source. 0 refers to first camera, 1 refers to 2nd and so on.
         self.capture_device = cv2.VideoCapture(0)
@@ -38,6 +43,10 @@ class MotionDetector:
         # hold 2 frames as reference
         _, self.frame1 = self.capture_device.read()
         _, self.frame2 = self.capture_device.read()
+
+        # attach interrupt handler for clean shutdown on SIGINT
+        signal.signal(signal.SIGINT, self.interrupt)
+        signal.signal(signal.SIGTERM, self.interrupt)
 
         self.call_handler("on_setup", self)
 
@@ -106,7 +115,6 @@ class MotionDetector:
             if cv2.waitKey(1) & 0xFF == 27:
                 break
 
-        self.capture_device.release()
 
     def __dist_map(self, frame1, frame2):
         """outputs pythagorean distance between two frames"""
