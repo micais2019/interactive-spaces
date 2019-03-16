@@ -5,3 +5,5 @@ up
 down
 secrets.py
 tmp/
+__pycache__/
+*.log
