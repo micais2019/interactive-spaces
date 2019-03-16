@@ -44,3 +44,32 @@ Loads the `motion_detector` and `utils` packages to detect and respond to motion
 ### `simple-sound.py`
 
 Loads the `sound_detector` and `utils` packages to detect and respond to sound.
+
+
+## Running on MacOS
+
+Install homebrew: https://brew.sh/
+
+Install pyenv: https://github.com/pyenv/pyenv
+```sh
+$ brew install pyenv
+```
+
+Install portaudio:
+```sh
+$ brew install portaudio
+```
+
+Install python 3:
+```
+$ pyenv install 3.6.1
+```
+
+Install python packages:
+```sh
+$ pip install opencv-python opencv-contrib-python adafruit-io pyaudio
+```
+
+Ought to work now.
+
+BUT, it'll never work with LEDs.
