@@ -1,6 +1,7 @@
 #####################
 ## COMPUTER VISION!
-## Adapted from https://software.intel.com/en-us/node/754940
+## Adapted from: https://software.intel.com/en-us/node/754940
+## and: https://docs.opencv.org/3.4/db/d5c/tutorial_py_bg_subtraction.html
 #####################
 import numpy
 import cv2
@@ -8,25 +9,29 @@ import cv2
 # defaults
 import sys
 import signal
-from datetime import datetime
 import time
+
+METHOD = 'MOG2'
+DOWNSCALE = False
+WITH_THRESHOLD = True
 
 class MotionDetector:
     def __init__(
-        self, event_handler, interval_seconds=10, movement_threshold=10, headless=False
+        self, event_handler, interval_seconds=10, trigger_interval_seconds=0,
+        movement_threshold=10, headless=False, camera_id=-1
     ):
         self.handler = event_handler
         self.capture_device = None
+        self.camera_id = camera_id
 
-        self.frame1 = None
-        self.frame2 = None
-        self.frame3 = None
-
+        self.trigger_interval_seconds = trigger_interval_seconds
         self.interval_seconds = interval_seconds
         self.movement_threshold = movement_threshold
 
         self.headless = headless
         self.font = cv2.FONT_HERSHEY_SIMPLEX
+
+        self.fgbg = None
 
         self.setup()
 
@@ -36,21 +41,16 @@ class MotionDetector:
             # print("call {} with args {}".format(handler_method, ', '.join(str(a) for a in args)))
             method(*args)
 
-    def shutdown(self, sig, frame):
+    def shutdown(self, sig=None, frame=None):
         print("stop signal detected")
         self.capture_device.release()
         sys.exit(0)
 
     def setup(self):
-        # give camera time to load
-        time.sleep(5)
-
         # capture video stream from camera source. -1 -> get any camera
-        self.capture_device = cv2.VideoCapture(-1)
+        self.capture_device = cv2.VideoCapture(self.camera_id)
 
-        # hold 2 frames as reference
-        _, self.frame1 = self.capture_device.read()
-        _, self.frame2 = self.capture_device.read()
+        self.fgbg = cv2.createBackgroundSubtractorMOG2()
 
         # attach interrupt handler for clean shutdown on SIGINT
         signal.signal(signal.SIGINT, self.shutdown)
@@ -60,44 +60,35 @@ class MotionDetector:
 
     def run(self):
         # track time between intervals
-        last_interval = datetime.utcnow()
+        last_interval = time.time()
+        last_trigger = time.time()
 
         # track the maximum motion value per-interval
         max_motion_value = 0
 
         while True:
             # take a new frame of video
-            _, self.frame3 = self.capture_device.read()
-            rows, cols, _ = numpy.shape(self.frame3)
-            if not self.headless:
-                cv2.imshow("dist", frame3)
+            _, frame = self.capture_device.read()
+            # if not self.headless:
+            #     cv2.imshow("frame", frame)
 
-            # how far apart are frame1 and frame3?
-            dist = self.__dist_map(self.frame1, self.frame3)
+            if DOWNSCALE:
+                dframe = self.__downscale(frame)
+            else:
+                dframe = frame
 
-            # rotate frames
-            self.frame1 = self.frame2
-            self.frame2 = self.frame3
+            fgmask = self.__bgdetect(dframe)
+            score = self.__get_motion_score(fgmask)
 
-            # apply Gaussian smoothing
-            mod = cv2.GaussianBlur(dist, (9, 9), 0)
+            max_motion_value = max(score, max_motion_value)
 
-            # apply thresholding
-            _, thresh = cv2.threshold(mod, 100, 255, 0)
-
-            # calculate standard deviation test
-            _, stDev = cv2.meanStdDev(mod)
-            st_dev_value = stDev[0][0]
-
-            max_motion_value = max(st_dev_value, max_motion_value)
-
-            self.call_handler('on_update', st_dev_value)
+            self.call_handler('on_update', score)
 
             # render text to the screen
             if not self.headless:
                 cv2.putText(
-                    self.frame2,
-                    "Standard Deviation - {}".format(round(st_dev_value, 0)),
+                    fgmask,
+                    "Standard Deviation - {}".format(round(score, 0)),
                     (70, 70),
                     self.font,
                     1,
@@ -106,16 +97,18 @@ class MotionDetector:
                     cv2.LINE_AA,
                 )
 
-            if stDev > self.movement_threshold:
-                self.call_handler("on_trigger", st_dev_value, max_motion_value)
+            now = time.time()
+
+            # only trigger every trigger_interval_seconds seconds
+            if score > self.movement_threshold and (now - last_trigger) > self.trigger_interval_seconds:
+                self.call_handler("on_trigger", score, max_motion_value)
                 if not self.headless:
-                    cv2.imshow("motion", mod)
+                    cv2.imshow("motion", fgmask)
+                last_trigger = now
 
             # send accumulated data every interval_seconds
-            now = datetime.utcnow()
-            if (now - last_interval).seconds > self.interval_seconds:
+            if (now - last_interval) > self.interval_seconds:
                 self.call_handler("on_interval", max_motion_value)
-
                 last_interval = now
                 max_motion_value = 0
 
@@ -136,3 +129,24 @@ class MotionDetector:
         dist = numpy.uint8(norm32 * 255)
         return dist
 
+    def __downscale(self, frame):
+        """Resize to a smaller frame, go to greyscale and blur slightly."""
+        sframe = cv2.resize(frame, None, None, 0.75, 0.75)
+
+        gray = cv2.cvtColor(sframe, cv2.COLOR_BGR2GRAY)
+        gray = cv2.GaussianBlur(gray, (21, 21), 0)
+
+        return gray
+
+    def __bgdetect(self, frame):
+        """Apply Background Detection algorithm"""
+        return self.fgbg.apply(frame)
+
+    def __get_motion_score(self, frame):
+        if WITH_THRESHOLD:
+            _, thresh = cv2.threshold(frame, 0, 255, cv2.THRESH_BINARY + cv2.THRESH_OTSU)
+            mean, score = cv2.meanStdDev(thresh)
+            return score[0][0]
+        else:
+            mean, score = cv2.meanStdDev(frame)
+            return score[0][0]
