@@ -11,6 +11,7 @@ from utils import identity, mathutils, logger
 # local MOTION detection library
 from motion_detector import motion_detector
 
+
 class DetectionHandler:
     def __init__(self, client, feed_key):
         self.client = client
@@ -20,7 +21,7 @@ class DetectionHandler:
     def on_setup(self, *args):
         message = "starting motion detector on {}".format(identity.get_identity())
         print(message)
-        self.client.send_data('monitor', message)
+        self.client.send_data("monitor", message)
         self.logger.debug(message)
         # TODO: LED startup signal <here>
 
@@ -44,6 +45,7 @@ class DetectionHandler:
         self.client.send_data(self.feed_key, score)
         self.logger.info(score)
         # TODO: signal data sent with LEDs <here>
+
 
 ## setup Adafruit IO client
 ADAFRUIT_IO_USERNAME = secrets.get("ADAFRUIT_IO_USERNAME")
@@ -75,7 +77,7 @@ modec = motion_detector.MotionDetector(
     trigger_interval_seconds=0,
     movement_threshold=18,
     headless=True,
-    camera_id=1
+    camera_id=1,
 )
 
 # start the whole thing, run forever
