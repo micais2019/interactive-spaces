@@ -1,15 +1,20 @@
 from Adafruit_IO import Client
 from datetime import datetime
-from secrets import secrets
-from utils import identity, math
 
-# local motion detection library
+# seeeeeecrets
+from secrets import secrets
+
+# local help libraries
+from utils import identity, mathutils, logger
+
+# local SOUND detection library
 from sound_detector import sound_detector
 
 class DetectionHandler:
     def __init__(self, client, feed_key):
         self.client = client
         self.feed_key = feed_key
+        self.logger = logger.Logger("logs/sound.log")
 
         # current, max, min
         self.levels = [0, 0, 0]
@@ -18,11 +23,12 @@ class DetectionHandler:
         message = "starting sound detector on {}".format(identity.get_identity())
         print(message)
         self.client.send_data('monitor', message)
+        self.logger.debug(message)
         # TODO: LED startup signal <here>
 
     # every frame
     def on_update(self, score):
-        # pcount = math.lin_map(score, 10, 50, 0, 12)
+        # pcount = mathutils.lin_map(score, 10, 50, 0, 12)
         # print("audio score is {}".format(score))
         # TODO: update LEDs according to motion <here>
         pass
@@ -39,6 +45,7 @@ class DetectionHandler:
         print("------------------------------")
         print()
         self.client.send_data(self.feed_key, score)
+        self.logger.info(score)
         # TODO: signal data sent with LEDs <here>
 
 ## setup Adafruit IO client
@@ -63,7 +70,10 @@ handler = DetectionHandler(aio, "sound")
 
 # initialize MotionDetector with the event handler and proper settings
 detector = sound_detector.SoundDetector(
-    handler, interval_seconds=10, trigger_threshold=400, headless=True
+    handler,
+    interval_seconds=2.5,
+    trigger_threshold=400,
+    headless=True
 )
 
 # start the whole thing, run forever
