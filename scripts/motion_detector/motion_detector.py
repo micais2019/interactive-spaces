@@ -69,8 +69,6 @@ class MotionDetector:
         while True:
             # take a new frame of video
             _, frame = self.capture_device.read()
-            # if not self.headless:
-            #     cv2.imshow("frame", frame)
 
             if DOWNSCALE:
                 dframe = self.__downscale(frame)
@@ -102,9 +100,10 @@ class MotionDetector:
             # only trigger every trigger_interval_seconds seconds
             if score > self.movement_threshold and (now - last_trigger) > self.trigger_interval_seconds:
                 self.call_handler("on_trigger", score, max_motion_value)
-                if not self.headless:
-                    cv2.imshow("motion", fgmask)
                 last_trigger = now
+
+            if not self.headless:
+                cv2.imshow("motion", fgmask)
 
             # send accumulated data every interval_seconds
             if (now - last_interval) > self.interval_seconds:
