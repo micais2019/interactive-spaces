@@ -1,0 +1,15 @@
+[Unit]
+Description=MICALIVE Split Motion Detector Process
+After=network-online.target
+
+[Service]
+ExecStart=/usr/bin/python3 -u simple-split-motion.py
+WorkingDirectory=/home/pi/interactive-spaces/scripts
+StandardOutput=inherit
+StandardError=inherit
+Restart=always
+User=root
+RestartSec=15
+
+[Install]
+WantedBy=multi-user.target
