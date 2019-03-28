@@ -1,0 +1,15 @@
+[Unit]
+Description=MICAPULSE power button implementation
+After=network.target
+
+[Service]
+ExecStart=/usr/bin/python3 -u listen-for-shutdown.py
+WorkingDirectory=/home/pi/interactive-spaces/scripts
+StandardOutput=inherit
+StandardError=inherit
+Restart=always
+User=root
+RestartSec=15
+
+[Install]
+WantedBy=multi-user.target
