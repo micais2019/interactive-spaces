@@ -1,12 +1,17 @@
 import time
 import board
 import neopixel
-pixels = neopixel.NeoPixel(board.D18, 12)
+num_pixels = 12
+pixels = neopixel.NeoPixel(board.D18, num_pixels)
 
-time.sleep(1)
-print("ON")
-pixels.fill((255, 0, 0))
+while True:
 
-time.sleep(1)
-print("OFF")
-pixels.fill((0, 0, 0))
+	print("ON")
+	pixels.fill((255, 0, 0))
+	pixels.show()
+	time.sleep(1)
+	
+	print("OFF")
+	pixels.fill((0, 0, 0))
+	pixels.show()
+	time.sleep(1)
