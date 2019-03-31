@@ -1,11 +1,12 @@
 from Adafruit_IO import Client
 from datetime import datetime
+import numpy
 
 # seeeeeecrets
 from secrets import secrets
 
 # local help libraries
-from utils import identity, mathutils, logger
+from utils import identity, mathutils, logger, lttb
 
 # local SOUND detection library
 from sound_detector import sound_detector
@@ -18,7 +19,7 @@ class DetectionHandler:
         self.logger = logger.Logger("logs/sound.log")
 
         # current, max, min
-        self.levels = [0, 0, 0]
+        self.levels = []
 
     def on_setup(self, *args):
         message = "starting sound detector on {}".format(identity.get_identity())
@@ -30,23 +31,39 @@ class DetectionHandler:
     # every frame
     def on_update(self, score):
         # pcount = mathutils.lin_map(score, 10, 50, 0, 12)
+        self.levels.append((datetime.now(), int(score)))
         # print("audio score is {}".format(score))
         # TODO: update LEDs according to motion <here>
-        pass
+
 
     # every time score passes threshold
     def on_trigger(self, score, max_score):
-        print("  detected sound with score {}, max {}".format(score, max_score))
-
+        # print("  detected sound with score {}, max {}".format(score, max_score))
+        pass
+        
     # every time `interval_seconds` passes
     def on_interval(self, score):
+        np_levels = numpy.array(self.levels).T
+        
+        if len(np_levels) > 30:
+            out_value = ' '.join(str(v[0]) for v in lttb.downsample(np_levels, 30))
+        else: 
+            out_value = ' '.join(str(v[0]) for v in np_levels)
+            
+        # FIXME: make out_value only hold values, not timestamp, value.
+        # for now, set to score
+        out_value = score
+            
         print()
         print("------------------------------")
-        print("send sound data with score {}".format(score))
+        print("send sound data with score {}".format(out_value))
         print("------------------------------")
         print()
-        self.client.send_data(self.feed_key, score)
-        self.logger.info(score)
+        
+        self.client.send_data(self.feed_key, out_value)
+        self.logger.info(out_value)
+        
+        self.levels = []
         # TODO: signal data sent with LEDs <here>
 
 
@@ -72,7 +89,7 @@ handler = DetectionHandler(aio, "sound")
 
 # initialize MotionDetector with the event handler and proper settings
 detector = sound_detector.SoundDetector(
-    handler, interval_seconds=2.5, trigger_threshold=400, headless=True
+    handler, interval_seconds=3, trigger_threshold=400, headless=True
 )
 
 # start the whole thing, run forever
