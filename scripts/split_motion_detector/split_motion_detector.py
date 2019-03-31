@@ -110,7 +110,7 @@ class SplitMotionDetector:
                     if not self.headless:
                         cv2.rectangle(blank, (col[0], col[1]), (col[2], col[3]), (self.scores[sc] * 2), -1)
                         cv2.putText(
-                            blank, str(round(self.scores[sc], 0)),
+                            blank, "%i" % self.scores[sc],
                             (col[0], col[1] + self.hstep - 4),
                             self.font, 1, 255, 1, cv2.LINE_AA
                         )
