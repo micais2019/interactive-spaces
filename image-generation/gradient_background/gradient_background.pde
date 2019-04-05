@@ -15,12 +15,10 @@ int xstep = 10;
 
 void setup() {
   size(500, 500);
-  noStroke();
   background(51);
   frameRate(1);
   ystep = height / 10;
-  
-  gSurface = createGraphics(500,500);
+  gSurface = createGraphics(500, 500);
 }
 
 void draw() {
@@ -29,28 +27,30 @@ void draw() {
 
   // color start1 = colors[int(random(0,6))];
   // color end1 = colors[int(random(0,6))];
-gSurface.beginDraw();
+  gSurface.beginDraw();
   for (int i = 0; i <height; i+=ystep) {
     for (int j = 0; j<width; j+=xstep) {
       color tweenColor = lerpColor(newColor, prevColor, float(j)/float(width));
       gSurface.fill(tweenColor);
+      gSurface.noStroke();
       gSurface.rect(j, i, xstep, ystep);
       //int xPostion = lerp(0,width,20.0);
     }
     /* 
-    newColor = colors[int(random(0, 6))];
-    prevColor = colors[int(random(0, 6))];
-    */
+     newColor = colors[int(random(0, 6))];
+     prevColor = colors[int(random(0, 6))];
+     */
     newColor = prevColor;
     prevColor = colors[int(random(0, 6))];
 
-    
-/*
+
+    /*
     fill(newColor);
-    rect(0, 20, 20, 20);
-    fill(prevColor);
-    rect(480, 20, 20, 20); */
+     rect(0, 20, 20, 20);
+     fill(prevColor);
+     rect(480, 20, 20, 20); */
   }
   gSurface.endDraw();
-
+  
+  image(gSurface,0,0);
 }
