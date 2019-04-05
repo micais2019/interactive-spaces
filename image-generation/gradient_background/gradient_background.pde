@@ -9,7 +9,7 @@ color[] colors  = {
   #00FDFF, 
 };
 
-
+PGraphics gSurface;
 int ystep = 40;
 int xstep = 10;
 
@@ -19,6 +19,8 @@ void setup() {
   background(51);
   frameRate(1);
   ystep = height / 10;
+  
+  gSurface = createGraphics(500,500);
 }
 
 void draw() {
@@ -27,12 +29,12 @@ void draw() {
 
   // color start1 = colors[int(random(0,6))];
   // color end1 = colors[int(random(0,6))];
-
+gSurface.beginDraw();
   for (int i = 0; i <height; i+=ystep) {
     for (int j = 0; j<width; j+=xstep) {
       color tweenColor = lerpColor(newColor, prevColor, float(j)/float(width));
-      fill(tweenColor);
-      rect(j, i, xstep, ystep);
+      gSurface.fill(tweenColor);
+      gSurface.rect(j, i, xstep, ystep);
       //int xPostion = lerp(0,width,20.0);
     }
     /* 
@@ -49,4 +51,6 @@ void draw() {
     fill(prevColor);
     rect(480, 20, 20, 20); */
   }
+  gSurface.endDraw();
+
 }
