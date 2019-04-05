@@ -6,7 +6,7 @@ PGraphics donut;
 
 float frequency; 
 
-int w = 500, h = 500;
+int w = 600, h = 600;
 
 //donut
 float resolution = 200; // how many points in the circle
@@ -20,7 +20,7 @@ float nInt = 1; // noise intensity
 float nAmp = 1; // noise amplitude
 
 void setup() {
-  size(500, 500);
+  size(600, 600);
   frameRate(1);
   noiseDetail(1);
   smooth();
@@ -53,9 +53,9 @@ void draw() {
   //donut.background(255);
   donut.translate(width/2, height/2);
   donut.noFill();
-  donut.stroke(128);
-  donut.strokeWeight(80);
-  nInt =2; //0.1 to 30
+  donut.stroke(255);
+  donut.strokeWeight(120);
+  nInt =1.2; //0.1 to 30
   nAmp = 0.6; // 0 to 1.0
 
   for (float a=0; a<=TWO_PI; a+=TWO_PI/resolution) {
