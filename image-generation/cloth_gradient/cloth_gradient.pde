@@ -146,21 +146,20 @@ public void createTexture(DwSoftGrid2D body) {
   }
 
   color[] colors  = {  
-    #1f869b, //teal
-    #ad2601, //red
-    #ffef11, //yellow
-    #5e0572, //purple
-    #211f9b, //blue
-    #6c6b77, //grey
-    #00FF9F, 
-    #00FDFF, 
+#FFFF00,
+#FF5600,
+#00BA2A,
+#0005AB,
+#D800E6,
+#00FFD2,
+#000000
   };
 
-  int ystep = 10;
+  int ystep = 40;
   int xstep = 10;
 
-  color newColor = colors[int(random(0, 6))];
-  color prevColor = colors[int(random(0, 6))];
+  color newColor = colors[int(random(0, 7))];
+  color prevColor = colors[int(random(0, 7))];
   //ystep = height / 10;
 
   texture.beginDraw();
@@ -199,15 +198,15 @@ public void createBodies() {
 
   // cloth
   {
-    nodex_x = 50;
-    nodes_y = 50;
-    nodes_r = 7;
-    nodes_start_x = 50;
-    nodes_start_y = 70;
+    nodex_x = 100;
+    nodes_y = 40;
+    nodes_r = 5;
+    nodes_start_x = 0;
+    nodes_start_y = 0;
     DwSoftGrid2D body = new DwSoftGrid2D();
     body.CREATE_SHEAR_SPRINGS = true;
     body.CREATE_BEND_SPRINGS  = true;
-    body.bend_spring_mode     = 2;
+    body.bend_spring_mode     = 50;
     r = 255;
     g = 180;
     b = 0;
@@ -240,8 +239,8 @@ public void draw() {
   physics.update(1);
 
   // render
-  background(DISPLAY_MODE == 0 ?  255 : 92);
-
+  //background(DISPLAY_MODE == 0 ?  255 : 92);
+  background(0);
   for (DwSoftBody2D body : softbodies) {
     body.createShapeMesh(this.g);
   }
