@@ -45,6 +45,7 @@ void setup() {
 }
 
 void draw() {
+  println("DRAWING ", coverFinalWidth, "x", coverFinalHeight);
   PGraphics canvas = createGraphics(coverFinalWidth, coverFinalHeight);
 
   canvas.beginDraw();
