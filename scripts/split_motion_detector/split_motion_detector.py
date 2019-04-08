@@ -92,13 +92,13 @@ class SplitMotionDetector:
                 self.hstep = int(height / self.ysteps)
                 self.ranges = [
                     [
-                        [  x * self.wstep,
-                           y * self.hstep,
-                           x * self.wstep + self.wstep - 1,
-                           y * self.hstep + self.hstep - 1  ]
-                        for y in range(self.ysteps)
-                    ]
-                    for x in range(self.xsteps)
+                        [
+                            x * self.wstep,
+                            y * self.hstep,
+                            x * self.wstep + self.wstep - 1,
+                            y * self.hstep + self.hstep - 1
+                        ] for y in range(self.ysteps)
+                    ] for x in range(self.xsteps)
                 ]
 
             fgmask = self.__bgdetect(dframe)
@@ -111,7 +111,7 @@ class SplitMotionDetector:
                     if not self.headless:
                         cv2.rectangle(blank, (col[0], col[1]), (col[2], col[3]), (self.scores[sc] * 2), -1)
                         cv2.putText(
-                            blank, "%i" % self.scores[sc],
+                            blank, "%i" % sc, #self.scores[sc],
                             (col[0], col[1] + self.hstep - 4),
                             self.font, 1, 255, 1, cv2.LINE_AA
                         )
@@ -124,7 +124,7 @@ class SplitMotionDetector:
             if not self.headless:
                 cv2.imshow("motion", fgmask)
                 cv2.imshow("pixel", blank)
-            
+
             # cv2.imwrite("pixel.png", dframe)
             # exit()
 
