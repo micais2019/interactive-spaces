@@ -28,7 +28,7 @@ class DetectionHandler:
         self.feed_key = feed_key
         Path(LOG_FILE).touch()
         self.logger = logger.Logger(LOG_FILE)
-        self.pixels = dotstar.DotStar(board.SCK, board.MOSI, DOTCOUNT, brightness=0.8, auto_write=False)
+        self.pixels = dotstar.DotStar(board.SCK, board.MOSI, DOTCOUNT, brightness=0.9, auto_write=False)
 
     def on_setup(self, *args):
         message = "starting motion detector on {}".format(identity.get_identity())
@@ -41,8 +41,8 @@ class DetectionHandler:
     def on_update(self, scores):
         # print("FRAME {}".format(scores))
         idx = 0
-        for y in range(6):
-            for x in range(8):
+        for x in reversed(range(8)):
+            for y in range(6):
                 pxls = screen_writer.screen_to_pixel(x, y)
                 score = scores[idx]
 
