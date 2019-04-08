@@ -3,7 +3,7 @@ Description=MICALIVE Motion Detector Process
 After=network-online.target
 
 [Service]
-ExecStart=/usr/bin/python3 -u simple-motion.py
+ExecStart=/usr/bin/python3 -u simple-split-motion.py
 WorkingDirectory=/home/pi/interactive-spaces/scripts
 StandardOutput=inherit
 StandardError=inherit
