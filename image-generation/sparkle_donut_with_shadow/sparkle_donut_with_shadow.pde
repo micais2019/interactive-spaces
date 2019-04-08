@@ -5,13 +5,12 @@ PGraphics pix;
 PGraphics donut;
 PGraphics shadow;
 
-
 float frequency; 
 
 int w = 600, h = 600;
 
 //donut
-float resolution = 200; // how many points in the circle
+float resolution = 100; // how many points in the circle
 float rad = 250;
 float x = 1;
 float y = 1;
@@ -23,7 +22,7 @@ float nAmp = 1; // noise amplitude
 
 void setup() {
   size(600, 600);
-  frameRate(1);
+  frameRate(0.5);
   noiseDetail(1);
   smooth();
   donut = createGraphics(w, h);
@@ -61,13 +60,13 @@ void draw() {
   donut.translate(width/2, height/2);
   donut.noFill();
   donut.stroke(255);
-  donut.strokeWeight(120);
+  donut.strokeWeight(80);
   shadow.translate(width/2, height/2);
   shadow.noFill();
   shadow.stroke(100);
-  shadow.strokeWeight(120);
-  nInt =1.2; //0.1 to 30
-  nAmp = 0.6; // 0 to 1.0
+  shadow.strokeWeight(80);
+  nInt =0.6; //0.1 to 30
+  nAmp = 0.2; // 0 to 1.0
 
   for (float a=0; a<=TWO_PI; a+=TWO_PI/resolution) {
 
@@ -82,8 +81,8 @@ void draw() {
 
   donut.endShape(CLOSE);
   shadow.endShape(CLOSE);
+    donut.endDraw();
   shadow.filter(BLUR,6);
-  donut.endDraw();
   shadow.endDraw();
   //t+=tChange;
 
@@ -97,4 +96,5 @@ void draw() {
   } else if (DRAW_MASK) {
     image(donut, 0, 0);
   }
+
 }
