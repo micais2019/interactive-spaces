@@ -13,7 +13,6 @@ class LineForm {
     c = _c;
     weight = _weight;
     diam = h / 3;
-    
     setup();
   }
    
