@@ -22,7 +22,6 @@ class LineForm {
   
   void draw() {
     // DO DRAWINGS HERE
-    
     surface.beginDraw();
     surface.smooth();
     surface.noFill();
