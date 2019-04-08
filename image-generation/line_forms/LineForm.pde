@@ -13,7 +13,6 @@ class LineForm {
     c = _c;
     weight = _weight;
     diam = h / 3;
-    
     setup();
   }
    
@@ -22,7 +21,9 @@ class LineForm {
   }
   
   void draw() {
+    // DO DRAWINGS HERE
     surface.beginDraw();
+    surface.smooth();
     surface.noFill();
     surface.stroke(c);
     surface.strokeWeight(weight);

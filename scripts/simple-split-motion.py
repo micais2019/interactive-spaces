@@ -78,7 +78,7 @@ modec = split_motion_detector.SplitMotionDetector(
     movement_threshold=18,
     headless=False,
     camera_id=0,
-    xsteps=10,
+    xsteps=8,
     ysteps=6
 )
 
