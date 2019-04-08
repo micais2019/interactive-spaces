@@ -7,7 +7,7 @@ class DataGetter {
   }
 
   String getCurrentTemperature() {
-    String url = "https://io.adafruit.com/api/v2/mica_ia/integrations/weather/2222";
+    String url = "https://micavibe.com/weather";
     GetRequest get = new GetRequest(url);
     get.addHeader("Accept", "application/json");
     get.addHeader("X-AIO-Key", "");
