@@ -3,21 +3,10 @@ import sys
 from escpos.printer import Usb
 
 
-def usage():
-    print("usage: qr_code.py <content>")
-
-
 if __name__ == '__main__':
-    if len(sys.argv) != 2:
-        usage()
-        sys.exit(1)
-
-    content = sys.argv[1]
-
-    # Adapt to your needs
     p = Usb(0x0416, 0x5011)
-    p.qr(content, center=True)
-    p.text('yo, I figured out how to use the printer\n\n')
+    p.text('micavibe.com/mood\n\n')
+    p.image('tomicavibe_mood.png')
     p.text('\n\n\n\n')
 
 # from escpos.connections import getUSBPrinter
