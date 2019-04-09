@@ -1,7 +1,7 @@
+# sudo pip3 install python-escpos --pre
 import sys
 
 from escpos.printer import Usb
-
 
 if __name__ == '__main__':
     p = Usb(0x0416, 0x5011)
