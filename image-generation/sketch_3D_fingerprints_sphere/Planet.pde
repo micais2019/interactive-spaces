@@ -41,7 +41,7 @@ class Planet {
   void spawnMoons(int total, int level) {
     planets = new Planet[total];
     for (int i = 0; i < planets.length; i++) {
-      float r = random(10,30);
+      float r = random(1,50);
       float d = random((radius + r), (radius+r)*3);
       float o = random(-0.1, 0.1);
       //int index = int(random(0,textures.length));
@@ -59,9 +59,9 @@ class Planet {
     PVector v2 = new PVector(1, 0, 1);
     PVector p = v.cross(v2);
     rotate(angle, p.x, p.y, p.z);
-    stroke(245,230,100);
+    stroke(255);
     strokeWeight(3);
-    line(0, 0, 0, v.x, v.y, v.z);
+    //line(0, 0, 0, v.x, v.y, v.z);
     //line(0, 0, 0, p.x, p.y, p.z);
 
     translate(v.x, v.y, v.z);
