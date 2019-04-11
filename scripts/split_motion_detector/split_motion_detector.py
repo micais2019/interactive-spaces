@@ -49,6 +49,7 @@ class SplitMotionDetector:
             method(*args)
 
     def shutdown(self, sig=None, frame=None):
+        self.call_handler("on_shutdown")
         print("stop signal detected")
         self.capture_device.release()
         sys.exit(0)
@@ -123,6 +124,9 @@ class SplitMotionDetector:
             if not self.headless:
                 cv2.imshow("motion", fgmask)
                 cv2.imshow("pixel", blank)
+            
+            # cv2.imwrite("pixel.png", dframe)
+            # exit()
 
             # send accumulated data every interval_seconds
             if (now - last_interval) > self.interval_seconds:

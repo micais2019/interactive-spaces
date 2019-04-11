@@ -15,7 +15,7 @@ void setup() {
 }
 
 void draw() {
-  background(255);
+  background(100,40,200);
   for (int n=0; n < 50; n++) {
     frequency = random(5, 35);
     target(frequency, int(random(width)), int(random(height)));
@@ -30,7 +30,7 @@ void draw() {
   shadow.beginDraw();
   shadow.clear();
   shadow.noStroke();
-  shadow.fill(100);
+  shadow.fill(20);
 
   for (int i = 1; i < 6; i ++) {
 
@@ -55,7 +55,7 @@ void draw() {
 
 
     shadow.beginShape();
-    shadow.translate(tx+10, ty+10);
+    shadow.translate(tx+15, ty+15);
     shadow.scale(s);
     shadow.rotate(r);
     shadow.vertex(0, -100);
@@ -66,6 +66,7 @@ void draw() {
     shadow.endShape();
     shadow.popMatrix();
 shadow.filter(BLUR,3);
+shadow.blendMode(MULTIPLY);
   }
   ovoid.endDraw();
   shadow.endDraw();
