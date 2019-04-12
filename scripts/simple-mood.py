@@ -24,7 +24,7 @@ from mood_detector import mood_detector
 
 import board
 import adafruit_dotstar as dotstar
-DOTCOUNT = 4
+DOTCOUNT = 16
 dots = dotstar.DotStar(board.SCK, board.MOSI, DOTCOUNT, brightness=0.8)
 
 class DetectionHandler:
@@ -82,6 +82,8 @@ class DetectionHandler:
         elif button == 1:
             color_name = "Feeling Blue"
             self.color = [0, 100, 255]
+
+        dots.fill(self.color)
 
         if self.printer:
             self.printer.text("YOU SELECTED {}\n\n".format(button))
