@@ -9,9 +9,20 @@ import sys
 import signal
 import time
 
-BUTTONS = [
-    digitalio.DigitalInOut(board.D4)
-]
+import board
+import digitalio
+
+from .adafruit_debouncer import Debouncer
+
+def to_switch(button):
+    button.direction = digitalio.Direction.INPUT
+    button.pull = digitalio.Pull.UP
+    return Debouncer(button)
+
+BUTTONS = [to_switch(b) for b in [
+    digitalio.DigitalInOut(board.D4),
+    digitalio.DigitalInOut(board.D3)
+]]
 
 class MoodDetector:
     def __init__(
@@ -31,6 +42,7 @@ class MoodDetector:
 
     def shutdown(self, sig=None, frame=None):
         print("stop signal detected")
+        self.call_handler("on_shutdown")
         sys.exit(0)
 
     def setup(self):
@@ -43,15 +55,32 @@ class MoodDetector:
         last_interval = time.time()
         last_trigger = time.time()
 
+        button_states = {}
+
         # while True:
         #     led.value = not button.value # light when button is pressed!
 
         while True:
             now = time.time()
 
+            for bidx in range(len(BUTTONS)): 
+                button = BUTTONS[bidx]
+                button.update()
+
+                if button.fell:
+                    if not button_states.get(bidx, False):
+                        button_states[bidx] = now
+                        print("BUTTON {} PRESSED".format(bidx))
+                        self.call_handler("on_trigger", bidx)
+                elif button.rose:
+                    button_states[bidx] = False
+
             # send accumulated data every interval_seconds
             if (now - last_interval) > self.interval_seconds:
-                self.call_handler("on_interval", 0)
+                self.call_handler("on_interval")
                 last_interval = now
+
+            self.call_handler("on_update")
+
 
         self.shutdown()

@@ -13,10 +13,19 @@ import numpy
 from secrets import secrets
 
 # local help libraries
-from utils import identity, mathutils, logger, lttb
+from utils import identity, logger
+
+import sys
+
+from escpos.printer import Usb
 
 # local SOUND detection library
 from mood_detector import mood_detector
+
+import board
+import adafruit_dotstar as dotstar
+DOTCOUNT = 4
+dots = dotstar.DotStar(board.SCK, board.MOSI, DOTCOUNT, brightness=0.8)
 
 class DetectionHandler:
     def __init__(self, client, feed_key):
@@ -26,6 +35,13 @@ class DetectionHandler:
 
         # current, max, min
         self.values = []
+        self.button_states = {}
+
+        self.color = (0, 0, 0)
+        self.fade_interval = 0.01
+        self.last_step = 0
+
+        self.printer = Usb(0x0416, 0x5011)
 
     def on_setup(self, *args):
         message = "starting mood detector on {}".format(identity.get_identity())
@@ -34,21 +50,50 @@ class DetectionHandler:
         self.logger.debug(message)
         # TODO: LED startup signal <here>
 
+    def on_shutdown(self):
+        dots.fill((0,0,0))
+
     # every click
-    def on_update(self, score):
-        self.values.append([time.time(), int(score)])
-        print(score)
+    def on_update(self):
+        now = time.time()
+
+        # self.values.append([time.time(), int(score)])
+        if any(c > 0 for c in self.color):
+            # fade
+            if now - self.last_step > self.fade_interval:
+                dots.fill(self.color)
+
+                # decrement each value in self.color
+                self.color = [ 
+                    v - 2 if v > 2 else 0
+                    for v in self.color 
+                ]
+
+                self.last_step = now
+                    
+    def on_trigger(self, button):
+        color_name = "Something"
+        if button == 0:
+            color_name = "Sunset Red"
+            self.color = [255, 0, 0]
+        elif button == 1:
+            color_name = "Feeling Blue"
+            self.color = [0, 100, 255]
+
+        self.printer.text("YOU SELECTED {}\n\n".format(button))
+        self.printer.text('micavibe.com/mood\n\n')
+        self.printer.image('printer_test/tomicavibe_mood.png')
+        self.printer.text('\n\n\n\n')
 
     # every time `interval_seconds` passes
-    def on_interval(self, score):
-        print()
-        print("------------------------------")
-        print("send mood data with score {} at {}".format(score, time.time()))
-        print("------------------------------")
-        print()
-
-        # self.client.send_data(self.feed_key, score)
-        self.logger.info(score)
+    def on_interval(self):
+        # print()
+        # print("------------------------------")
+        # print("send mood data with score {} at {}".format(score, time.time()))
+        # print("------------------------------")
+        # print()
+        # # self.client.send_data(self.feed_key, score)
+        # self.logger.info(score)
 
         self.levels = []
         # TODO: signal data sent with LEDs <here>
