@@ -41,7 +41,10 @@ class DetectionHandler:
         self.fade_interval = 0.01
         self.last_step = 0
 
-        self.printer = Usb(0x0416, 0x5011)
+        try:
+            self.printer = Usb(0x0416, 0x5011)
+        except:
+            self.printer = None
 
     def on_setup(self, *args):
         message = "starting mood detector on {}".format(identity.get_identity())
@@ -80,10 +83,11 @@ class DetectionHandler:
             color_name = "Feeling Blue"
             self.color = [0, 100, 255]
 
-        self.printer.text("YOU SELECTED {}\n\n".format(button))
-        self.printer.text('micavibe.com/mood\n\n')
-        self.printer.image('printer_test/tomicavibe_mood.png')
-        self.printer.text('\n\n\n\n')
+        if self.printer:
+            self.printer.text("YOU SELECTED {}\n\n".format(button))
+            self.printer.text('micavibe.com/mood\n\n')
+            self.printer.image('printer_test/tomicavibe_mood.png')
+            self.printer.text('\n\n\n\n')
 
     # every time `interval_seconds` passes
     def on_interval(self):
