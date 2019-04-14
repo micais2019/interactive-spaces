@@ -24,8 +24,24 @@ from mood_detector import mood_detector
 
 import board
 import adafruit_dotstar as dotstar
+
 DOTCOUNT = 16
 dots = dotstar.DotStar(board.SCK, board.MOSI, DOTCOUNT, brightness=0.8)
+
+# COLORS and OUTPUTS must be sorted according to button connection order. 
+# This may be different on mood-1 and mood-2
+COLORS = [
+    (0, 0, 1),
+    (0, 1, 0),
+    (0, 1, 1),
+    (1, 0, 0),
+    (1, 0, 1),
+    (1, 1, 0),
+    (1, 1, 1),
+    (0, 0, 2)
+]
+
+OUTPUTS = [ 0, 1, 2, 3, 4, 5, 6, 7 ]
 
 class DetectionHandler:
     def __init__(self, client, feed_key):
@@ -75,7 +91,6 @@ class DetectionHandler:
                 self.last_step = now
                     
     def on_trigger(self, button):
-        color_name = "Something"
         if button == 0:
             color_name = "Sunset Red"
             self.color = [255, 0, 0]
@@ -83,6 +98,7 @@ class DetectionHandler:
             color_name = "Feeling Blue"
             self.color = [0, 100, 255]
 
+        print("click", button, self.color)
         dots.fill(self.color)
 
         if self.printer:
