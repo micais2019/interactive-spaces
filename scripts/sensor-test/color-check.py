@@ -60,19 +60,20 @@ def get_dominant_color(image, k=4):
     return list(int(c) for c in dominant_color)
 
 
+def export_frame(frame): 
+    cv2.imwrite(frame, "frame.png")
+
 
 FT_MAX = 5 # get average time of last frames
 frame_times = [now() for i in range(FT_MAX)]
 frame_waits = [0 for i in range(FT_MAX)]
 idx = 0
 
-
-
 # capture video stream from camera source. -1 -> get any camera
 frame = None
 dframe = None
 
-cap = cv2.VideoCapture(1)
+cap = cv2.VideoCapture(-1)
 
 while frame is None:
     _, frame = cap.read()
@@ -106,6 +107,8 @@ zones = [
     },
 ]
 
+frame_count = 0
+save_on_frame = 60
 zone_idx = 0
 
 while True:
@@ -163,9 +166,13 @@ while True:
             -1
         )
 
-    cv2.imshow("dframe", dframe)
+    # cv2.imshow("dframe", dframe)
 
     zone_idx = (zone_idx + 1) % len(zones)
+    frame_count = (frame_count + 1) % save_on_frame
+
+    if frame_count == 0:
+        export_frame(dframe)
 
     idx = frame_complete(idx, frame_times, frame_waits)
     print("zone", zone_idx, "color", color, "frame time", np.mean(frame_waits))
