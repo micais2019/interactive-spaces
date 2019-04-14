@@ -1,11 +1,13 @@
 from Adafruit_IO import Client
 from datetime import datetime
+import time
+import numpy
 
 # seeeeeecrets
 from secrets import secrets
 
 # local help libraries
-from utils import identity, mathutils, logger
+from utils import identity, mathutils, logger, lttb
 
 # local SOUND detection library
 from sound_detector import sound_detector
@@ -18,7 +20,7 @@ class DetectionHandler:
         self.logger = logger.Logger("logs/sound.log")
 
         # current, max, min
-        self.levels = [0, 0, 0]
+        self.levels = []
 
     def on_setup(self, *args):
         message = "starting sound detector on {}".format(identity.get_identity())
@@ -29,26 +31,38 @@ class DetectionHandler:
 
     # every frame
     def on_update(self, score):
-        # pcount = mathutils.lin_map(score, 10, 50, 0, 12)
-        # print("audio score is {}".format(score))
+        self.levels.append([time.time(), int(score)])
+        print(score)
         # TODO: update LEDs according to motion <here>
-        pass
 
     # every time score passes threshold
     def on_trigger(self, score, max_score):
-        print("  detected sound with score {}, max {}".format(score, max_score))
+        # print("  detected sound with score {}, max {}".format(score, max_score))
+        pass
 
     # every time `interval_seconds` passes
     def on_interval(self, score):
-        print()
-        print("------------------------------")
-        print("send sound data with score {}".format(score))
-        print("------------------------------")
-        print()
-        self.client.send_data(self.feed_key, score)
-        self.logger.info(score)
-        # TODO: signal data sent with LEDs <here>
+        out_value = score
 
+        if len(self.levels) > 30:
+            # limit output data to 30 samples
+            np_levels = numpy.array(self.levels)
+            lttb_result = lttb.downsample(np_levels, 30)
+            out_value = ' '.join("%i" % v[1] for v in lttb_result)
+        elif len(self.levels) > 0:
+            out_value = ' '.join("%i" % v[1] for v in self.levels)
+
+        print()
+        print("------------------------------")
+        print("send sound data with score {}".format(out_value))
+        print("------------------------------")
+        print()
+
+        self.client.send_data(self.feed_key, out_value)
+        self.logger.info(out_value)
+
+        self.levels = []
+        # TODO: signal data sent with LEDs <here>
 
 ## setup Adafruit IO client
 ADAFRUIT_IO_USERNAME = secrets.get("ADAFRUIT_IO_USERNAME")
@@ -72,7 +86,7 @@ handler = DetectionHandler(aio, "sound")
 
 # initialize MotionDetector with the event handler and proper settings
 detector = sound_detector.SoundDetector(
-    handler, interval_seconds=2.5, trigger_threshold=400, headless=True
+    handler, interval_seconds=3, trigger_threshold=400, headless=True
 )
 
 # start the whole thing, run forever

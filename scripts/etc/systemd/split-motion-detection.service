@@ -1,5 +1,5 @@
 [Unit]
-Description=MICALIVE Motion Detector Process
+Description=MICALIVE Split Motion Detector Process
 After=network-online.target
 
 [Service]

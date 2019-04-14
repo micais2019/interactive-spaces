@@ -12,13 +12,14 @@ import signal
 import time
 
 METHOD = 'MOG2'
-DOWNSCALE = False
-WITH_THRESHOLD = True
+DOWNSCALE = True
+WITH_THRESHOLD = False
 
-class MotionDetector:
+class SplitMotionDetector:
     def __init__(
         self, event_handler, interval_seconds=10, trigger_interval_seconds=0,
-        movement_threshold=10, headless=False, camera_id=-1
+        movement_threshold=10, headless=False, camera_id=-1,
+        xsteps=4, ysteps=4
     ):
         self.handler = event_handler
         self.capture_device = None
@@ -33,15 +34,22 @@ class MotionDetector:
 
         self.fgbg = None
 
+        self.ranges = [ [ None for x in range(xsteps) ] for y in range(ysteps) ]
+        self.scores = [ 0 for x in range(xsteps * ysteps) ]
+        self.xsteps = xsteps
+        self.ysteps = ysteps
+        self.wstep = 0
+        self.hstep = 0
+
         self.setup()
 
     def call_handler(self, handler_method, *args):
         method = getattr(self.handler, handler_method, None)
         if callable(method):
-            # print("call {} with args {}".format(handler_method, ', '.join(str(a) for a in args)))
             method(*args)
 
     def shutdown(self, sig=None, frame=None):
+        self.call_handler("on_shutdown")
         print("stop signal detected")
         self.capture_device.release()
         sys.exit(0)
@@ -75,39 +83,54 @@ class MotionDetector:
             else:
                 dframe = frame
 
+            size = dframe.shape[:2]
+            blank = numpy.zeros([size[0], size[1], 1], numpy.uint8)
+
+            if self.ranges[0][0] is None:
+                height, width = dframe.shape[:2]
+                self.wstep = int(width / self.xsteps)
+                self.hstep = int(height / self.ysteps)
+                self.ranges = [
+                    [
+                        [  x * self.wstep,
+                           y * self.hstep,
+                           x * self.wstep + self.wstep - 1,
+                           y * self.hstep + self.hstep - 1  ]
+                        for y in range(self.ysteps)
+                    ]
+                    for x in range(self.xsteps)
+                ]
+
             fgmask = self.__bgdetect(dframe)
-            score = self.__get_motion_score(fgmask)
 
-            max_motion_value = max(score, max_motion_value)
+            sc = 0
+            for row in self.ranges:
+                for col in row:
+                    subsection = fgmask[col[1]:col[3], col[0]:col[2]]
+                    self.scores[sc] = self.__get_motion_score(subsection)
+                    if not self.headless:
+                        cv2.rectangle(blank, (col[0], col[1]), (col[2], col[3]), (self.scores[sc] * 2), -1)
+                        cv2.putText(
+                            blank, "%i" % self.scores[sc],
+                            (col[0], col[1] + self.hstep - 4),
+                            self.font, 1, 255, 1, cv2.LINE_AA
+                        )
+                    sc += 1
 
-            self.call_handler('on_update', score)
-
-            # render text to the screen
-            if not self.headless:
-                cv2.putText(
-                    fgmask,
-                    "Standard Deviation - {}".format(round(score, 0)),
-                    (70, 70),
-                    self.font,
-                    1,
-                    (255, 0, 255),
-                    1,
-                    cv2.LINE_AA,
-                )
+            self.call_handler('on_update', self.scores)
 
             now = time.time()
 
-            # only trigger every trigger_interval_seconds seconds
-            if score > self.movement_threshold and (now - last_trigger) > self.trigger_interval_seconds:
-                self.call_handler("on_trigger", score, max_motion_value)
-                last_trigger = now
-
             if not self.headless:
                 cv2.imshow("motion", fgmask)
+                cv2.imshow("pixel", blank)
+            
+            # cv2.imwrite("pixel.png", dframe)
+            # exit()
 
             # send accumulated data every interval_seconds
             if (now - last_interval) > self.interval_seconds:
-                self.call_handler("on_interval", max_motion_value)
+                self.call_handler("on_interval", self.scores)
                 last_interval = now
                 max_motion_value = 0
 
@@ -116,17 +139,6 @@ class MotionDetector:
                 break
 
         self.shutdown()
-
-    def __dist_map(self, frame1, frame2):
-        """outputs pythagorean distance between two frames"""
-        frame1_32 = numpy.float32(frame1)
-        frame2_32 = numpy.float32(frame2)
-        diff32 = frame1_32 - frame2_32
-        norm32 = numpy.sqrt(
-            diff32[:, :, 0] ** 2 + diff32[:, :, 1] ** 2 + diff32[:, :, 2] ** 2
-        ) / numpy.sqrt(255 ** 2 + 255 ** 2 + 255 ** 2)
-        dist = numpy.uint8(norm32 * 255)
-        return dist
 
     def __downscale(self, frame):
         """Resize to a smaller frame, go to greyscale and blur slightly."""

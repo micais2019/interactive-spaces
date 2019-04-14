@@ -8,6 +8,7 @@ import json
 import time
 
 KMEANS = True
+CAMERA = 0
 
 def now():
     return time.time() * 1000.0
@@ -73,8 +74,10 @@ idx = 0
 frame = None
 dframe = None
 
-cap = cv2.VideoCapture(-1)
+print('connect camera', CAMERA)
+cap = cv2.VideoCapture(CAMERA)
 
+# get one frame to do geometry check
 while frame is None:
     _, frame = cap.read()
     try:
@@ -83,11 +86,14 @@ while frame is None:
         time.sleep(1)
         cap = cv2.VideoCapture(1)
 
-
 height, width = dframe.shape[:2]
-x1 = int(width / 3)
-y1 = int(height / 8)
-x2 = width - x1
+
+w = int(width / 5)
+h = int(height / 6)
+
+x1 = w
+y1 = h
+x2 = w + x1
 y2 = height - y1
 
 yh = y2 - y1
@@ -128,16 +134,16 @@ while True:
     img_data = dframe[shape[0][1]:shape[1][1], shape[0][0]:shape[1][0]]
 
     if KMEANS:
-        # BGR (default) to RGB colorspace
+        # BGR (default) to HSV colorspace
         img_data = cv2.cvtColor(img_data, cv2.COLOR_BGR2HSV)
 
         #using k-means to cluster pixels, get HSV color out
         color = get_dominant_color(img_data, 2)
-        s_val = color[1]
-        v_val = color[2]
+        # s_val = color[1]
+        # v_val = color[2]
 
         # boost saturation
-        color[1] = s_val + ((255 - s_val) * 0.25)
+        # color[1] = s_val + ((255 - s_val) * 0.25)
         # boost brightness
         # color[2] = v_val + ((255 - v_val) * 0.25)
 

@@ -3,7 +3,7 @@ import logging.handlers
 from pathlib import Path
 import json
 
-LOG_FILENAME = 'logs/spam.log'
+LOG_FILENAME = 'logs/logger_test.log'
 # logging.basicConfig(level=logging.DEBUG)
 
 class Logger:

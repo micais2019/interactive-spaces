@@ -1,0 +1,31 @@
+/home/pi/interactive-spaces/scripts/logs/sound.log {
+  rotate 28
+  daily
+  compress
+  missingok
+  notifempty
+}
+
+/home/pi/interactive-spaces/scripts/logs/motion.log {
+  rotate 28
+  daily
+  compress
+  missingok
+  notifempty
+}
+
+/home/pi/interactive-spaces/scripts/logs/color.log {
+  rotate 28
+  daily
+  compress
+  missingok
+  notifempty
+}
+
+/home/pi/interactive-spaces/scripts/logs/mood.log {
+  rotate 28
+  daily
+  compress
+  missingok
+  notifempty
+}
