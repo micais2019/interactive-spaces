@@ -14,14 +14,21 @@ import digitalio
 
 from .adafruit_debouncer import Debouncer
 
-def to_switch(button):
+def to_switch(pin):
+    button = digitalio.DigitalInOut(pin)
     button.direction = digitalio.Direction.INPUT
     button.pull = digitalio.Pull.UP
     return Debouncer(button)
 
-BUTTONS = [to_switch(b) for b in [
-    digitalio.DigitalInOut(board.D4),
-    digitalio.DigitalInOut(board.D3)
+BUTTONS = [to_switch(pin) for pin in [
+    board.D21,
+    board.D5,
+    board.D17,
+    board.D24,
+    board.D25,
+    board.D12,
+    board.D13,
+    board.D20,
 ]]
 
 class MoodDetector:
@@ -63,7 +70,7 @@ class MoodDetector:
         while True:
             now = time.time()
 
-            for bidx in range(len(BUTTONS)): 
+            for bidx in range(len(BUTTONS)):
                 button = BUTTONS[bidx]
                 button.update()
 
