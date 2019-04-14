@@ -100,10 +100,62 @@ class Debouncer(object):
 
 ################ END OTHER CODE
 
+import board
+import time
+
 def to_switch(pin):
     button = digitalio.DigitalInOut(pin)
     button.direction = digitalio.Direction.INPUT
     button.pull = digitalio.Pull.UP
     return adafruit_debouncer.Debouncer(button)
 
-print("OKAY!")
+BUTTONS = [to_switch(pin) for pin in [
+    board.D21,
+    board.D5,
+    board.D17,
+    board.D24,
+    board.D25,
+    board.D12,
+    board.D13,
+    board.D20,
+]]
+
+# 1. Figure out which pins are connected to which physical buttons
+# 2. Reorder COLORS to match BUTTONS index to COLORS index
+# 3. Reorder OUTPUTS to match order of buttons from L to R
+COLORS = [
+    (0, 0, 1),
+    (0, 1, 0),
+    (0, 1, 1),
+    (1, 0, 0),
+    (1, 0, 1),
+    (1, 1, 0),
+    (1, 1, 1),
+    (0, 0, 2)
+]
+
+OUTPUTS = [ 0, 1, 2, 3, 4, 5, 6, 7 ]
+
+button_states = {}
+
+# while True:
+#     led.value = not button.value # light when button is pressed!
+
+while True:
+    now = time.time()
+
+    for bidx in range(len(BUTTONS)):
+        button = BUTTONS[bidx]
+        button.update()
+
+        if button.fell:
+            if not button_states.get(bidx, False):
+                button_states[bidx] = now
+                print("BUTTON {} PRESSED, COLOR {}".format(bidx, COLORS[bidx]))
+        elif button.rose:
+            button_states[bidx] = False
+
+    # send accumulated data every interval_seconds
+    if (now - last_interval) > self.interval_seconds:
+        self.call_handler("on_interval")
+        last_interval = now
