@@ -28,6 +28,21 @@ try:
 except:
     dots = fake_dotstars.FakeDotstars()
 
+# COLORS and OUTPUTS must be sorted according to button connection order.
+# This may be different on mood-1 and mood-2
+COLORS = [
+    (0, 0, 1),
+    (0, 1, 0),
+    (0, 1, 1),
+    (1, 0, 0),
+    (1, 0, 1),
+    (1, 1, 0),
+    (1, 1, 1),
+    (0, 0, 2)
+]
+
+OUTPUTS = [ 0, 1, 2, 3, 4, 5, 6, 7 ]
+
 class DetectionHandler:
     def __init__(self, client, feed_key):
         self.client = client
