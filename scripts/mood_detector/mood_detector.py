@@ -14,14 +14,14 @@ def to_switch(pin):
     return Debouncer(button)
 
 BUTTONS = [to_switch(pin) for pin in [
-    board.D21,
     board.D5,
-    board.D17,
-    board.D24,
-    board.D25,
     board.D12,
     board.D13,
+    board.D17,
     board.D20,
+    board.D21,
+    board.D24,
+    board.D25,
 ]]
 
 class MoodDetector:
@@ -49,6 +49,7 @@ class MoodDetector:
         # attach interrupt handler for clean shutdown on SIGINT
         signal.signal(signal.SIGINT, self.shutdown)
         signal.signal(signal.SIGTERM, self.shutdown)
+        self.call_handler("on_setup")
 
     def run(self):
         # track time between intervals
