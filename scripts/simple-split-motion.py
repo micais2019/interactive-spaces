@@ -7,9 +7,11 @@ from pathlib import Path
 # https://learn.adafruit.com/adafruit-dotstar-leds/python-circuitpython
 import board
 import adafruit_dotstar as dotstar
-from utils import screen_writer
+from utils import screen_writer, data_sender, color
 DOTCOUNT = 192
 LIGHT_THRESHOLD = 12
+COLD_COLOR = [0, 0, 255]
+HOT_COLOR = [255, 128, 0]
 
 LOG_FILE = "logs/split-motion.log"
 
@@ -41,20 +43,26 @@ class DetectionHandler:
     def on_update(self, scores):
         # print("FRAME {}".format(scores))
         idx = 0
+
+        # reversed() to make sure it behaves like a mirror, not a screen view
+        # of the camera
         for x in reversed(range(8)):
             for y in range(6):
-                pxls = screen_writer.screen_to_pixel(x, y)
                 score = scores[idx]
-
-                c = color.wheel(score * 2)
+                score_percent = score / max(score, 127.0)
 
                 if score < LIGHT_THRESHOLD:
                     c = (0, 0, 0)
+                else:
+                    c = color.lerp_color(COLD_COLOR, HOT_COLOR, score_percent)
 
-                for pixel in pxls: 
+                pxls = screen_writer.screen_to_pixel(x, y)
+                for pixel in pxls:
                     self.pixels[pixel] = c
-                
+
                 idx += 1
+
+        # refresh whole screen at once
         self.pixels.show()
 
     # every time `interval_seconds` passes
@@ -73,6 +81,9 @@ class DetectionHandler:
         self.pixels.fill((0, 0, 0))
         self.pixels.show()
 
+        message = "STOPPING motion detector on {}".format(identity.get_identity())
+        self.client.send_data("monitor", message)
+
 
 ## setup Adafruit IO client
 ADAFRUIT_IO_USERNAME = secrets.get("ADAFRUIT_IO_USERNAME")
@@ -89,7 +100,7 @@ if ADAFRUIT_IO_USERNAME == None or ADAFRUIT_IO_KEY == None:
     )
     print("")
     exit(1)
-aio = Client(ADAFRUIT_IO_USERNAME, ADAFRUIT_IO_KEY)
+aio = data_sender.DataSender(ADAFRUIT_IO_USERNAME, ADAFRUIT_IO_KEY, debug=True)
 
 # initialize DetectionHandler with adafruit IO client and a feed to update
 handler = DetectionHandler(aio, "split-motion")
