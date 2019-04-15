@@ -181,7 +181,7 @@ if ADAFRUIT_IO_USERNAME == None or ADAFRUIT_IO_KEY == None:
     )
     print("")
     exit(1)
-aio = data_sender.DataSender(ADAFRUIT_IO_USERNAME, ADAFRUIT_IO_KEY, debug=True)
+aio = data_sender.DataSender(ADAFRUIT_IO_USERNAME, ADAFRUIT_IO_KEY)
 
 # initialize station-1 DetectionHandler with adafruit IO client and a feed to update
 handler = DetectionHandler(aio, THIS_FEED)
@@ -191,40 +191,45 @@ detector = sound_detector.SoundDetector(
     handler, interval_seconds=3, trigger_threshold=400, headless=True
 )
 
-# setup MQTT client
-# Define callback functions which will be called when certain events happen.
-def connected(client):
-    print("connected to Adafruit IO. Listening for {0} changes...".format(OTHER_FEED))
-    client.subscribe(OTHER_FEED)
+class PersistentMQTT:
+    def __init__(self, username, password):
+        self.username = username 
+        self.password = password
 
-def disconnected(client):
-    # Disconnected function will be called when the client disconnects.
-    # print('disconnected from Adafruit IO!')
-    # sys.exit(1)
+    def start(self):
+        self.client = MQTTClient(ADAFRUIT_IO_USERNAME, ADAFRUIT_IO_KEY)
 
-def message(client, feed_id, payload):
-    # print('got message from {}: {}'.format(feed_id, payload))
+        # Setup the callback functions defined above.
+        self.client.on_connect    = self.connected
+        self.client.on_disconnect = self.disconnected
+        self.client.on_message    = self.message
 
-    # values should be in the form of space separated 100ms volume levels
-    for volume in [int(v) for v in payload.split(' ')]:
-        volume_to_top_bar(volume)
-        time.sleep(0.1)
+        self.client.connect()
 
-# Create an MQTT client instance.
-client = MQTTClient(ADAFRUIT_IO_USERNAME, ADAFRUIT_IO_KEY)
+        self.client.loop_background()
 
-# Setup the callback functions defined above.
-client.on_connect    = connected
-client.on_disconnect = disconnected
-client.on_message    = message
+    # setup MQTT client
+    # Define callback functions which will be called when certain events happen.
+    def connected(self, client):
+        print("connected to Adafruit IO. Listening for {0} changes...".format(OTHER_FEED))
+        client.subscribe(OTHER_FEED)
 
-# Connect to the Adafruit IO server.
-client.connect()
+    def disconnected(self, client):
+        self.client = None
+        time.sleep(5)
+        self.start()
+        # Disconnected function will be called when the client disconnects.
+        # print('disconnected from Adafruit IO!')
+        # sys.exit(1)
 
-# Start a message loop that blocks forever waiting for MQTT messages to be
-# received.  Note there are other options for running the event loop like doing
-# so in a background thread--see the mqtt_client.py example to learn more.
-client.loop_background()
+    def message(self, client, feed_id, payload):
+        # values should be in the form of space separated 100ms volume levels
+        for volume in [int(v) for v in payload.split(' ')]:
+            volume_to_top_bar(volume)
+            time.sleep(0.1)
+
+mqtt = PersistentMQTT(ADAFRUIT_IO_USERNAME, ADAFRUIT_IO_KEY)
+mqtt.start()
 
 # start the whole thing, run forever
 detector.run()
