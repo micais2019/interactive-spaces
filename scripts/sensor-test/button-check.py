@@ -111,40 +111,42 @@ def to_switch(pin):
 
 # WIRING: rpi pin to button then button to GND
 BUTTONS = [to_switch(pin) for pin in [
-    board.D5,
-    board.D12,
-    board.D13,
-    board.D17,
-    board.D20,
-    board.D21,
-    board.D24,
+    board.D2,  # 11
+    board.D27,
+    board.D23,
     board.D25,
+    board.D5, # 0
+    board.D12,
+    board.D19, # 8
+    board.D21, # 5
 ]]
 
 # 1. Figure out which pins are connected to which physical buttons
 # 2. Reorder COLORS to match BUTTONS index to COLORS index
 # 3. Reorder OUTPUTS to match order of buttons from L to R
 COLORS = [
-    (0, 0, 1),
-    (0, 1, 0),
-    (0, 1, 1),
-    (1, 0, 0),
-    (1, 0, 1),
-    (1, 1, 0),
-    (1, 1, 1),
-    (0, 0, 2)
+    (0, 192, 0),
+    (250, 128, 0), # yellow 
+    (234, 21, 0),  # orange
+    (216, 0, 39),
+    (255, 0, 0),
+    (108, 0, 147), # (160, 32, 255),
+    (0, 64, 255),
+    (0, 0, 150),
 ]
-
-OUTPUTS = [ 0, 1, 2, 3, 4, 5, 6, 7 ]
-COUNTS = [0 for i in range(8)]
+# 
+# OUTPUTS = [ 0, 1, 2, 3, 4, 5, 6, 7 ]
+# COUNTS = [0 for i in range(8)]
 
 interval_seconds = 15
 last_interval = time.time()
 
 print("STARTUP")
 
-# while True:
-#     led.value = not button.value # light when button is pressed!
+import board
+import adafruit_dotstar as dotstar
+DOTCOUNT = 16 # 24 + (26 * 2)
+dots = dotstar.DotStar(board.SCK, board.MOSI, DOTCOUNT, brightness=0.8)
 
 while True:
     now = time.time()
@@ -154,11 +156,15 @@ while True:
         button.update()
 
         if button.fell:
-            COUNTS[bidx] += 1
-            print("BUTTON {} PRESSED {:>4}, COLOR {}".format(bidx, COUNTS[bidx], COLORS[bidx]))
+            # COUNTS[bidx] += 1
+            dots.fill(COLORS[bidx])
+            print("BUTTON {} PRESSED".format(bidx,)) #  COUNTS[bidx], COLORS[bidx]))
+        elif button.rose:
+            print("BUTTON {} RELEASED".format(bidx,)) #  COUNTS[bidx], COLORS[bidx]))
 
     # send accumulated data every interval_seconds
     if (now - last_interval) > interval_seconds:
         # print("on_interval")
-        COUNTS = [0 for i in range(8)]
+        # COUNTS = [0 for i in range(8)]
         last_interval = now
+
