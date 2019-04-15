@@ -7,11 +7,22 @@ import numpy
 from secrets import secrets
 
 # local help libraries
-from utils import identity, mathutils, logger, lttb
+from utils import identity, mathutils, logger, lttb, color, data_sender
 
 # local SOUND detection library
 from sound_detector import sound_detector
 
+try:
+    import board
+    import adafruit_dotstar as dotstar
+    DOTCOUNT = 16 # FIXME: there's a lot more than this
+    dots = dotstar.DotStar(board.SCK, board.MOSI, DOTCOUNT, brightness=0.8)
+except:
+    dots = fake_dotstars.FakeDotstars()
+
+##
+# TODO: add constants for sound reactive LEDs (which pixels are local, which are remote)
+##
 
 class DetectionHandler:
     def __init__(self, client, feed_key):
@@ -22,18 +33,30 @@ class DetectionHandler:
         # current, max, min
         self.levels = []
 
+        # TODO: we'd like it to receive, as well
+
     def on_setup(self, *args):
         message = "starting sound detector on {}".format(identity.get_identity())
         print(message)
         self.client.send_data("monitor", message)
         self.logger.debug(message)
-        # TODO: LED startup signal <here>
+
+        # LED startup signal
+        for i in range(16):
+            dots[i] = (100, 100, 100)
+            time.sleep(0.1)
+
+        for i in range(16):
+            dots[i] = (0, 0, 0)
+            time.sleep(0.1)
 
     # every frame
     def on_update(self, score):
+
         self.levels.append([time.time(), int(score)])
         print(score)
-        # TODO: update LEDs according to motion <here>
+
+        # TODO: update LEDs according to sound level <here>
 
     # every time score passes threshold
     def on_trigger(self, score, max_score):
@@ -62,7 +85,7 @@ class DetectionHandler:
         self.logger.info(out_value)
 
         self.levels = []
-        # TODO: signal data sent with LEDs <here>
+        # TODO: (maybe) signal data sent with LEDs <here>
 
 ## setup Adafruit IO client
 ADAFRUIT_IO_USERNAME = secrets.get("ADAFRUIT_IO_USERNAME")
@@ -79,7 +102,7 @@ if ADAFRUIT_IO_USERNAME == None or ADAFRUIT_IO_KEY == None:
     )
     print("")
     exit(1)
-aio = Client(ADAFRUIT_IO_USERNAME, ADAFRUIT_IO_KEY)
+aio = data_sender.DataSender(ADAFRUIT_IO_USERNAME, ADAFRUIT_IO_KEY, debug=True)
 
 # initialize DetectionHandler with adafruit IO client and a feed to update
 handler = DetectionHandler(aio, "sound")
