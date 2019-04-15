@@ -107,17 +107,18 @@ def to_switch(pin):
     button = digitalio.DigitalInOut(pin)
     button.direction = digitalio.Direction.INPUT
     button.pull = digitalio.Pull.UP
-    return adafruit_debouncer.Debouncer(button)
+    return Debouncer(button)
 
+# WIRING: rpi pin to button then button to GND
 BUTTONS = [to_switch(pin) for pin in [
-    board.D21,
     board.D5,
-    board.D17,
-    board.D24,
-    board.D25,
     board.D12,
     board.D13,
+    board.D17,
     board.D20,
+    board.D21,
+    board.D24,
+    board.D25,
 ]]
 
 # 1. Figure out which pins are connected to which physical buttons
@@ -135,8 +136,12 @@ COLORS = [
 ]
 
 OUTPUTS = [ 0, 1, 2, 3, 4, 5, 6, 7 ]
+COUNTS = [0 for i in range(8)]
 
-button_states = {}
+interval_seconds = 15
+last_interval = time.time()
+
+print("STARTUP")
 
 # while True:
 #     led.value = not button.value # light when button is pressed!
@@ -149,13 +154,11 @@ while True:
         button.update()
 
         if button.fell:
-            if not button_states.get(bidx, False):
-                button_states[bidx] = now
-                print("BUTTON {} PRESSED, COLOR {}".format(bidx, COLORS[bidx]))
-        elif button.rose:
-            button_states[bidx] = False
+            COUNTS[bidx] += 1
+            print("BUTTON {} PRESSED {:>4}, COLOR {}".format(bidx, COUNTS[bidx], COLORS[bidx]))
 
     # send accumulated data every interval_seconds
-    if (now - last_interval) > self.interval_seconds:
-        self.call_handler("on_interval")
+    if (now - last_interval) > interval_seconds:
+        # print("on_interval")
+        COUNTS = [0 for i in range(8)]
         last_interval = now
