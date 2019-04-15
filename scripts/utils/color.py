@@ -20,3 +20,16 @@ def wheel(pos):
         g = int(pos*3)
         b = int(255 - pos*3)
     return (r, g, b)
+
+def lerp_color(c1, c2, amt):
+    from_a = [ c / 255.0 for c in c1 ]
+    to_a =   [ c / 255.0 for c in c2 ]
+
+    amt = max(min(amt, 1.0), 0.0)
+    lerp = lambda start, stop, amt: (1.0 * amt) * (stop - start) + start
+
+    maxes = [ 255, 255, 255 ]
+
+    return [
+        int(lerp(from_a[i], to_a[i], amt) * maxes[i]) for i in range(len(from_a))
+    ]

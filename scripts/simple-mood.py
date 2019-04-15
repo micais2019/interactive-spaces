@@ -2,10 +2,8 @@
 # Main mood station code.
 #
 # Wait for button input, then publish to IO, light Dotstars, and print result
+#
 
-
-from Adafruit_IO import Client
-from datetime import datetime
 import time
 import numpy
 
@@ -13,7 +11,7 @@ import numpy
 from secrets import secrets
 
 # local help libraries
-from utils import identity, logger
+from utils import identity, logger, color, data_sender, fake_dotstars
 
 import sys
 
@@ -22,13 +20,15 @@ from escpos.printer import Usb
 # local SOUND detection library
 from mood_detector import mood_detector
 
-import board
-import adafruit_dotstar as dotstar
+try:
+    import board
+    import adafruit_dotstar as dotstar
+    DOTCOUNT = 16
+    dots = dotstar.DotStar(board.SCK, board.MOSI, DOTCOUNT, brightness=0.8)
+except:
+    dots = fake_dotstars.FakeDotstars()
 
-DOTCOUNT = 16
-dots = dotstar.DotStar(board.SCK, board.MOSI, DOTCOUNT, brightness=0.8)
-
-# COLORS and OUTPUTS must be sorted according to button connection order. 
+# COLORS and OUTPUTS must be sorted according to button connection order.
 # This may be different on mood-1 and mood-2
 COLORS = [
     (0, 0, 1),
@@ -54,20 +54,37 @@ class DetectionHandler:
         self.button_states = {}
 
         self.color = (0, 0, 0)
-        self.fade_interval = 0.01
-        self.last_step = 0
+        self.do_fade = False
+        self.fade_started = 0
+        self.fade_seconds = 3
 
         try:
             self.printer = Usb(0x0416, 0x5011)
         except:
             self.printer = None
 
+        # Publish at most once every 5 seconds
+        self.last_publish = 0
+        self.publish_interval_seconds = 5
+
+        # Print at most once every 15 seconds
+        self.last_print = 0
+        self.print_interval_seconds = 15
+
     def on_setup(self, *args):
         message = "starting mood detector on {}".format(identity.get_identity())
         print(message)
         self.client.send_data("monitor", message)
         self.logger.debug(message)
-        # TODO: LED startup signal <here>
+
+        # LED startup signal
+        for i in range(16):
+            dots[i] = (100, 100, 100)
+            time.sleep(0.1)
+
+        for i in range(16):
+            dots[i] = (0, 0, 0, 0)
+            time.sleep(0.1)
 
     def on_shutdown(self):
         dots.fill((0,0,0))
@@ -76,49 +93,84 @@ class DetectionHandler:
     def on_update(self):
         now = time.time()
 
-        # self.values.append([time.time(), int(score)])
-        if any(c > 0 for c in self.color):
-            # fade
-            if now - self.last_step > self.fade_interval:
-                dots.fill(self.color)
+        if self.do_fade:
+            # time into fade span
+            percent_complete = (now - self.fade_started) / self.fade_seconds
 
-                # decrement each value in self.color
-                self.color = [ 
-                    v - 2 if v > 2 else 0
-                    for v in self.color 
-                ]
+            if percent_complete >= 1.0:
+                dots.fill([0, 0 ,0])
+                self.do_fade = False
+            else:
+                next_color = color.lerp_color(self.color, [0, 0, 0], percent_complete)
+                if next_color[0] != self.color[0] or next_color[1] != self.color[1] or next_color[2] != self.color[2]:
+                    self.color = next_color
+                    dots.fill(self.color)
 
-                self.last_step = now
-                    
     def on_trigger(self, button):
-        if button == 0:
-            color_name = "Sunset Red"
-            self.color = [255, 0, 0]
-        elif button == 1:
-            color_name = "Feeling Blue"
-            self.color = [0, 100, 255]
+        # always store values
+        self.values.append(button)
 
-        print("click", button, self.color)
+        # set pixel color first
+        dots.fill(COLORS[button])
+
+        # then print (delays sketch)
+        self.__print(button)
+
+        # and attempt to publish (also delays sketch)
+        self.__publish(button)
+
+        # now start color fade
+        self.__fade(COLORS[button])
+
+    # every time `interval_seconds` passes
+    def on_interval(self):
+        now = time.time()
+
+        # new values have accumulated since the last publish event
+        if len(self.values) > 0:
+            self.__publish()
+
+        # after a minute, pulse gently
+        if now - self.last_publish > 60 and now - self.last_pulse > 60:
+            self.__fade((100, 100, 100))
+            self.last_pulse = now
+
+    def __fade(self, color):
+        # NOTE:
+        self.color = color
+        self.do_fade = True
+        self.fade_started = time.time()
+
+        # fill LEDs with initial color
         dots.fill(self.color)
 
-        if self.printer:
-            self.printer.text("YOU SELECTED {}\n\n".format(button))
+    def __print(self, button):
+        now = time.time()
+
+        # then print (delays script)
+        if self.printer and now - self.last_print > self.print_interval_seconds:
+            self.printer.text("YOU SELECTED {}\n\n".format(COLORS[button]))
             self.printer.text('micavibe.com/mood\n\n')
             self.printer.image('printer_test/tomicavibe_mood.png')
             self.printer.text('\n\n\n\n')
 
-    # every time `interval_seconds` passes
-    def on_interval(self):
-        # print()
-        # print("------------------------------")
-        # print("send mood data with score {} at {}".format(score, time.time()))
-        # print("------------------------------")
-        # print()
-        # # self.client.send_data(self.feed_key, score)
-        # self.logger.info(score)
+    def __publish(self):
+        now = time.time()
 
-        self.levels = []
-        # TODO: signal data sent with LEDs <here>
+        if now - self.last_publish > self.publish_interval_seconds:
+            # publish max 256 values
+            to_publish = " ".join(str(val) for val in self.values[-256:])
+            print("publish values:", to_publish)
+
+            # send data
+            self.client.send_data(self.feed_key, to_publish)
+
+            # mark time of publishing
+            self.last_publish = now
+
+            # reset value queue
+            self.values = []
+
 
 ## setup Adafruit IO client
 ADAFRUIT_IO_USERNAME = secrets.get("ADAFRUIT_IO_USERNAME")
@@ -133,10 +185,10 @@ if ADAFRUIT_IO_USERNAME == None or ADAFRUIT_IO_KEY == None:
     }""")
     print("")
     exit(1)
-aio = Client(ADAFRUIT_IO_USERNAME, ADAFRUIT_IO_KEY)
+aio = data_sender.DataSender(ADAFRUIT_IO_USERNAME, ADAFRUIT_IO_KEY)
 
 # initialize DetectionHandler with adafruit IO client and a feed to update
-handler = DetectionHandler(aio, "sound")
+handler = DetectionHandler(aio, "mood")
 
 # initialize MotionDetector with the event handler and proper settings
 detector = mood_detector.MoodDetector(
@@ -145,4 +197,5 @@ detector = mood_detector.MoodDetector(
 
 # start the whole thing, run forever
 detector.run()
+
 

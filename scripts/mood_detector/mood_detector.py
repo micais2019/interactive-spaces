@@ -1,9 +1,3 @@
-#####################
-## COMPUTER VISION!
-## Adapted from: https://software.intel.com/en-us/node/754940
-## and: https://docs.opencv.org/3.4/db/d5c/tutorial_py_bg_subtraction.html
-#####################
-
 # defaults
 import sys
 import signal
@@ -11,7 +5,6 @@ import time
 
 import board
 import digitalio
-
 from .adafruit_debouncer import Debouncer
 
 def to_switch(pin):
@@ -62,11 +55,6 @@ class MoodDetector:
         last_interval = time.time()
         last_trigger = time.time()
 
-        button_states = {}
-
-        # while True:
-        #     led.value = not button.value # light when button is pressed!
-
         while True:
             now = time.time()
 
@@ -75,19 +63,15 @@ class MoodDetector:
                 button.update()
 
                 if button.fell:
-                    if not button_states.get(bidx, False):
-                        button_states[bidx] = now
-                        print("BUTTON {} PRESSED".format(bidx))
-                        self.call_handler("on_trigger", bidx)
-                elif button.rose:
-                    button_states[bidx] = False
+                    # button is pressed
+                    self.call_handler("on_trigger", bidx)
 
-            # send accumulated data every interval_seconds
+            # trigger interval handler every interval_seconds
             if (now - last_interval) > self.interval_seconds:
                 self.call_handler("on_interval")
                 last_interval = now
 
+            # called absolutely every loop (as fast as possible)
             self.call_handler("on_update")
-
 
         self.shutdown()
