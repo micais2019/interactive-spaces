@@ -6,7 +6,7 @@ import time
 from secrets import secrets
 
 # local help libraries
-from utils import identity, mathutils, logger
+from utils import identity, mathutils, logger, data_sender
 
 # local MOTION detection library
 from motion_detector import motion_detector
@@ -24,6 +24,15 @@ class DetectionHandler:
         self.client.send_data("monitor", message)
         self.logger.debug(message)
         # TODO: LED startup signal <here>
+
+        # LED startup signal
+        for i in range(16):
+            dots[i] = (100, 100, 100)
+            time.sleep(0.1)
+
+        for i in range(16):
+            dots[i] = (0, 0, 0)
+            time.sleep(0.1)
 
     # every frame
     def on_update(self, score):
@@ -62,7 +71,7 @@ if ADAFRUIT_IO_USERNAME == None or ADAFRUIT_IO_KEY == None:
     )
     print("")
     exit(1)
-aio = Client(ADAFRUIT_IO_USERNAME, ADAFRUIT_IO_KEY)
+aio = data_sender.DataSender(ADAFRUIT_IO_USERNAME, ADAFRUIT_IO_KEY, debug=True)
 
 # initialize DetectionHandler with adafruit IO client and a feed to update
 handler = DetectionHandler(aio, "motion")
