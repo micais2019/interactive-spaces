@@ -91,7 +91,7 @@ class DetectionHandler:
             time.sleep(0.1)
 
         for i in range(16):
-            dots[i] = (0, 0, 0, 0)
+            dots[i] = (0, 0, 0)
             time.sleep(0.1)
 
     def on_shutdown(self):
@@ -161,7 +161,7 @@ class DetectionHandler:
 
         # then print (delays script)
         if now - self.last_print > self.print_interval_seconds:
-            if self.printer: 
+            if self.printer:
                 print("[__print] printing", button)
                 self.printer.text("YOU SELECTED {}\n\n".format(COLORS[button]))
                 self.printer.text("THE LAST 10 VALUES WERE:\n")
@@ -197,7 +197,7 @@ class DetectionHandler:
             self.values = []
 
     def __store(self, value):
-        self.values.append(value) # to publish 
+        self.values.append(value) # to publish
         if len(self.values) > 256:
             self.values.pop(0)
         self.print_values.append(value) # to print
