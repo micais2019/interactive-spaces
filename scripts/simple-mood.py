@@ -5,7 +5,6 @@
 #
 
 import time
-import numpy
 
 # seeeeeecrets
 from secrets import secrets
