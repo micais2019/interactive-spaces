@@ -49,6 +49,7 @@ class MoodDetector:
         # attach interrupt handler for clean shutdown on SIGINT
         signal.signal(signal.SIGINT, self.shutdown)
         signal.signal(signal.SIGTERM, self.shutdown)
+        self.call_handler("on_setup")
 
     def run(self):
         # track time between intervals
