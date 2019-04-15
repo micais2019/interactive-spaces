@@ -22,6 +22,9 @@ from utils import identity, mathutils, logger, color
 # local MOTION detection library
 from split_motion_detector import split_motion_detector
 
+LOW_COLOR = (50, 0, 100) 
+HIGH_COLOR = (255, 255, 0)
+
 class DetectionHandler:
     def __init__(self, client, feed_key):
         self.client = client
@@ -46,7 +49,7 @@ class DetectionHandler:
                 pxls = screen_writer.screen_to_pixel(x, y)
                 score = scores[idx]
 
-                c = color.wheel(score * 2)
+                c = color.lerp_color(LOW_COLOR, HIGH_COLOR, score / 127.0)
 
                 if score < LIGHT_THRESHOLD:
                     c = (0, 0, 0)
