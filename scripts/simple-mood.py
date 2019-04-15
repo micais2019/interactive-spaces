@@ -49,9 +49,8 @@ class DetectionHandler:
         self.feed_key = feed_key
         self.logger = logger.Logger("logs/mood.log")
 
-        # current, max, min
         self.values = []
-        self.button_states = {}
+        self.print_values = []
 
         self.color = (0, 0, 0)
         self.do_fade = False
@@ -63,19 +62,28 @@ class DetectionHandler:
         except:
             self.printer = None
 
+        now = time.time()
+
         # Publish at most once every 5 seconds
-        self.last_publish = 0
+        self.last_publish = now
         self.publish_interval_seconds = 5
+        self.last_request = None
 
         # Print at most once every 15 seconds
-        self.last_print = 0
+        self.last_print = now
         self.print_interval_seconds = 15
+
+        self.last_pulse = now
+        self.pulse_interval_seconds = 60
 
     def on_setup(self, *args):
         message = "starting mood detector on {}".format(identity.get_identity())
-        print(message)
+
         self.client.send_data("monitor", message)
+        self.last_publish = time.time()
+
         self.logger.debug(message)
+        print(message)
 
         # LED startup signal
         for i in range(16):
@@ -89,7 +97,7 @@ class DetectionHandler:
     def on_shutdown(self):
         dots.fill((0,0,0))
 
-    # every click
+    # every interval
     def on_update(self):
         now = time.time()
 
@@ -101,14 +109,18 @@ class DetectionHandler:
                 dots.fill([0, 0 ,0])
                 self.do_fade = False
             else:
+                # always fading out
                 next_color = color.lerp_color(self.color, [0, 0, 0], percent_complete)
                 if next_color[0] != self.color[0] or next_color[1] != self.color[1] or next_color[2] != self.color[2]:
                     self.color = next_color
                     dots.fill(self.color)
 
+    # every click
     def on_trigger(self, button):
+        print("[on_trigger] button", button)
+
         # always store values
-        self.values.append(button)
+        self.__store(button)
 
         # set pixel color first
         dots.fill(COLORS[button])
@@ -117,7 +129,7 @@ class DetectionHandler:
         self.__print(button)
 
         # and attempt to publish (also delays sketch)
-        self.__publish(button)
+        self.__publish()
 
         # now start color fade
         self.__fade(COLORS[button])
@@ -131,7 +143,7 @@ class DetectionHandler:
             self.__publish()
 
         # after a minute, pulse gently
-        if now - self.last_publish > 60 and now - self.last_pulse > 60:
+        if now - self.last_publish > self.pulse_interval_seconds and now - self.last_pulse > self.pulse_interval_seconds:
             self.__fade((100, 100, 100))
             self.last_pulse = now
 
@@ -148,11 +160,24 @@ class DetectionHandler:
         now = time.time()
 
         # then print (delays script)
-        if self.printer and now - self.last_print > self.print_interval_seconds:
-            self.printer.text("YOU SELECTED {}\n\n".format(COLORS[button]))
-            self.printer.text('micavibe.com/mood\n\n')
-            self.printer.image('printer_test/tomicavibe_mood.png')
-            self.printer.text('\n\n\n\n')
+        if now - self.last_print > self.print_interval_seconds:
+            if self.printer: 
+                print("[__print] printing", button)
+                self.printer.text("YOU SELECTED {}\n\n".format(COLORS[button]))
+                self.printer.text("THE LAST 10 VALUES WERE:\n")
+                self.printer.text(" ".join(str(v) for v in self.print_values) + "\n")
+                self.printer.text('micavibe.com/mood\n\n')
+                self.printer.image('printer_test/tomicavibe_mood.png')
+                self.printer.text('\n\n\n\n')
+            else:
+                print("=================== FAKE PRINT ===================")
+                print("YOU SELECTED {}\n\n".format(COLORS[button]))
+                print("THE LAST 10 VALUES WERE:\n")
+                print(" ".join(str(v) for v in self.print_values) + "\n")
+                print("==================================================")
+                print()
+
+            self.last_print = now
 
     def __publish(self):
         now = time.time()
@@ -163,13 +188,21 @@ class DetectionHandler:
             print("publish values:", to_publish)
 
             # send data
-            self.client.send_data(self.feed_key, to_publish)
+            self.last_request = self.client.send_data(self.feed_key, to_publish)
 
             # mark time of publishing
             self.last_publish = now
 
-            # reset value queue
+            # flush publish value queue
             self.values = []
+
+    def __store(self, value):
+        self.values.append(value) # to publish 
+        if len(self.values) > 256:
+            self.values.pop(0)
+        self.print_values.append(value) # to print
+        if len(self.print_values) > 10:
+            self.print_values.pop(0)
 
 
 ## setup Adafruit IO client
@@ -185,7 +218,7 @@ if ADAFRUIT_IO_USERNAME == None or ADAFRUIT_IO_KEY == None:
     }""")
     print("")
     exit(1)
-aio = data_sender.DataSender(ADAFRUIT_IO_USERNAME, ADAFRUIT_IO_KEY)
+aio = data_sender.DataSender(ADAFRUIT_IO_USERNAME, ADAFRUIT_IO_KEY, debug=True)
 
 # initialize DetectionHandler with adafruit IO client and a feed to update
 handler = DetectionHandler(aio, "mood")
