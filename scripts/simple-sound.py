@@ -3,6 +3,9 @@ import time
 import numpy
 import math
 
+THIS_FEED = 'sound-2'
+OTHER_FEED = 'sound'
+
 # seeeeeecrets
 from secrets import secrets
 
@@ -185,8 +188,7 @@ if ADAFRUIT_IO_USERNAME == None or ADAFRUIT_IO_KEY == None:
 aio = data_sender.DataSender(ADAFRUIT_IO_USERNAME, ADAFRUIT_IO_KEY, debug=True)
 
 # initialize station-1 DetectionHandler with adafruit IO client and a feed to update
-handler = DetectionHandler(aio, "sound")
-# handler = DetectionHandler(aio, "sound-2")
+handler = DetectionHandler(aio, THIS_FEED)
 
 # initialize MotionDetector with the event handler and proper settings
 detector = sound_detector.SoundDetector(
@@ -194,10 +196,6 @@ detector = sound_detector.SoundDetector(
 )
 
 # setup MQTT client
-
-# Set to the ID of the other feed to subscribe to
-OTHER_FEED = 'sound-2'
-
 # Define callback functions which will be called when certain events happen.
 def connected(client):
     print("connected to Adafruit IO!  Listening for {0} changes...".format(OTHER_FEED))
