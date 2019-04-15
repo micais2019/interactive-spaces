@@ -76,7 +76,7 @@ def volume_to_top_bar(volume):
 
     fill_count = int(mathutils.lin_map(value, MIN_VOLUME_LOG, MAX_VOLUME_LOG, 0, TOP_DOTS - 1))
 
-    print("TOP VOL {:6} VAL {:8.2f} FC {:4}".format(volume, value, fill_count))
+    # print("TOP VOL {:6} VAL {:8.2f} FC {:4}".format(volume, value, fill_count))
 
     for i in range(TOP_DOTS): 
         if i <= fill_count:
@@ -96,7 +96,7 @@ def volume_to_bottom_bar(volume):
 
     fill_count = int(mathutils.lin_map(value, MIN_VOLUME_LOG, MAX_VOLUME_LOG, 0, BOTTOM_DOTS - 1))
 
-    print("> BOTTOM VOL {:6} VAL {:8.2f} FC {:4}".format(volume, value, fill_count))
+    # print("> BOTTOM VOL {:6} VAL {:8.2f} FC {:4}".format(volume, value, fill_count))
 
     for i in range(BOTTOM_DOTS): 
         if i <= fill_count:
@@ -158,11 +158,7 @@ class DetectionHandler:
         elif len(self.levels) > 0:
             out_value = ' '.join("%i" % v[1] for v in self.levels)
 
-        print()
-        print("------------------------------")
-        print("send sound data with score {}".format(out_value))
-        print("------------------------------")
-        print()
+        print("[simple-sound] send sound data with score {}".format(out_value))
 
         self.client.send_data(self.feed_key, out_value)
         self.logger.info(out_value)
@@ -198,16 +194,16 @@ detector = sound_detector.SoundDetector(
 # setup MQTT client
 # Define callback functions which will be called when certain events happen.
 def connected(client):
-    print("connected to Adafruit IO!  Listening for {0} changes...".format(OTHER_FEED))
+    print("connected to Adafruit IO. Listening for {0} changes...".format(OTHER_FEED))
     client.subscribe(OTHER_FEED)
 
 def disconnected(client):
     # Disconnected function will be called when the client disconnects.
-    print('disconnected from Adafruit IO!')
+    # print('disconnected from Adafruit IO!')
     # sys.exit(1)
 
 def message(client, feed_id, payload):
-    print('got message from {}: {}'.format(feed_id, payload))
+    # print('got message from {}: {}'.format(feed_id, payload))
 
     # values should be in the form of space separated 100ms volume levels
     for volume in [int(v) for v in payload.split(' ')]:
