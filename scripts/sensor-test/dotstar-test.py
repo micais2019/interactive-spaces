@@ -12,11 +12,8 @@ dots = dotstar.DotStar(board.SCK, board.MOSI, DOTCOUNT, brightness=0.8)
 i = 0
 while True:
     dots.fill((255, 0, 0))
-
     time.sleep(0.2) 
-
     dots.fill((0, 0, 0))
-
     time.sleep(0.3) 
 
     # i = (i + 1) % DOTCOUNT
