@@ -1,3 +1,4 @@
+import time
 import pyaudio
 import numpy as np
 
@@ -6,6 +7,7 @@ FORMAT = pyaudio.paInt16
 WIDTH = 2 # bytes for RMS sample
 CHANNELS = 1
 RATE = 48000
+CUTOFF = 275
 
 def np_audioop_rms(data, width):
     """audioop.rms() using numpy. more accurate RMS calculation"""
@@ -16,16 +18,22 @@ def np_audioop_rms(data, width):
     return int( rms )
 
 audio = pyaudio.PyAudio()
-stream = audio.open(
-    format=FORMAT,
-    channels=CHANNELS,
-    rate=RATE,
-    input=True,
-    frames_per_buffer=CHUNK + 16
-)
+stream = None
+while not stream:
+    try:
+        stream = audio.open(
+            format=FORMAT,
+            channels=CHANNELS,
+            rate=RATE,
+            input=True,
+            frames_per_buffer=CHUNK + 16
+        )
+    except:
+        print(".",end="",flush=True)
+    time.sleep(1)
 
 max_rms = 0
-
+recent = []
 while True:
     try:
         data = stream.read(CHUNK, exception_on_overflow = False)
@@ -39,4 +47,10 @@ while True:
 
     rms = np_audioop_rms(data, WIDTH) # here's where you calculate the volume
     max_rms = max(max_rms, rms)
-    print("{:>8}{:>8}".format(rms, max_rms))
+
+    recent.append(rms)
+    recent = recent[-10:]
+    avg = sum(recent) / len(recent)
+
+    if rms > CUTOFF:
+        print("{:>8}{:>8}{:>8}".format(rms, max_rms, avg))
