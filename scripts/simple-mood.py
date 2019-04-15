@@ -63,9 +63,11 @@ class DetectionHandler:
         except:
             self.printer = None
 
+        # Publish at most once every 5 seconds
         self.last_publish = 0
         self.publish_interval_seconds = 5
 
+        # Print at most once every 15 seconds
         self.last_print = 0
         self.print_interval_seconds = 15
 
@@ -74,7 +76,15 @@ class DetectionHandler:
         print(message)
         self.client.send_data("monitor", message)
         self.logger.debug(message)
-        # TODO: LED startup signal <here>
+
+        # LED startup signal
+        for i in range(16):
+            dots[i] = (100, 100, 100)
+            time.sleep(0.1)
+
+        for i in range(16):
+            dots[i] = (0, 0, 0, 0)
+            time.sleep(0.1)
 
     def on_shutdown(self):
         dots.fill((0,0,0))
@@ -97,6 +107,9 @@ class DetectionHandler:
                     dots.fill(self.color)
 
     def on_trigger(self, button):
+        # always store values
+        self.values.append(button)
+
         # set pixel color first
         dots.fill(COLORS[button])
 
@@ -111,18 +124,19 @@ class DetectionHandler:
 
     # every time `interval_seconds` passes
     def on_interval(self):
-        # print()
-        # print("------------------------------")
-        # print("send mood data with score {} at {}".format(score, time.time()))
-        # print("------------------------------")
-        # print()
-        # # self.client.send_data(self.feed_key, score)
-        # self.logger.info(score)
+        now = time.time()
 
-        self.levels = []
-        # TODO: signal data sent with LEDs <here>
+        # new values have accumulated since the last publish event
+        if len(self.values) > 0:
+            self.__publish()
+
+        # after a minute, pulse gently
+        if now - self.last_publish > 60 and now - self.last_pulse > 60:
+            self.__fade((100, 100, 100))
+            self.last_pulse = now
 
     def __fade(self, color):
+        # NOTE:
         self.color = color
         self.do_fade = True
         self.fade_started = time.time()
@@ -140,12 +154,22 @@ class DetectionHandler:
             self.printer.image('printer_test/tomicavibe_mood.png')
             self.printer.text('\n\n\n\n')
 
-    def __publish(self, button):
+    def __publish(self):
         now = time.time()
 
         if now - self.last_publish > self.publish_interval_seconds:
-            print("publish this button:", button)
+            # publish max 256 values
+            to_publish = " ".join(str(val) for val in self.values[-256:])
+            print("publish values:", to_publish)
+
+            # send data
+            self.client.send_data(self.feed_key, to_publish)
+
+            # mark time of publishing
             self.last_publish = now
+
+            # reset value queue
+            self.values = []
 
 
 ## setup Adafruit IO client
@@ -173,4 +197,5 @@ detector = mood_detector.MoodDetector(
 
 # start the whole thing, run forever
 detector.run()
+
 
