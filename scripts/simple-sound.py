@@ -45,7 +45,11 @@ def set_bottom_pixel(index, c):
     dots[up_pixel] = c
 
 def draw():
-    dots.show()
+    try:
+        dots.show()
+    except:
+        # ignore SPI failures. because two threads are trying to write, sometimes they fight
+        pass
 
 MIN_VOLUME = 200
 MAX_VOLUME = 10000
