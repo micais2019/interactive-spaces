@@ -7,6 +7,5 @@ sudo pip2 install numpy
 
 # rpi supporting libraries
 sudo pip3 install rpi_ws281x adafruit-circuitpython-neopixel \
-    adafruit-io \
-    pyaudio
+    adafruit-io pyaudio requests-futures
 
