@@ -9,6 +9,8 @@ LOG_FILENAME = 'logs/logger_test.log'
 class Logger:
     def __init__(self, filename=LOG_FILENAME):
         self.filename = str(Path(filename).resolve())
+
+        # make sure logfile exists
         Path(self.filename).touch()
 
         print("starting logfile at", self.filename)

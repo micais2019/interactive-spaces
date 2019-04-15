@@ -1,6 +1,6 @@
-import pyaudio
 # import wave
 # import audioop # if you want to use audioop.rms
+import pyaudio
 import numpy as np
 
 # defaults
@@ -78,8 +78,8 @@ class SoundDetector:
                 data = self.stream.read(CHUNK, exception_on_overflow = False)
             except OSError:
                 print("OSError: stream failure")
-                time.sleep(5)
-                pass
+                time.sleep(1)
+                continue
 
             if not data:
                 continue
