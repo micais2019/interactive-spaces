@@ -10,8 +10,9 @@ import adafruit_dotstar as dotstar
 from utils import screen_writer, data_sender, color
 DOTCOUNT = 192
 LIGHT_THRESHOLD = 12
-COLD_COLOR = [0, 0, 255]
-HOT_COLOR = [255, 128, 0]
+
+COLD_COLOR = (50, 0, 100) 
+HOT_COLOR = (255, 255, 0)
 
 LOG_FILE = "logs/split-motion.log"
 
