@@ -6,8 +6,8 @@ class DataGetter {
   DataGetter() {
   }
 
-  String getCurrentTemperature() {
-    String url = "https://micavibe.com/weather";
+  String getCurrentTemperature(long atTime) {
+    String url = "https://micavibe.com/weather?at=" + String.format("%d", atTime);
     GetRequest get = new GetRequest(url);
     get.addHeader("Accept", "application/json");
     get.addHeader("X-AIO-Key", "");
@@ -18,7 +18,8 @@ class DataGetter {
       JSONObject jsvalue = parseJSONObject(response);
       return str(jsvalue.getJSONObject("current").getFloat("temperature"));
     } catch (RuntimeException ex) {
-      println("ERROR failed to retrieve value for weather current.temperature. error:", response);
+      
+      println("ERROR failed to retrieve current.temperature from", url, ". error:", response);
       return "50.0";
     }
   }

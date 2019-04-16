@@ -30,18 +30,27 @@ int dpi = 300;
 int coverFinalWidth = int(coverWidth * dpi);
 int coverFinalHeight = int(coverHeight * dpi);
 
+String motion, temperature;
+ArrayList<String> sound, mood;
+
 void setup() {
+  size(100, 100, P3D);
+  
   now = getTimestampFromArgs();
   println("-- running at", now, "--");
 
   DataGetter dg = new DataGetter();
-  String val = dg.getValue("motion", now);
-  println("motion:", val);
+  
+  motion = dg.getValue("split-motion", now);
+  sound = dg.getHistory("sound", now, 10);
+  mood = dg.getHistory("mood", now, 100);
+  temperature = dg.getCurrentTemperature(now);
+  
+  println("split-motion:", motion);
+  println("sounds:", sound);
+  println("mood:", mood);
 
-  ArrayList<String> vals = dg.getHistory("sound", now, 10);
-  println("sounds:", vals);
-
-  println("temperature:", dg.getCurrentTemperature());
+  println("temperature:", temperature);
 }
 
 void draw() {
