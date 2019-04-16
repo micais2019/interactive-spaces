@@ -28,19 +28,31 @@ except:
     dots = fake_dotstars.FakeDotstars()
 
 # COLORS and OUTPUTS must be sorted according to button connection order.
-# This may be different on mood-1 and mood-2
+
+# 1. Figure out which pins are connected to which physical buttons
+# 2. Reorder COLORS to match BUTTONS index to COLORS index
+# 3. Reorder OUTPUTS to match order of buttons from L to R
 COLORS = [
-    (0, 0, 1),
-    (0, 1, 0),
-    (0, 1, 1),
-    (1, 0, 0),
-    (1, 0, 1),
-    (1, 1, 0),
-    (1, 1, 1),
-    (0, 0, 2)
+    (0, 192, 0),
+    (250, 128, 0), # yellow 
+    (234, 21, 0),  # orange
+    (216, 0, 39),
+    (255, 0, 0),
+    (108, 0, 147), # (160, 32, 255),
+    (0, 64, 255),
+    (0, 0, 150),
 ]
 
-OUTPUTS = [ 0, 1, 2, 3, 4, 5, 6, 7 ]
+COLOR_NAMES = [
+    "Green",
+    "Yellow",
+    "Orange",
+    "Neon Pink",
+    "Red",
+    "Purple",
+    "Cyan",
+    "Blue",
+]
 
 class DetectionHandler:
     def __init__(self, client, feed_key):
@@ -54,7 +66,7 @@ class DetectionHandler:
         self.color = (0, 0, 0)
         self.do_fade = False
         self.fade_started = 0
-        self.fade_seconds = 3
+        self.fade_seconds = 8
 
         try:
             self.printer = Usb(0x0416, 0x5011)
@@ -70,10 +82,12 @@ class DetectionHandler:
 
         # Print at most once every 15 seconds
         self.last_print = now
-        self.print_interval_seconds = 15
+        self.print_interval_seconds = 10
 
         self.last_pulse = now
-        self.pulse_interval_seconds = 60
+        self.pulse_interval_seconds = 30
+
+        self.static_color = (0,0,0)
 
     def on_setup(self, *args):
         message = "starting mood detector on {}".format(identity.get_identity())
@@ -105,14 +119,12 @@ class DetectionHandler:
             percent_complete = (now - self.fade_started) / self.fade_seconds
 
             if percent_complete >= 1.0:
-                dots.fill([0, 0 ,0])
+                dots.fill(self.static_color)
                 self.do_fade = False
             else:
                 # always fading out
                 next_color = color.lerp_color(self.color, [0, 0, 0], percent_complete)
-                if next_color[0] != self.color[0] or next_color[1] != self.color[1] or next_color[2] != self.color[2]:
-                    self.color = next_color
-                    dots.fill(self.color)
+                dots.fill(next_color)
 
     # every click
     def on_trigger(self, button):
@@ -122,7 +134,7 @@ class DetectionHandler:
         self.__store(button)
 
         # set pixel color first
-        dots.fill(COLORS[button])
+        self.__set_color(COLORS[button])
 
         # then print (delays sketch)
         self.__print(button)
@@ -131,7 +143,7 @@ class DetectionHandler:
         self.__publish()
 
         # now start color fade
-        self.__fade(COLORS[button])
+        # self.__fade(COLORS[button])
 
     # every time `interval_seconds` passes
     def on_interval(self):
@@ -140,11 +152,16 @@ class DetectionHandler:
         # new values have accumulated since the last publish event
         if len(self.values) > 0:
             self.__publish()
+            self.__print(self.print_values[-1])
 
         # after a minute, pulse gently
-        if now - self.last_publish > self.pulse_interval_seconds and now - self.last_pulse > self.pulse_interval_seconds:
-            self.__fade((100, 100, 100))
-            self.last_pulse = now
+        # if now - self.last_publish > self.pulse_interval_seconds and now - self.last_pulse > self.pulse_interval_seconds:
+        #     self.__fade((100, 100, 100))
+        #     self.last_pulse = now
+
+    def __set_color(self, color):
+        self.static_color = color
+        dots.fill(self.static_color)
 
     def __fade(self, color):
         # NOTE:
@@ -162,12 +179,19 @@ class DetectionHandler:
         if now - self.last_print > self.print_interval_seconds:
             if self.printer:
                 print("[__print] printing", button)
-                self.printer.text("YOU SELECTED {}\n\n".format(COLORS[button]))
-                self.printer.text("THE LAST 10 VALUES WERE:\n")
-                self.printer.text(" ".join(str(v) for v in self.print_values) + "\n")
+                self.printer.text("YOU SELECTED {}\n\n".format(COLOR_NAMES[button]))
+                recent_count = len(self.print_values)
+                if recent_count > 1:
+                    self.printer.text("THE LAST {} VALUES WERE:\n".format(recent_count))
+                    self.printer.text(", ".join(COLOR_NAMES[v] for v in self.print_values) + "\n")
+                    self.printer.text(" \n \n")
                 self.printer.text('micavibe.com/mood\n\n')
                 self.printer.image('printer_test/tomicavibe_mood.png')
-                self.printer.text('\n\n\n\n')
+                self.printer.text(' \n \n \n \n')
+                self.printer.text(' \n \n \n \n')
+                self.printer.text(' \n \n \n \n')
+                self.printer.text(' \n \n \n \n')
+                self.printer.text(' \n \n \n \n')
             else:
                 print("=================== FAKE PRINT ===================")
                 print("YOU SELECTED {}\n\n".format(COLORS[button]))
@@ -217,7 +241,7 @@ if ADAFRUIT_IO_USERNAME == None or ADAFRUIT_IO_KEY == None:
     }""")
     print("")
     exit(1)
-aio = data_sender.DataSender(ADAFRUIT_IO_USERNAME, ADAFRUIT_IO_KEY, debug=True)
+aio = data_sender.DataSender(ADAFRUIT_IO_USERNAME, ADAFRUIT_IO_KEY)
 
 # initialize DetectionHandler with adafruit IO client and a feed to update
 handler = DetectionHandler(aio, "mood")
