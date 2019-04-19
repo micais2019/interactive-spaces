@@ -55,7 +55,7 @@ void target(float freq, int cx, int cy) {
   float spacebetweenRings = 3; //alter
 
   for (float i = (freq*numberofRings); i > 0; i-= freq*spacebetweenRings) {
-    prints.strokeWeight(freq);
+    prints.strokeWeight(freq); 
     //rotate(PI/3);
     prints.fill(255);
     prints.ellipseMode(CENTER);
