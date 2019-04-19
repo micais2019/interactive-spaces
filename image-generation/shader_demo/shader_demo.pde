@@ -3,7 +3,8 @@
 PShader toon;
 
 void setup() {
-  size(640, 360, P3D);
+  size(1000, 1000, P3D);
+  smooth(8);
   noStroke();
   fill(204);
   toon = loadShader("ToonFrag.glsl", "ToonVert.glsl");
@@ -17,6 +18,6 @@ void draw() {
   float dirX = (mouseX / float(width) - 0.5) * 2;
   directionalLight(204, 204, 204, -dirX, -dirY, -1);
   translate(width/2, height/2);
-  sphereDetail(mouseX / 4);
-  sphere(120);
+  sphereDetail(160);
+  sphere(400);
 }
