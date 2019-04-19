@@ -43,7 +43,7 @@ void draw() {
     newColor = prevColor;
     prevColor = colors[int(random(0, 6))];
 
-
+gSurface.filter(BLUR,5);
     /*
     fill(newColor);
      rect(0, 20, 20, 20);
