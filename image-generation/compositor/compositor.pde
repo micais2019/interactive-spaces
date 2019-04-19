@@ -21,8 +21,6 @@ Final:
 
 boolean DEBUG = false;
 
-long now;
-
 float coverWidth = 16.5;
 float coverHeight = 8.5;
 int dpi = 300;
@@ -30,6 +28,8 @@ int dpi = 300;
 int coverFinalWidth = int(coverWidth * dpi);
 int coverFinalHeight = int(coverHeight * dpi);
 
+/* Data for sketches */
+long now;
 String motion, temperature;
 ArrayList<String> sound, mood;
 
@@ -49,7 +49,6 @@ void setup() {
   println("split-motion:", motion);
   println("sounds:", sound);
   println("mood:", mood);
-
   println("temperature:", temperature);
 }
 
