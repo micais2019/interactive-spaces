@@ -153,6 +153,23 @@ function createProcessingSketch(channel, callback) {
       }
       resize()
 
+      var last_call = null
+
+      // this function returns a Promise that serves historical data
+      p.getData = function (feed_key, limit=25) {
+        var now = new Date().getTime()
+        if (last_call && now - last_call < 5000) {
+          console.log("slow down......")
+          return Promise.resolve([])
+        }
+
+        console.log("requesting")
+        last_call = now
+        return fetch("https://io.adafruit.com/api/v2/mica_ia/feeds/"+ feed_key + "/data?limit=" + limit).then(function (response) {
+          return response.json()
+        })
+      }
+
       // user defined callback includes only the actual Processing drawing code
       callback(self, p)
 
