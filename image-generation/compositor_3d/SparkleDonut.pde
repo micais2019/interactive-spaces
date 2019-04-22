@@ -9,38 +9,78 @@
 class Toroid {
   int pts = 80; 
   float angle = 0;
-  float radius = 100.0; // tube radius
+  float radius; // tube radius
 
   // lathe segments
   int segments = 60;
   float latheAngle = 0;
-  float latheRadius = 800.0; // whole donut
+  float latheRadius; // whole donut
 
   //vertices
   PVector vertices[], vertices2[];
-
   PGraphics surface;
+  
+  PGraphics pix;
+  int textureStepX, textureStepY, texHW, texHH;
 
   Toroid(int h, int w) {
     surface = createGraphics(h, w, P3D);
-    latheRadius = h / 3.0;
-    radius = h / 5.0;
+    latheRadius = h / 3.4;
+    radius = h / 8.0;
+    
+    // w = circumference of donut, h = circumference of tube
+    // println(latheRadius, radius);
+    pix = createGraphics(1400, 800);
+    textureStepX = pix.width / segments;
+    textureStepY = pix.height / pts;
+      
+    texHW = pix.width / 2;
+    texHH = pix.height / 2;
+  }
+  
+  void drawTexture(float score) {
+    score += 0.5;
+    
+    pix.beginDraw();
+    pix.clear();
+    pix.noStroke();
+    pix.translate(texHW, texHH);
+
+    float pixelsize = 10; 
+  
+    // from the center of the image outwards
+    for (int x = -texHW; x < texHW; x += pixelsize) {
+      for (int y= -texHH; y < texHH; y += pixelsize) {
+        if (abs(x) < random(0, texHW * score) && abs(y) < random(0, texHH * score)) {
+          pix.fill(255);
+        } else {
+          pix.fill(0);
+        }
+        pix.rect(x, y, pixelsize, pixelsize);
+      }
+    }
+    
+    pix.endDraw();
   }
 
   void draw(float score) {
+    drawTexture(score);
+
     surface.beginDraw();
     surface.smooth();
     surface.clear();
 
-    surface.fill(0);
+    surface.fill(0, 0, 128);
     surface.noStroke();
-
+    
     //center and spin toroid
     surface.translate(surface.width/2, surface.height/2, -100);
 
-    surface.rotateX(frameCount*PI/150);
-    surface.rotateY(frameCount*PI/170);
-    surface.rotateZ(frameCount*PI/90);
+    surface.rotateX(31 * PI/150);
+    surface.rotateY(8 * PI/170);
+    surface.rotateZ(frameCount * PI/50); 
+    
+    surface.textureWrap(CLAMP);
 
     // initialize point arrays
     vertices = new PVector[pts+1];
@@ -51,29 +91,27 @@ class Toroid {
       vertices2[i] = new PVector();
       vertices[i].x = latheRadius + sin(radians(angle)) * radius;
       vertices[i].z = cos(radians(angle)) * radius;
-      angle+=360.0/pts;
+      angle += 360.0/pts;
     }
-
+    
     // draw toroid
     latheAngle = 0;
-    for (int i=0; i<=segments; i++) {
-      surface.beginShape(QUAD_STRIP); 
-
-      for (int j=0; j<=pts; j++) {
+    for (int i=0; i <= segments; i++) { // around the donut
+      surface.beginShape(QUAD_STRIP);  
+      surface.texture(pix);
+      for (int j=0; j<=pts; j++) { // around each segment of the donut
         if (i>0) {
-          surface.vertex(vertices2[j].x, vertices2[j].y, vertices2[j].z);
+          // on every subsequent segment after the first, draw point on left edge of segment
+          surface.vertex(vertices2[j].x, vertices2[j].y, vertices2[j].z, i * textureStepX * 0.9, j * textureStepY);
         }
+        
         vertices2[j].x = cos(radians(latheAngle)) * vertices[j].x;
         vertices2[j].y = sin(radians(latheAngle)) * vertices[j].x;
         vertices2[j].z = vertices[j].z;
 
-        if (random(1.0) < score) surface.fill(255);
-        else surface.fill(0);
-        surface.vertex(vertices2[j].x, vertices2[j].y, vertices2[j].z);
+        surface.vertex(vertices2[j].x, vertices2[j].y, vertices2[j].z, (i + 1) * textureStepX * 0.9, j * textureStepY);
       }
-      
-      // create extra rotation for helix
-      latheAngle += 360.0/segments;
+      latheAngle += (360.0 / segments); // latheAngle moves the draw head around the torus clockwise 
       surface.endShape();
     }
     surface.endDraw();
