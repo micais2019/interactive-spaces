@@ -142,14 +142,14 @@ public void setup() {
   param_physics.iterations_springs    = 8;
 
   // particle parameters (for simulation)
-  param_cloth_particle.DAMP_BOUNDS    = 0.49999f;
+  param_cloth_particle.DAMP_BOUNDS    = 0.09999f;
   param_cloth_particle.DAMP_COLLISION = 0.99999f;
-  param_cloth_particle.DAMP_VELOCITY  = 0.89991f;
+  param_cloth_particle.DAMP_VELOCITY  = 1.0f;//0.89991f;
 
 
   // spring parameters (for simulation)
   param_cloth_spring.damp_dec = 0.999999f;
-  param_cloth_spring.damp_inc = 0.059999f;
+  param_cloth_spring.damp_inc = 0.959999f;
 
 
   // soft-body parameters (for building)
@@ -256,13 +256,13 @@ public void createBodies() {
 
 
   ///////////////////// CLOTH ////////////////////////////////////////////////
-  nodex_x = 100;
+  nodex_x = 80;
   nodes_y = 100;
   nodes_z = 1;
   nodes_r = 10;
-  nodes_start_x = 0;
-  nodes_start_y = 0;
-  nodes_start_z = nodex_x; //nodes_y * nodes_r*2-200;
+  nodes_start_x = 50;
+  nodes_start_y = 50;
+  nodes_start_z = 100; //nodes_y * nodes_r*2-200;
   r = 255;
   g = 255;
   b = 200;
@@ -632,7 +632,7 @@ public void applySpringMemoryEffect() {
 
 
 
-boolean APPLY_WIND     = false;
+boolean APPLY_WIND     = true;
 boolean MOVE_CAM       = false;
 boolean MOVE_PARTICLE  = false;
 boolean SNAP_PARTICLE  = false;
@@ -702,7 +702,7 @@ public void keyReleased() {
 
 public void createCam() {
   // camera - modelview
-  double   distance = 1518.898;
+  double   distance = 2518.898;
   double[] look_at  = { 58.444, -48.939, 167.661};
   double[] rotation = { -0.744, 0.768, -0.587};
   peasycam = new PeasyCam(this, look_at[0], look_at[1], look_at[2], distance);
