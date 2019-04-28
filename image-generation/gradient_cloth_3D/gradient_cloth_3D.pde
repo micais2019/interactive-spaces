@@ -260,9 +260,9 @@ public void createBodies() {
   nodes_y = 100;
   nodes_z = 1;
   nodes_r = 10;
-  nodes_start_x = 50;
+  nodes_start_x = 10;
   nodes_start_y = 50;
-  nodes_start_z = 100; //nodes_y * nodes_r*2-200;
+  nodes_start_z = 500; //nodes_y * nodes_r*2-200;
   r = 255;
   g = 255;
   b = 200;
