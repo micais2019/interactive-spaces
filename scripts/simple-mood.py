@@ -16,7 +16,7 @@ import sys
 
 from escpos.printer import Usb
 
-# local SOUND detection library
+# local MOOD detection library
 from mood_detector import mood_detector
 
 try:
@@ -33,14 +33,14 @@ except:
 # 2. Reorder COLORS to match BUTTONS index to COLORS index
 # 3. Reorder OUTPUTS to match order of buttons from L to R
 COLORS = [
-    (0, 192, 0),
+    (0, 192, 0), # green
     (250, 128, 0), # yellow 
     (234, 21, 0),  # orange
-    (216, 0, 39),
-    (255, 0, 0),
-    (108, 0, 147), # (160, 32, 255),
-    (0, 64, 255),
-    (0, 0, 150),
+    (216, 0, 39), # neon pink
+    (255, 0, 0), # red
+    (172, 40, 255), # purple (108, 0, 147)
+    (0, 250, 255), # cyan (0, 64, 255)
+    (0, 0, 150), # blue
 ]
 
 COLOR_NAMES = [
@@ -155,9 +155,9 @@ class DetectionHandler:
             self.__print(self.print_values[-1])
 
         # after a minute, pulse gently
-        # if now - self.last_publish > self.pulse_interval_seconds and now - self.last_pulse > self.pulse_interval_seconds:
-        #     self.__fade((100, 100, 100))
-        #     self.last_pulse = now
+        if now - self.last_publish > self.pulse_interval_seconds and now - self.last_pulse > self.pulse_interval_seconds:
+            self.__fade((100, 100, 100))
+            self.last_pulse = now
 
     def __set_color(self, color):
         self.static_color = color
