@@ -111,14 +111,17 @@ def to_switch(pin):
 
 # WIRING: rpi pin to button then button to GND
 BUTTONS = [to_switch(pin) for pin in [
-    board.D2,  # 11
-    board.D27,
-    board.D23,
-    board.D25,
-    board.D5, # 0
-    board.D12,
-    board.D19, # 8
-    board.D21, # 5
+    board.D23, # 2
+    board.D3,  # 8 
+    board.D19, # 6
+    board.D12, # 5
+    board.D25, # 3
+    board.D4,  # 9
+    board.D21, # 7
+    board.D5,  # 4
+
+    board.D2,  # 0
+    board.D27, # 1
 ]]
 
 # 1. Figure out which pins are connected to which physical buttons
@@ -157,7 +160,7 @@ while True:
 
         if button.fell:
             # COUNTS[bidx] += 1
-            dots.fill(COLORS[bidx])
+            # dots.fill(COLORS[bidx])
             print("BUTTON {} PRESSED".format(bidx,)) #  COUNTS[bidx], COLORS[bidx]))
         elif button.rose:
             print("BUTTON {} RELEASED".format(bidx,)) #  COUNTS[bidx], COLORS[bidx]))
