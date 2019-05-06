@@ -2,8 +2,11 @@ class TextLayer {
   String timestamp;
   int count, w, h;
   long ts;
+  float scalar = 0.8;
+  float tl_fudge = 0.4;
   
-  int fontSize = 24;
+  int fontSize = 24; // demo 
+  // int fontSize = 96; // big
   
   PGraphics surface;
   PGraphics words;
@@ -15,7 +18,6 @@ class TextLayer {
   
   void create(long ts, int count) {
 
-    
     surface = createGraphics(w, h, P2D);
     
     surface.beginDraw();
@@ -25,8 +27,8 @@ class TextLayer {
    
     PFont font;
     
-    font = loadFont("TradeGothic-Bold-24.vlw");
-    // font = createFont("TradeGothic-Bold", fontSize);
+    // font = loadFont("TradeGothic-Bold-24.vlw");
+    font = createFont("TradeGothic-Bold", fontSize);
     int tl = fontSize + floor(fontSize * 0.2);
     int lp = floor(fontSize / 4.0);
     
@@ -35,7 +37,7 @@ class TextLayer {
     // line spacing
     surface.textLeading(tl);
     // line height
-    float lh = (surface.textAscent() + surface.textDescent());
+    float lh = (surface.textAscent() * scalar + surface.textDescent() * scalar);
     
     surface.text("04.14.2019  14:25:24", lp, lh);
     
@@ -57,9 +59,9 @@ class TextLayer {
     }
     
     // try to calculate total height of text area
-    float box = lh * lorem.length + (tl * (lorem.length-1));
+    float box = lh * lorem.length + (tl * tl_fudge * (lorem.length-1));
     
-    // surface.stroke(0);
+    //surface.stroke(0); // debug border
     surface.noStroke();
     surface.fill(255);
     surface.rect(lp * 10 - 10, h/2 - box/2, len + 20, box);
