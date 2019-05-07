@@ -155,9 +155,9 @@ class DetectionHandler:
             self.__print(self.print_values[-1])
 
         # after a minute, pulse gently
-        if now - self.last_publish > self.pulse_interval_seconds and now - self.last_pulse > self.pulse_interval_seconds:
-            self.__fade((100, 100, 100))
-            self.last_pulse = now
+        # if now - self.last_publish > self.pulse_interval_seconds and now - self.last_pulse > self.pulse_interval_seconds:
+        #     self.__fade((100, 100, 100))
+        #     self.last_pulse = now
 
     def __set_color(self, color):
         self.static_color = color
