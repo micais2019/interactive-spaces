@@ -40,7 +40,7 @@ def set_top_pixel(index, c):
 
 def set_bottom_pixel(index, c): 
     down_pixel = (TOP_DOTS + BOTTOM_DOTS - 1) - index
-    up_pixel = (TOP_DOTS + BOTTOM_DOTS) + index
+    up_pixel   = (TOP_DOTS + BOTTOM_DOTS) + index
     dots[down_pixel] = c
     dots[up_pixel] = c
 
@@ -99,8 +99,6 @@ def volume_to_bottom_bar(volume):
     value = bmoving_average.value
 
     fill_count = int(mathutils.lin_map(value, MIN_VOLUME_LOG, MAX_VOLUME_LOG, 0, BOTTOM_DOTS - 1))
-
-    # print("> BOTTOM VOL {:6} VAL {:8.2f} FC {:4}".format(volume, value, fill_count))
 
     for i in range(BOTTOM_DOTS): 
         if i <= fill_count:
