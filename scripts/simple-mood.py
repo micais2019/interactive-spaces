@@ -16,7 +16,7 @@ import sys
 
 from escpos.printer import Usb
 
-# local MOOD detection library
+# local SOUND detection library
 from mood_detector import mood_detector
 
 try:
@@ -34,13 +34,13 @@ except:
 # 3. Reorder OUTPUTS to match order of buttons from L to R
 COLORS = [
     (0, 192, 0), # green
-    (250, 128, 0), # yellow 
+    (250, 128, 0), # yellow
     (234, 21, 0),  # orange
-    (216, 0, 39), # neon pink
+    (216, 0, 39), # magenta?
     (255, 0, 0), # red
-    (172, 40, 255), # purple (108, 0, 147)
-    (0, 250, 255), # cyan (0, 64, 255)
-    (0, 0, 150), # blue
+    (108, 0, 147), # (160, 32, 255), purple?
+    (0, 64, 255), # aqua
+    (0, 0, 150), # aizume (indigo)
 ]
 
 COLOR_NAMES = [
@@ -253,5 +253,3 @@ detector = mood_detector.MoodDetector(
 
 # start the whole thing, run forever
 detector.run()
-
-
