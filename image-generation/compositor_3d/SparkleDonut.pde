@@ -4,7 +4,6 @@ import wblut.core.*;
 import wblut.hemesh.*;
 import wblut.geom.*;
 
-
 class SparkleDonut {
   HE_Mesh mesh;
   HEC_Torus creator;
@@ -19,7 +18,7 @@ class SparkleDonut {
 
   SparkleDonut(float rad) {
     this.size = rad;
-    pix = createGraphics(1600, 800);
+    pix = createGraphics(800, 800);
   }
 
   void drawTexture(FloatList scores) {
@@ -61,9 +60,10 @@ class SparkleDonut {
     mesh=new HE_Mesh(creator); 
     
     HET_Diagnosis.validate(mesh);
-
-    PShape fabric = WB_PShapeFactory.createSmoothPShape(mesh, pix, app);
-    fabric.disableStyle();
-    return fabric;
+    textureMode(NORMAL);
+    textureWrap(REPEAT);
+    PShape ring = WB_PShapeFactory.createSmoothPShape(mesh, pix, app);
+    ring.disableStyle();
+    return ring;
   }
 }

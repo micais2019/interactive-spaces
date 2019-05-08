@@ -14,15 +14,18 @@ class ClothShape {
   HEM_Bend modifier;
   HEC_Grid creator;
   
-  float ystep = 0;
-  int detail; 
+  float yscalar = 0.1;
+  float xscalar = 0.2;
+  int detail, h, w; 
   int strength;
   float noiseDetail;
   
   ClothShape(int w, int h, int strength, int detail) {
+    this.w = w;
+    this.h = h;
     this.strength = strength;
-    
     this.detail = detail;
+    
     noiseDetail = map(detail, 100, 1000, 0.1, 0.01);
     
     creator=new HEC_Grid();
@@ -49,12 +52,11 @@ class ClothShape {
     float[][] values=new float[d1][d1 * 2];
     for (int y = 0; y < d1 * 2; y++) {
       for (int x = 0; x < d1; x++) {
-        values[x][y] = (strength * map(y, 0, d1 * 2, 1.0, 0)) * noise(noiseDetail*x, (noiseDetail * 0.1) *(y + ystep));
+        //              amp        factor favoring higher y value
+        values[x][y] = (strength * map(y, 0, h, 1.0, 0)) * noise((noiseDetail * xscalar) * x, (noiseDetail * yscalar) * y);
       }
     }
   
     creator.setWValues(values); // depth displacement of grid points (W value)
-    
-    ystep += 0.1;
   }
 }

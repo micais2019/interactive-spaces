@@ -9,3 +9,4 @@ __pycache__/
 .python-version
 *.autosave
 scripts.local
+*.csv

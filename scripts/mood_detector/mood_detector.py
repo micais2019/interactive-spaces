@@ -6,6 +6,8 @@ import time
 import board
 import digitalio
 from .adafruit_debouncer import Debouncer
+ 
+LIL_MOOD = True
 
 def to_switch(pin):
     button = digitalio.DigitalInOut(pin)
@@ -13,16 +15,28 @@ def to_switch(pin):
     button.pull = digitalio.Pull.UP
     return Debouncer(button)
 
-BUTTONS = [to_switch(pin) for pin in [
-    board.D2, 
-    board.D27,
-    board.D23,
-    board.D25,
-    board.D5,
-    board.D12,
-    board.D19,
-    board.D21,
-]]
+if LIL_MOOD:
+    BUTTONS = [to_switch(pin) for pin in [
+        board.D23, # 2
+        board.D3,  # 8 
+        board.D19, # 6
+        board.D12, # 5
+        board.D25, # 3
+        board.D4,  # 9
+        board.D21, # 7
+        board.D5,  # 4
+    ]]
+else: 
+    BUTTONS = [to_switch(pin) for pin in [
+        board.D2, 
+        board.D27,
+        board.D23,
+        board.D25,
+        board.D5,
+        board.D12,
+        board.D19,
+        board.D21,
+    ]]
 
 class MoodDetector:
     def __init__(

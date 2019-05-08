@@ -8,6 +8,7 @@ PGraphics ovoid;
 void setup() {
   size(800, 800);
   frameRate(1);
+  smooth(8);
 
   prints = createGraphics(800, 800);
   ovoid = createGraphics(800, 800);
@@ -22,6 +23,7 @@ void draw() {
   //mask layer
 
   ovoid.beginDraw();
+  ovoid.smooth(8);
   ovoid.clear();
   ovoid.noStroke();
   ovoid.fill(255);
@@ -59,6 +61,7 @@ void target(float freq, int cx, int cy) {
   //for (float j = random(0,500); j<500; j+= random(0,50)){
 
   prints.beginDraw();
+  prints.smooth(8);
 
   for (float i = (freq*10); i > 0; i-= freq*3) {
     prints.strokeWeight(freq);

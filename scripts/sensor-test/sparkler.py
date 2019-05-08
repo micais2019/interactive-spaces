@@ -1,30 +1,9 @@
-# The MIT License (MIT)
-#
-# Copyright (c) 2019 Dave Astels for Adafruit Industries
-#
-# Permission is hereby granted, free of charge, to any person obtaining a copy
-# of this software and associated documentation files (the "Software"), to deal
-# in the Software without restriction, including without limitation the rights
-# to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
-# copies of the Software, and to permit persons to whom the Software is
-# furnished to do so, subject to the following conditions:
-#
-# The above copyright notice and this permission notice shall be included in
-# all copies or substantial portions of the Software.
-#
-# THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-# IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-# FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
-# AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
-# LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
-# OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
-# THE SOFTWARE.
-#
-# Author(s): Dave Astels
-#
 import time
 import digitalio
 from micropython import const
+
+from random import random
+from math import floor
 
 _DEBOUNCED_STATE = const(0x01)
 _UNSTABLE_STATE = const(0x02)
@@ -137,37 +116,135 @@ COLORS = [
     (0, 64, 255),
     (0, 0, 150),
 ]
-# 
-# OUTPUTS = [ 0, 1, 2, 3, 4, 5, 6, 7 ]
-# COUNTS = [0 for i in range(8)]
 
-interval_seconds = 15
+
+def wheel(pos):
+    """
+    Input a hue value from 0 to 255 to get a color value in (r, g, b) format.
+    The colours are a transition r - g - b - back to r.
+    """
+    if pos < 0 or pos > 255:
+        r = g = b = 0
+    elif pos < 85:
+        r = int(pos * 3)
+        g = int(255 - pos*3)
+        b = 0
+    elif pos < 170:
+        pos -= 85
+        r = int(255 - pos*3)
+        g = 0
+        b = int(pos*3)
+    else:
+        pos -= 170
+        r = 0
+        g = int(pos*3)
+        b = int(255 - pos*3)
+    return (r, g, b)
+
+def lerp_color(c1, c2, amt):
+    from_a = [ c / 255.0 for c in c1 ]
+    to_a =   [ c / 255.0 for c in c2 ]
+
+    amt = max(min(amt, 1.0), 0.0)
+    lerp = lambda start, stop, amt: (1.0 * amt) * (stop - start) + start
+
+    maxes = [ 255, 255, 255 ]
+
+    return [
+        int(lerp(from_a[i], to_a[i], amt) * maxes[i]) for i in range(len(from_a))
+    ]
+
+interval_seconds = 0.4
 last_interval = time.time()
-
-print("STARTUP")
 
 import board
 import adafruit_dotstar as dotstar
-DOTCOUNT = 16 # 24 + (26 * 2)
+DOTCOUNT = 20 # 24 + (26 * 2)
 dots = dotstar.DotStar(board.SCK, board.MOSI, DOTCOUNT, brightness=0.8)
+
+h_step = 256 / 8
+HUES = [ i * h_step for i in range(8) ]
+
+
+FADE = 0
+SHOW = 1
+mode = SHOW
+
+high = 255
+low = 0
+steps = 0
+maxsteps = 400
+
+c = 1
+n = 0 
+
+frame = 0
+
+fadesteps = 0
+maxfade = 400
 
 while True:
     now = time.time()
+
+    frame += 1
 
     for bidx in range(len(BUTTONS)):
         button = BUTTONS[bidx]
         button.update()
 
         if button.fell:
-            # COUNTS[bidx] += 1
-            # dots.fill(COLORS[bidx])
-            print("BUTTON {} PRESSED".format(bidx,)) #  COUNTS[bidx], COLORS[bidx]))
-        elif button.rose:
-            print("BUTTON {} RELEASED".format(bidx,)) #  COUNTS[bidx], COLORS[bidx]))
+            fadesteps = 0
+            print("B ON ", bidx, button.state)
+            if bidx == 3:
+                interval_seconds = interval_seconds + 0.1
+            elif bidx == 7:
+                if interval_seconds - 0.1 >= 0: 
+                    interval_seconds = interval_seconds - 0.1
+            elif bidx == 6:
+                n = (n + 8) % 255
+            elif bidx == 2:
+                n = (n - 8) % 255
+            elif bidx == 5:
+                if c < DOTCOUNT :
+                    c = c + 1
+            elif bidx == 1:
+                if c > 1:
+                    c = c - 1
+                
+    if not BUTTONS[4].value:
+        fadesteps = (fadesteps + 1) % maxfade
+        dots.fill(lerp_color((255, 255, 255), (0, 0, 0), fadesteps / maxfade))
+        
+    elif (now - last_interval) > interval_seconds:
+        dots.fill((0, 0, 0))
 
-    # send accumulated data every interval_seconds
-    if (now - last_interval) > interval_seconds:
-        # print("on_interval")
-        # COUNTS = [0 for i in range(8)]
+        for i in range(c):
+            dots[floor(random() * DOTCOUNT)] = wheel(n)
+
         last_interval = now
 
+
+# The MIT License (MIT)
+#
+# Copyright (c) 2019 Dave Astels for Adafruit Industries
+#
+# Permission is hereby granted, free of charge, to any person obtaining a copy
+# of this software and associated documentation files (the "Software"), to deal
+# in the Software without restriction, including without limitation the rights
+# to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+# copies of the Software, and to permit persons to whom the Software is
+# furnished to do so, subject to the following conditions:
+#
+# The above copyright notice and this permission notice shall be included in
+# all copies or substantial portions of the Software.
+#
+# THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+# IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+# FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+# AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+# LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+# OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+# THE SOFTWARE.
+#
+# Author(s): Dave Astels
+#
