@@ -1,6 +1,4 @@
-import peasy.PeasyCam;
-PeasyCam cam;
-
+class weatherGraph{
 float apparentTemperature = 61.48;
 float dewPoint = 57.94;
 float humidity = 0.88*100;
@@ -8,7 +6,6 @@ float pressure = 1019.6/10;
 float uvIndex = 61.48;
 
 void setup() {
-  cam = new PeasyCam(this, 400);
   size(600, 600, P3D);
 }
 
@@ -113,6 +110,6 @@ void drawCylinder( int sides, float r, float h)
   endShape(CLOSE);
 }
 
-
+}
 // rotateY( radians( frameCount ) );
 //rotateZ( radians( frameCount ) );
