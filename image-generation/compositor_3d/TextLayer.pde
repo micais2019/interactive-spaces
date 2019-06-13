@@ -28,7 +28,7 @@ class TextLayer {
     PFont font;
     
     // font = loadFont("TradeGothic-Bold-24.vlw");
-    font = createFont("TradeGothic-Bold", fontSize);
+    font = createFont("Avara-Bold.otf", fontSize); // provided by kw
     int tl = fontSize + floor(fontSize * 0.2);
     int lp = floor(fontSize / 4.0);
     
