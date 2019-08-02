@@ -55,8 +55,6 @@ void draw() {
   }
 }
 
-
-
 void target(float freq, int cx, int cy) {
   //for (float j = random(0,500); j<500; j+= random(0,50)){
 
