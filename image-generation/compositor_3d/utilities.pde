@@ -9,3 +9,12 @@ long getTimestampFromArgs() {
     return (new Date()).getTime() / 1000;
   }
 }
+
+int getIndexFromArgs() {
+  if (args != null) {
+    return parseInt(args[1]);
+  } else {
+    // unix epoch timestamp
+    return floor(random(75000));
+  }
+}

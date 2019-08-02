@@ -55,9 +55,11 @@ class Planet {
     return fabric;
   }
   
-  PGraphics target() { // float freq, int cx, int cy) {
+  PGraphics target() {
+    // float freq, int cx, int cy) {
     PGraphics graphic = createGraphics(600, 600);
     graphic.beginDraw();
+    graphic.background(0);
     graphic.smooth(8);
     graphic.ellipseMode(CENTER);
     graphic.stroke(0);
