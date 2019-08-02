@@ -1,112 +1,52 @@
-class weatherGraph{
-  float apparentTemperature = 61.48;
-  float dewPoint = 57.94;
-  float humidity = 0.88*100;
-  float pressure = 1019.6/10;
-  float uvIndex = 61.48;
-  
-  PGraphics surface;
-  
-  void setup() {
-    surface = createGraphics(600, 600, P3D);
-  }
-  
-  void draw() {
-  
-    background(255);
-    pointLight(255, 255, 255, 400, 200, 300);
-  
-    lights();
-  
-    //temp
-    fill(255, 128, 0);
-    noStroke();
-    pushMatrix();   
-    translate( 0, -(apparentTemperature/2), 0 );
-    rotateX(1.57);
-    drawCylinder( 20, 3, apparentTemperature );
-    popMatrix();
-  
-    //dewpoint
-    fill(194, 244, 66);
-    pushMatrix();   
-    translate(50, -(dewPoint/2), 0 );
-    rotateX(1.57);
-    drawCylinder( 20, 3, dewPoint );
-    popMatrix();
-  
-    //humidity
-    fill(255, 53, 113);
-    pushMatrix();   
-    translate( 100, -(humidity/2), 0 );
-    rotateX(1.57);
-    drawCylinder( 20, 3, humidity );
-    popMatrix();
-  
-    //pressure
-    fill(53, 255, 207);
-    pushMatrix();   
-    translate( 150, -(pressure/2), 0 );
-    rotateX(1.57);
-    drawCylinder( 20, 3, pressure );
-    popMatrix();
-  
-    //uvIndex
-    fill(56, 85, 255);
-    pushMatrix();   
-    translate( 200, -(uvIndex/2), 0 );
-    rotateX(1.57);
-    drawCylinder( 20, 3, uvIndex );
-    popMatrix();
-  
-    //baseX
-    fill(51);
-    pushMatrix();   
-    translate( 100, 0, 0 );
-    rotateY(1.57);
-    drawCylinder( 20, 3, 210 );
-    popMatrix();
-    
-    //baseZ
-    fill(255,0,0);
-    pushMatrix();   
-    translate( 0, 0, -52 );
-    rotateZ(1.57);
-    drawCylinder( 20, 3, 105 );
-    popMatrix();
-  }
-  
-  void drawCylinder(int sides, float r, float h) {
-    float angle = 360 / sides;
-    float halfHeight = h / 2;
-  
-    // draw top of the tube
-    beginShape();
-    for (int i = 0; i < sides; i++) {
-      float x = cos( radians( i * angle ) ) * r;
-      float y = sin( radians( i * angle ) ) * r;
-      vertex( x, y, -halfHeight);
-    }
-    endShape(CLOSE);
-  
-    // draw bottom of the tube
-    beginShape();
-    for (int i = 0; i < sides; i++) {
-      float x = cos( radians( i * angle ) ) * r;
-      float y = sin( radians( i * angle ) ) * r;
-      vertex( x, y, halfHeight);
-    }
-    endShape(CLOSE);
-  
-    // draw sides
-    beginShape(TRIANGLE_STRIP);
-    for (int i = 0; i < sides + 1; i++) {
-      float x = cos( radians( i * angle ) ) * r;
-      float y = sin( radians( i * angle ) ) * r;
-      vertex( x, y, halfHeight);
-      vertex( x, y, -halfHeight);
-    }
-    endShape(CLOSE);
-  }
 
+import wblut.math.*;
+import wblut.processing.*;
+import wblut.core.*;
+import wblut.hemesh.*;
+import wblut.geom.*;
+
+class WeatherGraph {
+
+  WB_Render render;
+  HE_Mesh [] mesh = new HE_Mesh[5];
+
+  float radius = 5;
+  PGraphics [] texture = new PGraphics[5]; // texture
+  color [] colors = {color(#EB5118), color(#59CEEB), color(#FF55AD), color(#FFEE00), color(#1E00F0)};
+
+  PShape[] create(FloatList wscores, PApplet app) {
+
+    PShape[] objects = new PShape[5];
+
+    for (int i = 0; i < 5; i ++) {
+      float cylinderHeight = wscores.get(i);
+
+      texture[i] = createGraphics(800, 800);
+      texture[i].beginDraw();
+      texture[i].noStroke();
+      texture[i].background(colors[i]);
+      texture[i].endDraw();
+
+      HEC_Cylinder creator =new HEC_Cylinder();
+      creator.setRadius(radius, radius); // upper and lower radius. If one is 0, HEC_Cone is called. 
+      creator.setHeight(cylinderHeight);
+      creator.setFacets(20).setSteps(1);
+      creator.setCap(true, true);// cap top, cap bottom?
+      //Default axis of the cylinder is (0,1,0). To change this use the HEC_Creator method setZAxis(..).
+      creator.setZAxis(0, 1, 0);
+
+      mesh[i] = new HE_Mesh(creator);
+
+      HET_Diagnosis.validate(mesh[i]);
+
+      objects[i] = WB_PShapeFactory.createSmoothPShape(mesh[i], texture[i], app);
+    }
+    
+    /* objects[1] = WB_PShapeFactory.createSmoothPShape(dewpoint_mesh, app);
+     objects[2] = WB_PShapeFactory.createSmoothPShape(humidity_mesh, app);
+     objects[3] = WB_PShapeFactory.createSmoothPShape(pressure_mesh, app);
+     objects[4] = WB_PShapeFactory.createSmoothPShape(uv_mesh, app); */
+noStroke();
+    return objects;
+  }
 }
