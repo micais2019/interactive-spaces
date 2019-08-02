@@ -10,3 +10,5 @@ __pycache__/
 *.autosave
 scripts.local
 *.csv
+
+/image-generation/karlssonwilker-resources
