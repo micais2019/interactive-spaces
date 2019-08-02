@@ -59,3 +59,8 @@ void draw() {
   noStroke();
   render.drawFaces(mesh);
 }
+
+void mouseMoved() {
+  println("ry", mouseX*1.0f/width*TWO_PI, "rx", mouseY*1.0f/height*TWO_PI);
+  
+}
