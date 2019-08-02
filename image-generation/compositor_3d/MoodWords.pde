@@ -7,8 +7,8 @@ class MoodWords {
   int w, h;
   IntList values;
   
-  int rowHeight = 50;
-  int fontSize = 54;
+  int rowHeight = 30;
+  int fontSize = 30;
   
   color[] colors = {  
     #0061ff, 

@@ -77,7 +77,7 @@ void setup() {
   }
 
   weatherScores = new FloatList();
-  String[] weatherData = split("61.48 57.94 88 101.96 61.48 ", " ");
+  String[] weatherData = split("61.48 57.94 88 101.96 61.48 100", " ");
   for (int i=0; i < weatherData.length; i++) {
     weatherScores.append(int(weatherData[i]));
   }
@@ -113,7 +113,7 @@ void setup() {
   if (!SKIP_SPLASH) {
     // TO ADD: Motion Scores?
     explosion = new SplashMotion(width * 0.05);
-    splash = explosion.create(24, this);
+    splash = explosion.create(24, this); //change to higher number for funky glitches
   }
 
   textLayer = new TextLayer(width, height);
@@ -248,10 +248,12 @@ void drawText(long ts) {
 
 void drawSplash(long ts) {
   pushMatrix();
-  translate(width/3, height/3);
-  rotateY(mouseX*1.0f/width*TWO_PI);
-  rotateX(mouseY*1.0f/height*TWO_PI);
+  translate(width*0.2, height*0.2);
+  rotateY(frameCount * 0.01);
+  rotateX(frameCount * 0.01);
+  rotateZ(frameCount * 0.01);
   noStroke();
+  scale(1);
   shape(splash);
   popMatrix();
 }
@@ -267,27 +269,31 @@ void drawWeatherGraph(long ts) {
   float ry = map(rot, 0, 60, -1.48, 0.48);
   float rx = map(rot, 0, 60, -0.78, 1.2);
   if (CONTROL_POSITION) {  
-    rotateY(mouseX * 1.0f/width * TWO_PI);
-    rotateX(mouseY * 1.0f/height * TWO_PI);
+    rotateY(mouseX * 1.5f/width * TWO_PI);
+    rotateX(mouseY * 1.25f/height * TWO_PI);
   } else { 
     rotateX(rx);
     rotateY(ry);
   }
-  scale(2);
+  scale(1.2);
+  
   // relative positioning
   pushMatrix(); 
   // draw each shape
   shape(weatherObjects[0]);
-  translate(40, 0);
+  translate(20, 0);
   shape(weatherObjects[1]);
-  translate(40, 0);
+  translate(20, 0);
   shape(weatherObjects[2]);
-  translate(40, 0);
+  translate(20, 0);
   shape(weatherObjects[3]);
-  translate(40, 0);
+  translate(20, 0);
   shape(weatherObjects[4]);
+  rotateZ(radians(90));
+  translate(50,50);
+  shape(weatherObjects[5]);
   popMatrix();
-
+  
   popMatrix();
 }
 
