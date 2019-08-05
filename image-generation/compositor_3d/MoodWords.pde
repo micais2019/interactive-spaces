@@ -22,7 +22,7 @@ class MoodWords {
   };
 
   MoodWords(float w, float h, IntList values) {
-    mood_words = loadJSONObject("word-associations.json");
+    mood_words = loadJSONObject("word-test.json"); // new text .json file, with nouns from Amazon's Rekognition + MICA photos
      
     this.w = floor(w);
     this.h = floor(h);

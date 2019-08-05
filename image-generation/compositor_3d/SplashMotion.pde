@@ -28,7 +28,6 @@ class SplashMotion {
     }
 
     WB_Polygon polygon=new WB_Polygon(basepoints); //create polygon from base points, HEC_Polygon assumes the polygon is planar
-
     HEC_Polygon creator=new HEC_Polygon();
     creator.setPolygon(polygon);//alternatively polygon can be a WB_Polygon2D
     creator.setThickness(thickness);// thickness 0 creates a surface
@@ -36,11 +35,12 @@ class SplashMotion {
     HET_Diagnosis.validate(mesh);
     HE_VertexIterator vitr=mesh.vItr();
     while (vitr.hasNext()) {
-      vitr.next().setColor(color(random(255), random(50), random(255)));    //color, random
+      vitr.next().setColor(color(random(255), random(50), random(255)));
+      noStroke();//color, random
     }
     PShape splashmesh = WB_PShapeFactory.createFacetedPShapeWithVertexColor(mesh, app);
-    
-   // splashmesh.disableStyle();
+    noStroke();
+    //splashmesh.disableStyle();
     return splashmesh;
   }
 }

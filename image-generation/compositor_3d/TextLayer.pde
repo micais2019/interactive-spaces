@@ -75,7 +75,7 @@ class TextLayer {
       "with contemporary approaches to art, design and media. MICA is ",
       "redefining the role of the artists and designers as creative,",
       "solutions-oriented makers and thinkers who will drive social,",
-      "cultural, and economic advancement forour future. As the oldest",
+      "cultural, and economic advancement for our future. As the oldest",
       "continuously degree-granting college of art and design in the",
       "nation, MICA is located in Baltimore, deeply connected to the",
       "community. It is a leading contributor to the creative economy",

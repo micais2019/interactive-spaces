@@ -1,0 +1,80 @@
+{
+  "// 0": "green",
+  0: [
+    "workshop",
+    "indoors",
+    "stage",
+    "building",
+    "factory",
+    "town",
+    "lab"
+  ],
+  "// 1": "yellow",
+  1: [
+    "human",
+    "person",
+    "art",
+    "toy",
+    "origami",
+    "bowl"
+  ],
+  "// 2": "orange",
+  2: [
+    "box",
+    "painting",
+    "mural",
+    "plywood",
+    "flooring",
+    "handrail",
+
+  ],
+  "// 3": "pink",
+  3: [
+    "cardboard",
+    "housing",
+    "carton",
+    "canvas",
+    "furniture",
+    "display"
+
+  ],
+  "// 4": "red",
+  4: [
+    "monitor",
+    "tabletop",
+    "computer",
+    "electronics",
+    "screen",
+    "hardware"
+
+  ],
+  "// 5": "purple",
+  5: [
+    "machine",
+    "desk",
+    "wood",
+    "caramel",
+    "custard",
+    "meal"
+
+  ],
+  "// 6": "cyan",
+  6: [
+    "food",
+    "parking",
+    "animal",
+    "dog",
+    "cup"
+    
+  ],
+  "// 7": "blue",
+  7: [
+    "human",
+    "person",
+    "art",
+    "toy",
+    "origami",
+    "bowl"
+  ]
+}
+
