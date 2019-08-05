@@ -40,9 +40,10 @@ class WeatherGraph {
       HET_Diagnosis.validate(mesh[i]);
 
       objects[i] = WB_PShapeFactory.createSmoothPShape(mesh[i], texture[i], app);
-      objects[i].disableStyle();
-    }
+    objects[i].disableStyle();
 
+  }
+    
     /* objects[1] = WB_PShapeFactory.createSmoothPShape(dewpoint_mesh, app);
      objects[2] = WB_PShapeFactory.createSmoothPShape(humidity_mesh, app);
      objects[3] = WB_PShapeFactory.createSmoothPShape(pressure_mesh, app);

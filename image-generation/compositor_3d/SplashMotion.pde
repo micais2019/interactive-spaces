@@ -31,13 +31,21 @@ class SplashMotion {
     HEC_Polygon creator=new HEC_Polygon();
     creator.setPolygon(polygon);//alternatively polygon can be a WB_Polygon2D
     creator.setThickness(thickness);// thickness 0 creates a surface
+    stroke(0);
+
     mesh=new HE_Mesh(creator);
     HET_Diagnosis.validate(mesh);
+
+
+    //vertexcolor
     HE_VertexIterator vitr=mesh.vItr();
     while (vitr.hasNext()) {
-      vitr.next().setColor(color(random(255), random(50), random(255)));
+      vitr.next().setColor(color(random(255), random(50), random(100, 255)));
       noStroke();//color, random
     }
+
+
+
     PShape splashmesh = WB_PShapeFactory.createFacetedPShapeWithVertexColor(mesh, app);
     noStroke();
     //splashmesh.disableStyle();

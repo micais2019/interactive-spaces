@@ -9,13 +9,15 @@ final boolean SKIP_CLOTH = false;
 final boolean SKIP_PLANETS = false;
 final boolean SKIP_TEXT = false;
 final boolean SKIP_WORDS = false;
-final boolean SKIP_WEATHER = false;
 final boolean SKIP_SPLASH = false;
+final boolean SKIP_WEATHER = false;
+final boolean SKIP_LOGO = false;
+
 
 final color BACKGROUND = color(255, 255, 255);
 
-float coverWidth = 16.5;
-float coverHeight = 8.5;
+float coverWidth = 15;
+float coverHeight = 10;
 int dpi = 300;
 
 int coverFinalWidth = int(coverWidth * dpi);
@@ -47,6 +49,8 @@ PShape splash;
 WeatherGraph weather;
 PShape [] weatherObjects;
 
+PShape MICA_logo;
+
 // utility text
 TextLayer textLayer;
 
@@ -62,7 +66,7 @@ String[] moodData;
 
 void setup() {
   // size(4950, 2550, P3D); // FULL
-  size(1600, 800, P3D);
+  size(1200, 800, P3D);
   smooth(8);
 
   now = getTimestampFromArgs();
@@ -123,6 +127,10 @@ void setup() {
   textLayer = new TextLayer(width, height);
   // textLayer.draw(now, index);
   // textLayer.create(now, index);
+
+  if (!SKIP_LOGO) {
+    MICA_logo = loadShape("mica_logo-01.svg");
+  }
 }
 
 float soundToScore(int level) {
@@ -136,6 +144,8 @@ void draw() {
   directionalLight(200, 200, 200, 0, 0, -1);
   directionalLight(127, 127, 127, 0, 1, 0);
   directionalLight(18, 18, 18, -1, 0, 0);
+  lights();
+ // pointLight(100,100,255, width*0.9, height*0.9, 1000);
 
   if (!SKIP_CLOTH) {
     drawCloth(now);
@@ -160,8 +170,14 @@ void draw() {
   if (!SKIP_WEATHER) {
     drawWeatherGraph(now);
   }
+
+  if (!SKIP_LOGO) {
+    drawLogo(now);
+  }
+
   noLights();
   drawText(now);
+
 
   if (ONE_SHOT) {
     String filename = String.format("%s_%d_%d.png", now, 
@@ -252,18 +268,17 @@ void drawText(long ts) {
 
 void drawSplash(long ts) {
   pushMatrix();
-  translate(mouseX+400, mouseY+200);
-  rotateY(frameCount * 0.01);
+  translate(width*0.1+(frameCount), height * 0.15+(frameCount), -600+(frameCount));
   rotateX(frameCount * 0.01);
   rotateZ(frameCount * 0.01);
-  scale(1);
+  scale(1.7);
   shape(splash);
   popMatrix();
 }
 
 
 void drawWeatherGraph(long ts) {
-  
+
   float tolerance1 = (float(weatherData[0])-float(weatherData[1]))/2;
   float tolerance2 = (float(weatherData[1])-float(weatherData[2]))/2;
   float tolerance3 = (float(weatherData[2])-float(weatherData[3]))/2;
@@ -276,7 +291,7 @@ void drawWeatherGraph(long ts) {
   int rot = int(ts % (long)60);
   float ry = map(rot, 0, 60, -1.48, 0.48);
   float rx = map(rot, 0, 60, -0.78, 1.2);
-  
+
   if (CONTROL_POSITION) {  
     rotateY(mouseX * 1.5f/width * TWO_PI);
     rotateX(mouseY * 1.25f/height * TWO_PI);
@@ -292,14 +307,24 @@ void drawWeatherGraph(long ts) {
   shape(weatherObjects[1]);
   translate(20, tolerance2);
   shape(weatherObjects[2]);
-  translate(20,tolerance3);
+  translate(20, tolerance3);
   shape(weatherObjects[3]);
   translate(20, tolerance4);
   shape(weatherObjects[4]);
   rotateZ(radians(90));
-  translate(30,50);
+  translate(30, 50);
   shape(weatherObjects[5]);
-  
+
+  popMatrix();
+}
+
+void drawLogo(long ts) {
+  pushMatrix();
+  translate(width*0.5, height*0.4);
+  rotate(radians(90));
+  // MICA_logo.fill(255);
+  shape(MICA_logo);
+  MICA_logo.disableStyle();
   popMatrix();
 }
 

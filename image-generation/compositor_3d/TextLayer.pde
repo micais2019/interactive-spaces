@@ -8,8 +8,8 @@ class TextLayer {
   float tl_fudge = 0.4;
   boolean drawn = false;
   
-  int fontSize = 20; // demo
-  int nFontSize = 28;
+  int fontSize = 14; // demo
+  int nFontSize = 22;
   // int fontSize = 96; // big
   PFont nfont, bfont;
   
