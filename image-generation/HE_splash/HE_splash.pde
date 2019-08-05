@@ -37,8 +37,7 @@ void setup() {
   //color, random
     HE_VertexIterator vitr=mesh.vItr();
   while(vitr.hasNext()){
-   vitr.next().setColor(int(random(255)));
-   // or RGB : vitr.next().setColor(color(random(255), random(80),random(80,180)));
+   vitr.next().setColor(color(random(255), random(80),random(80,180)));
 
   }
 }

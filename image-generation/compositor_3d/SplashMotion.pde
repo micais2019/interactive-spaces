@@ -32,7 +32,6 @@ class SplashMotion {
     HEC_Polygon creator=new HEC_Polygon();
     creator.setPolygon(polygon);//alternatively polygon can be a WB_Polygon2D
     creator.setThickness(thickness);// thickness 0 creates a surface
-    noStroke();
     mesh=new HE_Mesh(creator);
     HET_Diagnosis.validate(mesh);
     HE_VertexIterator vitr=mesh.vItr();

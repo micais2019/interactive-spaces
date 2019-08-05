@@ -278,21 +278,21 @@ void drawWeatherGraph(long ts) {
   scale(1.2);
   
   // relative positioning
-  pushMatrix(); 
+//  pushMatrix(); 
   // draw each shape
   shape(weatherObjects[0]);
-  translate(20, 0);
+  translate(20, -8);
   shape(weatherObjects[1]);
-  translate(20, 0);
+  translate(20, -15);
   shape(weatherObjects[2]);
-  translate(20, 0);
+  translate(20, -5);
   shape(weatherObjects[3]);
-  translate(20, 0);
+  translate(20, 20);
   shape(weatherObjects[4]);
   rotateZ(radians(90));
-  translate(50,50);
+  translate(50,40);
   shape(weatherObjects[5]);
-  popMatrix();
+//  popMatrix();
   
   popMatrix();
 }

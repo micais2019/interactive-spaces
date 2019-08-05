@@ -59,7 +59,7 @@ class MoodWords {
       int mood = floor(random(8));
       String word = this.pickWord(mood);
       
-      surface.fill(0);
+      surface.noFill();
       for (int n=-1; n < 2; n++) {
         surface.text(word, n, level); 
         surface.text(word, 0, level + n);
