@@ -1,5 +1,5 @@
 Point origin, p1, p2;
-PolygonPath triangle, zigs;
+PolygonPath triangle, zigs, linepath;
 
 int STEPS = 75000; // higher steps means slower movement
 
@@ -16,6 +16,14 @@ void setup() {
     zig_points[i] = new Point(random(width), random(height));
   }
   zigs = new PolygonPath(zig_points, 10000);
+  
+  linepath = new PolygonPath(
+    new Point[]{ 
+      new Point(10, 100), 
+      new Point(width - 10, 100) 
+    },
+    1000
+  );
 }
 
 void draw() {
@@ -34,4 +42,7 @@ void draw() {
   fill(0, 255, 0);
   ellipse(zig_center.x, zig_center.y, 10, 10);
   
+  Point l_center = linepath.point(now);
+  fill(100, 0, 0);
+  ellipse(l_center.x, l_center.y, 10, 10);
 }
