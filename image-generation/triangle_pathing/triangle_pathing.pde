@@ -1,19 +1,41 @@
-int[] origin, p1, p2;
+Point origin, p1, p2;
+PolygonPath triangle, zigs;
+
 int STEPS = 75000; // higher steps means slower movement
 
 void setup() {
   size(400, 400);
-  origin = new int[]{ 0, height };
-  p1 = new int[]{ width/2, 0 };
-  p2 = new int[]{ width, height };
+  origin = new Point(0, height);
+  p1 = new Point(width/2, 0);
+  p2 = new Point(width, height);
+  triangle = new PolygonPath(new Point[]{ origin, p1, p2 }, 15000);
+  
+  Point[] zig_points = new Point[20];
+  for (int i=0; i < zig_points.length; i++) {
+    zig_points[i] = new Point(random(width), random(height));
+  }
+  zigs = new PolygonPath(zig_points, 10000);
 }
 
 void draw() {
   background(128);
   fill(255); 
-  stroke(0);
+  noStroke();
+  
+  long now = millis();
+  text(now, 10, 10);
   
   // overall progress around the shape
+  Point tri_center = triangle.point(now);
+  fill(255);
+  ellipse(tri_center.x, tri_center.y, 10, 10);
+  
+  Point zig_center = zigs.point(now);
+  fill(0, 255, 0);
+  ellipse(zig_center.x, zig_center.y, 10, 10);
+  
+  
+  /*
   int point = millis() % STEPS;
   float prog = map(point, 0, STEPS, 0.0, 1.0);
   text(prog, 10, 10);
@@ -42,6 +64,8 @@ void draw() {
   
   float x = lerp(from[0], to[0], segment_progress);
   float y = lerp(from[1], to[1], segment_progress);
+
   
   ellipse(x, y, 10, 10);
+  */
 }
