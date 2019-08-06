@@ -386,7 +386,7 @@ void drawPaths(long ts) {
   for (int i=0; i<MAX_COUNTER; i+=3) {
     // 1. locate
     Point weather_center = getEllipsePoint(i, width*0.5, 0.85, 0.5);
-    Point donut_center = getEllipsePoint(i, height*0.5, 1.0, 1.0);
+    Point donut_center = getEllipsePoint(i, height*0.5, 1.0, 0.2);
     Point planets_center = getEllipsePoint(i, width*0.27, 0.4, 1.0);
     Point tri_center = triangle.point(i);
     Point square_center = square.point(i);
@@ -400,9 +400,10 @@ void drawPaths(long ts) {
     popMatrix();
 
     //donut path
-    fill(0, 255, 0);
-    pushMatrix();
-    translate(width*0.5 + donut_center.x, height*0.5 + donut_center.y);
+    fill(100);
+    pushMatrix();  
+    translate(width*0.5 + donut_center.x, height*0.8 + donut_center.y);
+   // rotateZ(radians(90));
     rect(0, 0, 3, 2);
     popMatrix();
 
