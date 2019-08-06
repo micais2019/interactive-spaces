@@ -8,8 +8,8 @@ class TextLayer {
   float tl_fudge = 0.4;
   boolean drawn = false;
   
-  int fontSize = 24; // demo
-  int nFontSize = 32;
+  int fontSize = 14; // demo
+  int nFontSize = 22;
   // int fontSize = 96; // big
   PFont nfont, bfont;
   
@@ -67,15 +67,20 @@ class TextLayer {
     float lh = (surface.textAscent() * scalar + surface.textDescent() * scalar);
 
     String lorem[] = { 
-      "Lorem ipsum dolor sit amet, consectetur adip", 
-      "iscing elit, sed do eiusmod tempor incididunt", 
-      "ut labore et dolore magna aliqua. Consequat", 
-      "interdum varius sit amet mattis vulputate enim.",
-      "Faucibus turpis in eu mi. Id donec ultrices",
-      "tincidunt arcu non. Pellentesque dignissim enim",
-      "sit amet venenatis urna cursus eget nunc.",
-      "Accumsan sit amet nulla facilisi morbi. Cras",
-      "fermentum odio eu feugiat pretium nisl." 
+      
+      "Acknowledged nationally as a premier leader in art and", 
+      "design education, MICA is deliberately cultivating a new", 
+      "generation of artist—one that is capable of seamlessly ", 
+      "integrating innovation entrepreneurship and creative citizenship",
+      "with contemporary approaches to art, design and media. MICA is ",
+      "redefining the role of the artists and designers as creative,",
+      "solutions-oriented makers and thinkers who will drive social,",
+      "cultural, and economic advancement for our future. As the oldest",
+      "continuously degree-granting college of art and design in the",
+      "nation, MICA is located in Baltimore, deeply connected to the",
+      "community. It is a leading contributor to the creative economy",
+      "regionally and a top producer of nationally and internationally",
+      "recognized professional artists and designers."
     };
     
     float len = 0;

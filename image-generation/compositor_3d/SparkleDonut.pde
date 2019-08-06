@@ -11,7 +11,7 @@ class SparkleDonut {
   
   int tubeFacets = 36;
   int torusFacets = 80;
-  int twist = 36;
+  int twist = 0;//36;
   float size;
   
   PGraphics pix; // texture
@@ -28,7 +28,7 @@ class SparkleDonut {
     pix.fill(255);
 
     int hh = pix.height / 2;
-    float pixelsize = hh / 128.0;
+    float pixelsize = hh / 50;//128.0;
     float barwidth = float(pix.width) / scores.size();
     float score;
 

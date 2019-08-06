@@ -22,7 +22,7 @@ class MoodWords {
   };
 
   MoodWords(float w, float h, IntList values) {
-    mood_words = loadJSONObject("word-associations.json");
+    mood_words = loadJSONObject("word-test.json"); // new text .json file, with nouns from Amazon's Rekognition + MICA photos
      
     this.w = floor(w);
     this.h = floor(h);
@@ -59,7 +59,7 @@ class MoodWords {
       int mood = floor(random(8));
       String word = this.pickWord(mood);
       
-      surface.fill(0);
+      surface.noFill();
       for (int n=-1; n < 2; n++) {
         surface.text(word, n, level); 
         surface.text(word, 0, level + n);
