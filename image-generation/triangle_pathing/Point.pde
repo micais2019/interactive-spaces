@@ -1,3 +1,4 @@
+// utility class so we're not passing arrays of 2 values around
 class Point {
    float x,y;
    

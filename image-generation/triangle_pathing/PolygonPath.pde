@@ -7,22 +7,13 @@ class PolygonPath {
     this.max_counter = max_counter;
   }
   
-  Point point(float timer) {
-    return this.point(int(timer));
-  }
-  
-  Point point(long timer) {
-    return this.point(int(timer));
-  }
-
   Point point(int timer) {
     int counter = timer % max_counter;
     float progress = map(counter, 0, max_counter, 0.0, 1.0);
     float x = 0, y = 0;
     
-    // progress around the shape. 
-    // 25% around a triangle is between 0 and 1
-    
+    // map timer value into progress around the shape, 
+    // regardless of how many segments it has
     Point from = new Point(),
           to = new Point();
     float segment_progress = 0;
@@ -46,4 +37,14 @@ class PolygonPath {
     
     return new Point(x, y);
   }
+
+  // handle other timer data types
+  Point point(float timer) {
+    return this.point(int(timer));
+  }
+
+  Point point(long timer) {
+    return this.point(int(timer));
+  }
+
 }
