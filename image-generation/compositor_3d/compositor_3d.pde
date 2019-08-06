@@ -1,3 +1,8 @@
+/*TODO:
+ • fix rectangle thin stroke? 
+ • organize paths (can we draw them on the z-axis?) /dione
+ • implement polygon paths /dione
+ */
 import peasy.*; 
 
 final boolean CONTROL_POSITION = true;
@@ -12,6 +17,7 @@ final boolean SKIP_WORDS = false;
 final boolean SKIP_SPLASH = false;
 final boolean SKIP_WEATHER = false;
 final boolean SKIP_LOGO = false;
+final boolean SKIP_PATHS = false;
 
 
 final color BACKGROUND = color(255, 255, 255);
@@ -63,6 +69,13 @@ int index;
 String[] weatherData;
 String[] soundData;
 String[] moodData;
+
+//triangular paths
+Point origin, p1, p2, squareOrigin, ps1, ps2, ps3;
+PolygonPath triangle, square;
+
+
+int MAX_COUNTER = 1000;
 
 void setup() {
   // size(4950, 2550, P3D); // FULL
@@ -145,7 +158,6 @@ void draw() {
   directionalLight(127, 127, 127, 0, 1, 0);
   directionalLight(18, 18, 18, -1, 0, 0);
   lights();
- // pointLight(100,100,255, width*0.9, height*0.9, 1000);
 
   if (!SKIP_CLOTH) {
     drawCloth(now);
@@ -175,9 +187,14 @@ void draw() {
     drawLogo(now);
   }
 
-  noLights();
-  drawText(now);
+  if (!SKIP_PATHS) {
+    drawPaths(now);
 
+  }
+
+  noLights();
+
+  drawText(now);
 
   if (ONE_SHOT) {
     String filename = String.format("%s_%d_%d.png", now, 
@@ -188,9 +205,10 @@ void draw() {
 }
 
 void drawDonut(long ts) {
-  pushMatrix();
 
-  translate(width * 0.79, height * 0.7);
+  pushMatrix();
+  //move it along a XZ axis, circularly
+  translate(width*0.4, height*0.7, -50);
 
   int rot = int(ts % (long)60);
 
@@ -205,7 +223,7 @@ void drawDonut(long ts) {
   }
   noStroke();
   textureMode(NORMAL);
-  scale(1.2);
+  scale(1);
   shape(donut);
 
   popMatrix();
@@ -278,16 +296,24 @@ void drawSplash(long ts) {
 
 
 void drawWeatherGraph(long ts) {
-
+  //relative adjustments for weathergraph
   float tolerance1 = (float(weatherData[0])-float(weatherData[1]))/2;
   float tolerance2 = (float(weatherData[1])-float(weatherData[2]))/2;
   float tolerance3 = (float(weatherData[2])-float(weatherData[3]))/2;
   float tolerance4 = (float(weatherData[3])-float(weatherData[4]))/2;
 
+  Point oval_center = getEllipsePoint(frameCount % MAX_COUNTER, height*0.5, 1.3, 0.6);
+
+  pushMatrix();
+  translate(width/2 + oval_center.x, height/2 + oval_center.y);
+  ellipse(0, 0, 2, 2);
+  popMatrix();
+
   pushMatrix();
 
   // primary positioning
-  translate(mouseX-100, mouseY-100);
+  translate(width/2 + oval_center.x, height/2 + oval_center.y);
+
   int rot = int(ts % (long)60);
   float ry = map(rot, 0, 60, -1.48, 0.48);
   float rx = map(rot, 0, 60, -0.78, 1.2);
@@ -303,7 +329,7 @@ void drawWeatherGraph(long ts) {
 
   // draw each shape
   shape(weatherObjects[0]);
-  translate(20, tolerance1 );
+  translate(20, tolerance1);
   shape(weatherObjects[1]);
   translate(20, tolerance2);
   shape(weatherObjects[2]);
@@ -328,6 +354,7 @@ void drawLogo(long ts) {
   popMatrix();
 }
 
+
 void mouseClicked() {
   /* println( 
    mouseX * 1.0f/width * TWO_PI, 
@@ -336,3 +363,82 @@ void mouseClicked() {
   String filename = String.format("snap_%d.png", t);
   saveFrame(filename);
 }
+
+//get points for elliptical paths
+//draw paths
+void drawPaths(long ts) {
+
+  //TRIANGLE STUFF
+  origin = new Point(width*0.1, height*0.97); //bottom left pt
+  p1 = new Point(width*0.5, height*0.03);//top middle pt
+  p2 = new Point(width*0.9, height*0.97);//bottom right pt
+  triangle = new PolygonPath(new Point[]{ origin, p1, p2 }, MAX_COUNTER);
+  //TRIANGLE STUFF
+
+  //SQUARE STUFF
+  squareOrigin = new Point(width*0.1, height*0.03); //top left pt
+  ps1 = new Point(width*0.9, height*0.03);//top right pt
+  ps2 = new Point(width*0.9, height*0.97);//bottom right pt
+  ps3 = new Point(width*0.1, height*0.97);//bottom left pt
+  square = new PolygonPath(new Point[]{ squareOrigin, ps1, ps2, ps3 }, MAX_COUNTER);
+  //SQUARE STUFF
+
+  for (int i=0; i<MAX_COUNTER; i+=3) {
+    // 1. locate
+    Point weather_center = getEllipsePoint(i, width*0.5, 0.85, 0.5);
+    Point donut_center = getEllipsePoint(i, height*0.5, 1.0, 1.0);
+    Point planets_center = getEllipsePoint(i, width*0.27, 0.4, 1.0);
+    Point tri_center = triangle.point(i);
+    Point square_center = square.point(i);
+
+
+    //weather path
+    fill(255, 0, 255);
+    pushMatrix();
+    translate(width*0.5 + weather_center.x, height*0.5 + weather_center.y);
+    rect(0, 0, 3, 2);
+    popMatrix();
+
+    //donut path
+    fill(0, 255, 0);
+    pushMatrix();
+    translate(width*0.5 + donut_center.x, height*0.5 + donut_center.y);
+    rect(0, 0, 3, 2);
+    popMatrix();
+
+    //planets path
+    fill(251, 255, 10);
+    pushMatrix();
+    translate(width*0.7 + planets_center.x, height*0.5 + planets_center.y);
+    rect(0, 0, 3, 2);
+    popMatrix();
+
+    //triangle path, counter
+    pushMatrix();
+    fill(0, 13, 255);
+    translate(tri_center.x, tri_center.y);
+    rect(0, 0, 3, 2);
+    popMatrix();
+
+    //square path, timestamp
+    pushMatrix();
+    fill(255, 0, 0);
+    translate(square_center.x, square_center.y);
+    rect(0, 0, 3, 2);
+    popMatrix();
+
+    fill(255);
+  }
+}
+float R = 100.0;
+
+Point getEllipsePoint(long counter, float radius, float wide, float flat) {
+  float progress = map(counter, 0, MAX_COUNTER, 0, TWO_PI); 
+
+  //        > 1.0 means wider
+  float x = wide * radius * cos(progress);
+  //        < 1.0 means flatter
+  float y = flat * radius * sin(progress);
+
+  return new Point(x, y);
+} 

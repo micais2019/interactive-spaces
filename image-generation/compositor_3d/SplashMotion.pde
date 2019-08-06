@@ -44,8 +44,6 @@ class SplashMotion {
       noStroke();//color, random
     }
 
-
-
     PShape splashmesh = WB_PShapeFactory.createFacetedPShapeWithVertexColor(mesh, app);
     noStroke();
     //splashmesh.disableStyle();
