@@ -6,19 +6,14 @@ class TimeStamp {
   long ts;
   float scalar = 0.8;
   boolean drawn = false;
-
-  int fontSize = 14; // demo
   int nFontSize = 22;
   // int fontSize = 96; // big
-  PFont nfont, bfont;
-
-  boolean DEBUG_BORDER = false;
+  PFont nfont;
 
   PGraphics surface;
 
   TimeStamp(int w, int h) {
     this.nfont = loadFont("TerminalGrotesque-Open-48.vlw");
-    this.bfont = loadFont("Avara-Bold-48.vlw");
     this.w = w;
     this.h = h; 
     this.surface = createGraphics(w, h, P3D);
@@ -48,17 +43,9 @@ class TimeStamp {
     surface.smooth(4);
     surface.beginDraw();
     surface.clear();
-    int lp = floor(fontSize / 4.0);
-
     surface.fill(0);
     surface.textFont(nfont, nFontSize);
-    surface.text(timestamp(ts), lp, nFontSize);
-
-    surface.noStroke();
-
-
-    surface.fill(0);
-
+    surface.text(timestamp(ts), 100, nFontSize);
     surface.endDraw(); 
 
     this.drawn = true;

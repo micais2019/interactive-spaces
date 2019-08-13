@@ -16,7 +16,8 @@
     "art",
     "toy",
     "origami",
-    "bowl"
+    "bowl",
+    "chair"
   ],
   "// 2": "orange",
   2: [
@@ -64,17 +65,18 @@
     "parking",
     "animal",
     "dog",
-    "cup"
+    "cup",
+    "jeans"
     
   ],
   "// 7": "blue",
   7: [
-    "human",
-    "person",
-    "art",
-    "toy",
-    "origami",
-    "bowl"
+    "long sleeve",
+    "gym",
+    "assembly line",
+    "aluminium",
+    "kindergarten",
+    "oscilloscope"
   ]
 }
 

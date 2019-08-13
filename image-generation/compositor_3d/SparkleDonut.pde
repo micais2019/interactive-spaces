@@ -42,7 +42,7 @@ class SparkleDonut {
         if (random(adj) < random(lim)) {
           pix.rect(0, y, barwidth, pixelsize);
         }
-      }
+      } 
       pix.popMatrix();
     }
     pix.endDraw();
