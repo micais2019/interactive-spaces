@@ -119,7 +119,7 @@ void setup() {
     // more amp -> bigger hills
     // more detail -> tighter hills
     //int amp = map (motion data, 0, 5344, 1000, 4000);
-    cloth = new ClothShape(floor(width * 0.5), floor(height * 3), 3000, 200);
+    cloth = new ClothShape(floor(width * 0.5), floor(height * 3), 1500, 200);
     fabric = cloth.create(moodValues, this);
   }
 

@@ -45,7 +45,7 @@ class MoodWords {
   PGraphics draw() {
     String text = "";
     for (int i=0; i < 4; i++) {
-      text += "(" + pickWord(floor(random(8))) + ")";
+      text += " (" + pickWord(floor(random(8))) + ") ";
     }
     int level = 30;
 
