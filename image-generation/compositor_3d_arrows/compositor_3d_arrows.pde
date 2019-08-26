@@ -11,7 +11,7 @@ final boolean SKIP_CLOTH = false;
 final boolean SKIP_PLANETS = false;
 final boolean SKIP_TEXT = false;
 final boolean SKIP_WORDS = false;
-final boolean SKIP_SPLASH = false;
+final boolean SKIP_SPLASH = true;
 final boolean SKIP_WEATHER = false;
 final boolean SKIP_LOGO = false;
 final boolean SKIP_PATHS = false;
@@ -79,11 +79,26 @@ Point origin, p1, p2, squareOrigin, ps1, ps2, ps3;
 PolygonPath triangle, square, zigzag;
 
 PShape arrow;
-
-int MAX_COUNTER = 1000;
-
 //zigzag points
 Point [] zig_points = new Point [11];
+
+int PATHS = 4;
+int MIN_COUNTER = 0;   // probably zero all the time
+int MAX_COUNTER = 500; // number of total points in all the paths
+
+BezierCurve curve1, curve2, curve3, curve4;
+
+PVector[] points, points2, points3, points4, points5;
+PVector[] equidistantPoints, equidistantPoints2, equidistantPoints3, equidistantPoints4, equidistantPoints5;
+
+final int POINT_COUNT = 100;
+
+int borderSize = 50;
+
+// all paths in one array
+
+BezierCurve all[] = { curve1, curve2, curve3, curve4 };
+
 
 void setup() {
   // size(4950, 2550, P3D); // FULL
@@ -119,7 +134,7 @@ void setup() {
     // more amp -> bigger hills
     // more detail -> tighter hills
     //int amp = map (motion data, 0, 5344, 1000, 4000);
-    cloth = new ClothShape(floor(width * 0.5), floor(height * 3), 1500, 200);
+    cloth = new ClothShape(floor(width * 0.5), floor(height * 3), 4000, 200);
     fabric = cloth.create(moodValues, this);
   }
 
@@ -142,7 +157,7 @@ void setup() {
   if (!SKIP_WEATHER) {
     WeatherGraph weather = new WeatherGraph();
     //int radius = map(weatherScores, 0, 100, 1, 5); 
-    weatherObjects = weather.create(weatherScores, 5, this);
+    weatherObjects = weather.create(weatherScores, 2, this);
   }
 
   if (!SKIP_SPLASH) {
@@ -151,8 +166,8 @@ void setup() {
     //int points = map(motion scores, 0, 5344, 5, 25);    //25 = max, 3 = min
     //int thickness = map(motion scores, 0, 5344, 5, 100); //50 = max, 5 = min
     //int size = map(motion scores, 0, 5344, 50, 500);
-    explosion = new SplashMotion(300);
-    splash = explosion.create(24, 5, this); //change to higher number for funky glitches
+    explosion = new SplashMotion(500);
+    splash = explosion.create(45, 20, 500, this); //change to higher number for funky glitches
   }
 
   textPara = new TextParagraph(600, 400);
@@ -207,7 +222,6 @@ float soundToScore(int level) {
 
 void draw() {
   background(BACKGROUND);
-
   directionalLight(200, 200, 200, 0, 0, -1);
   directionalLight(127, 127, 127, 0, 1, 0);
   directionalLight(18, 18, 18, -1, 0, 0);
@@ -243,7 +257,7 @@ void draw() {
 
   noLights();
 
-  drawText(now);
+  //drawText(now);
 
   if (!SKIP_WORDS) {
     drawWords(now);
@@ -264,6 +278,34 @@ void draw() {
     saveFrame(filename);
     exit();
   }
+
+  //bezier arrow stuff
+  PVector a = new PVector(655.52765, 713.5678);
+  PVector b = new PVector(1168.0905, 779.8995);
+  PVector c = new PVector(1196.2312, 678.39197);
+  PVector d = new PVector(597.2362, 396.98492);
+
+  PVector a2 = new PVector(597.2362, 396.98492);
+  PVector b2 = new PVector(3.2662964, 116.58292);
+  PVector c2 = new PVector(69.59799, 45.22613);
+  PVector d2 = new PVector(452.51257, 76.38191);
+
+  PVector a3 = new PVector(452.51257, 76.38191);
+  PVector b3 = new PVector(1130.9045, 173.86934);
+  PVector c3 = new PVector(730.90454, 338.69345);
+  PVector d3 = new PVector(535.9296, 432.1608);
+
+  PVector a4 = new PVector(535.9296, 432.1608);
+  PVector b4 = new PVector(205.27638, 590.9548);
+  PVector c4 = new PVector(424.37186, 664.3216);
+  PVector d4 = new PVector(655.52765, 713.5678);
+
+  curve1 = new BezierCurve(a, b, c, d);
+  curve2 = new BezierCurve(a2, b2, c2, d2);
+  curve3 = new BezierCurve(a3, b3, c3, d3);
+  curve4 = new BezierCurve(a4, b4, c4, d4);
+  //bezier arrow stuff
+  drawBezier(now);
 }
 
 void drawDonut(long ts) {
@@ -277,7 +319,7 @@ void drawDonut(long ts) {
   pushMatrix();
   translate(width/2 + arrow_center.x, height*0.828+arrow_center.y);
   rotate(progress+radians(90));
-  shape(arrow, -6, -6);
+  shape(arrow, -6, -6);  
   popMatrix();
   //arrow
   fill(255);
@@ -473,7 +515,7 @@ void drawSplash(long ts) {
   arrow.disableStyle();
   fill(#FF0DAA);
   Point arrow_center = getMoebiusPoint((frameCount+50) % MAX_COUNTER, 300);
-  println(arrow_center.y);
+  //println(arrow_center.y);
   float progress = map((frameCount+50), 0, 300, 0, TWO_PI); 
   pushMatrix();
   translate(width*0.5+arrow_center.x, height*0.5+arrow_center.y, arrow_center.z);
@@ -488,10 +530,11 @@ void drawSplash(long ts) {
     rotateY(mouseX * 1.0f/width * TWO_PI);
     rotateX(mouseY * 1.0f/height * TWO_PI);
   } else { 
-    rotateX(frameCount * 0.2);
+    rotateY(frameCount * 0.2);
+    rotateX(frameCount *0.1);
     rotateZ(frameCount * 0.2);
   }
-  scale(0.8);
+  scale(1.5);
   shape(splash);
   popMatrix();
   fill(255);
@@ -767,4 +810,45 @@ void dashedLine(float x1, float y1, float x2, float y2, float dashL, float space
     line(xx1, yy1, xx2, yy2);
     currentPos = currentPos + lPercent + gPercent;
   }
+}
+
+void drawBezier(long ts) {
+
+  // which path are we on? integer between 0 and COLLECTIONS-1
+  int c = frameCount % MAX_COUNTER;
+  float stage_len = MAX_COUNTER / float(PATHS);
+  int stage = floor(map(c, MIN_COUNTER, MAX_COUNTER, 0, PATHS));
+  // % progress along the current path
+  float local_progress = c - (stage_len*stage);
+  float percent_stage_progress = map(local_progress, 0, stage_len, 0, 1.0);
+
+  c = (c + 1) % MAX_COUNTER; // make sure counter repeats
+  // ... stage + percent calculations
+  BezierCurve all[] = { curve1, curve2, curve3, curve4};
+  BezierCurve active = all[stage];
+  PVector pos = active.pointAtFraction(percent_stage_progress);
+
+  float tx1 = bezierTangent(655.52765, 1168.0905, 1196.2312, 597.2362, percent_stage_progress);
+  float ty1 = bezierTangent(713.5678, 779.8995, 678.39197, 396.98492, percent_stage_progress);
+  float a1 = atan2(ty1, tx1);
+  float tx2 = bezierTangent(597.2362, 3.2662964, 69.59799, 452.51257, percent_stage_progress);
+  float ty2 = bezierTangent(396.98492, 116.58292, 45.22613, 76.38191, percent_stage_progress);
+  float a2 = atan2(ty2, tx2);
+  float tx3 = bezierTangent(452.51257, 1130.9045, 730.90454, 535.9296, percent_stage_progress);
+  float ty3 = bezierTangent(76.38191, 173.86934, 338.69345, 432.1608, percent_stage_progress);
+  float a3 = atan2(ty3, tx3);
+  float tx4 = bezierTangent(535.9296, 205.27638, 424.37186, 655.52765, percent_stage_progress);
+  float ty4 = bezierTangent(432.1608, 590.9548, 664.3216, 713.5678, percent_stage_progress);
+  float a4 = atan2(ty4, tx4);
+
+  float[] allrotations = { a1, a2, a3, a4};
+  float activeR = allrotations[stage];
+  scale(0.8);
+  pushMatrix(); 
+  translate(pos.x, pos.y, 300); 
+  rotate(activeR);
+  scale(2);
+  arrow.setFill(0);
+  shape(arrow, 0, 0); 
+  popMatrix();
 }
