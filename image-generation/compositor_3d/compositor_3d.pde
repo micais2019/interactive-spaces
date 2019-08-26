@@ -2,6 +2,7 @@
  • fix rectangle thin stroke? 
  • organize paths (can we draw them on the z-axis?) /dione
  • implement polygon paths /dione
+ * why do text paths put images at 0,0 for point(0)?
  */
 import peasy.*; 
 
@@ -351,9 +352,10 @@ void drawText(long ts) {
 }
 
 void drawTimestamp(long ts) {
-  Point tri_center = triangle.point(frameCount*5 % MAX_COUNTER);
+  Point tri_center = triangle.point(0);
   timestamp.draw(ts);
   pushMatrix();
+  println(width*0.42+tri_center.x*0.64, height*0.52+tri_center.y*0.64, 250);
   translate(width*0.42+tri_center.x*0.64, height*0.52+tri_center.y*0.64, 250);
   scale(0.7); 
   imageMode(CENTER);

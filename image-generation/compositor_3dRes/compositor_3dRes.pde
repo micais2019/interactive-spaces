@@ -1,8 +1,8 @@
 /*TODO:
  - change cloth width, amplitude and detail /dione
- 
+
  */
-import peasy.*; 
+import peasy.*;
 
 final boolean CONTROL_POSITION = false;
 final boolean DEBUG = false;
@@ -19,7 +19,6 @@ final boolean SKIP_LOGO = false;
 final boolean SKIP_PATHS = false;
 final boolean SKIP_TIME = false;
 final boolean SKIP_COUNTER = false;
-
 
 final color BACKGROUND = color(255, 255, 255);
 
@@ -43,7 +42,7 @@ PShape donut;
 Planet planet;
 PShape orb;
 
-// background 
+// background
 ClothShape cloth;
 ClothTexture tex;
 PShape fabric;
@@ -238,7 +237,7 @@ void draw() {
   }
 
   if (ONE_SHOT) {
-    String filename = String.format("%s_%d_%d.png", now, 
+    String filename = String.format("%s_%d_%d.png", now,
       coverFinalWidth, coverFinalHeight);
     saveFrame(filename);
     exit();
@@ -257,10 +256,10 @@ void drawDonut(long ts) {
 
   float ry = map(rot, 0, 60, -1.48, 0.48);
   float rx = map(rot, 0, 60, -0.78, 1.2);
-  if (CONTROL_POSITION) {  
+  if (CONTROL_POSITION) {
     rotateY(mouseX * 1.0f/width * TWO_PI);
     rotateX(mouseY * 1.0f/height * TWO_PI);
-  } else { 
+  } else {
     rotateX(frameCount * 0.2);
     rotateZ(frameCount * 0.3);
   }
@@ -336,7 +335,7 @@ void drawText(long ts) {
   float border = 50;
 
   Point text_center = getEllipsePoint(frameCount*6 % MAX_COUNTER, width*0.27, 0.1, 0.85);
-  textPara.draw(ts); 
+  textPara.draw(ts);
   pushMatrix();
   translate(width*0.08, height*0.35, 200);
   scale(0.9);
@@ -365,7 +364,7 @@ void drawTimestamp(long ts) {
 
 void drawCounter(long ts) {
   Point square_center = square.point(frameCount*5 % 3000);
-  counter.draw(23456); 
+  counter.draw(23456);
   pushMatrix();
   scale(0.75);
   translate(square_center.x + 200, square_center.y + 400, 800);
@@ -380,10 +379,10 @@ void drawSplash(long ts) {
 
   pushMatrix();
   translate(width*0.5+splash_center.x, height*0.5+splash_center.y, splash_center.z);
-  if (CONTROL_POSITION) {  
+  if (CONTROL_POSITION) {
     rotateY(mouseX * 1.0f/width * TWO_PI);
     rotateX(mouseY * 1.0f/height * TWO_PI);
-  } else { 
+  } else {
     rotateX(frameCount * 0.2);
     rotateZ(frameCount * 0.2);
   }
@@ -412,10 +411,10 @@ void drawWeatherGraph(long ts) {
   float ry = map(rot, 0, 60, -1.48, 0.48);
   float rx = map(rot, 0, 60, -0.78, 1.2);
 
-  if (CONTROL_POSITION) {  
+  if (CONTROL_POSITION) {
     rotateY(mouseX * 1.5f/width * TWO_PI);
     rotateX(mouseY * 1.25f/height * TWO_PI);
-  } else { 
+  } else {
     rotateX(frameCount * 0.1);
     rotateZ(frameCount * 0.1);
   }
@@ -451,11 +450,11 @@ void drawLogo(long ts) {
 
 
 void mouseClicked() {
-  /* println( 
-   mouseX * 1.0f/width * TWO_PI, 
+  /* println(
+   mouseX * 1.0f/width * TWO_PI,
    mouseY * 1.0f/height * TWO_PI); */
   long t = (new Date()).getTime() / 1000;
-  String filename = String.format("%s_%d_%d.png", now, 
+  String filename = String.format("%s_%d_%d.png", now,
     coverFinalWidth, coverFinalHeight);
   saveFrame(filename);
 }
@@ -522,7 +521,7 @@ void drawPaths(long ts) {
 
     //donut path
     fill(100);
-    pushMatrix();  
+    pushMatrix();
     translate(width*0.5 + donut_center.x, height*0.8, donut_center.y);
     rect(0, 0, width*0.0008, width*0.0008);
     popMatrix();
@@ -561,7 +560,7 @@ void drawPaths(long ts) {
 float R = 100.0;
 
 Point getEllipsePoint(long counter, float radius, float wide, float flat) {
-  float progress = map(counter, 0, MAX_COUNTER, 0, TWO_PI); 
+  float progress = map(counter, 0, MAX_COUNTER, 0, TWO_PI);
 
   //        > 1.0 means wider
   float x = wide * radius * cos(progress);
@@ -569,11 +568,11 @@ Point getEllipsePoint(long counter, float radius, float wide, float flat) {
   float y = flat * radius * sin(progress);
 
   return new Point(x, y);
-} 
+}
 
 
 Point getMoebiusPoint(long counter, float radius) {
-  float progress = map(counter, 0, MAX_COUNTER, 0, radians(720)); 
+  float progress = map(counter, 0, MAX_COUNTER, 0, radians(720));
   float y = cos(progress) + radius*(cos(progress/2));
   float x = sin(progress) + radius*(sin(progress/1));
   float z = radius*sin(0.5*progress);
