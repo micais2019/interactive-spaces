@@ -16,14 +16,13 @@ class TextCounter {
     this.surface = createGraphics(w, h, P3D);
   }
 
-
-  void draw( int count) {
+  void draw(int count) {
     surface.smooth(4);
     surface.beginDraw();
     surface.clear();
     surface.fill(0);
     surface.textFont(nfont, nFontSize);
-    surface.text(nf(count, 5) + "/75000",100,20);
+    surface.text(nf(int(count), 5) + "/75000",100,20);
 
     surface.endDraw();
 

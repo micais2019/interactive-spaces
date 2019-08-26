@@ -21,7 +21,7 @@ class TimeStamp {
 
   // "04.14.2019  14:25:24";
   String timestamp(long ts) {
-    Date time = new Date(ts * 1000);
+    Date time = getDateFromTimestamp(ts);
     String[] stamp = new String[11];
 
     stamp[0] = "04";

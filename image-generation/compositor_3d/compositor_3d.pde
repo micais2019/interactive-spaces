@@ -1,14 +1,24 @@
+
+/* 
+  Calling this sketch from the command line:
+  
+  
+ */
+
+
 /*TODO:
  • fix rectangle thin stroke? 
  • organize paths (can we draw them on the z-axis?) /dione
  • implement polygon paths /dione
  * why do text paths put images at 0,0 for point(0)?
+ * convert all draw point calculations from frameCount to index (current image index in 0 - 75000 sequence)
  */
 import peasy.*; 
 
 final boolean CONTROL_POSITION = false;
 final boolean DEBUG = false;
-final boolean ONE_SHOT = false;
+boolean ONE_SHOT = false;
+
 
 final boolean SKIP_DONUT = false;
 final boolean SKIP_CLOTH = false;
@@ -18,7 +28,7 @@ final boolean SKIP_WORDS = false;
 final boolean SKIP_SPLASH = false;
 final boolean SKIP_WEATHER = false;
 final boolean SKIP_LOGO = false;
-final boolean SKIP_PATHS = false;
+final boolean SKIP_PATHS = true;
 final boolean SKIP_TIME = false;
 final boolean SKIP_COUNTER = false;
 
@@ -75,9 +85,7 @@ MoodWords wordart;
 long now;
 int index;
 
-String[] weatherData;
-String[] soundData;
-String[] moodData;
+
 
 //triangular paths
 Point origin, p1, p2, squareOrigin, ps1, ps2, ps3;
@@ -93,27 +101,15 @@ void setup() {
   // size(4950, 2550, P3D); // FULL
   size(1200, 800, P3D);
   smooth(8);
-
+  
+  ONE_SHOT = getOneShotFromArgs();
   now = getTimestampFromArgs();
   index = getIndexFromArgs();
-
-  soundScores = new FloatList();
-  soundData = split("750 610 1853 636 923 381 485 220 532 351 308 533 310 319 1069 655 801 521 694 332 621 359 214 550 405 801 476 745 313 504 346 623 333 492 325 9404 2336 1098 1344 432 592 379 897 403 678 379 382 707 413 1219 715 1025 485 711 414 376 817 532 411 669 387 376 836 480 338 961 1335 513 1962 833 928 447 1060 678 630 1551 607 802 333 638 420 293 511 541 278 505 221 438 289 442 345 519 311 651 301 459 252 620 294 529 256 459 316 627 343 273 501 316 578 333 769 415 696 409 500 336 315 612 663 463 381 188 502 324 451 364 510 270 604 248 613 297 199 915 352 539 337 286 425 233 508 320 489 341 613 373 270 457 259 416", " ");
-  for (int i=0; i < soundData.length; i++) {
-    soundScores.append(soundToScore(int(soundData[i])));
-  }
-
-  moodValues = new IntList();
-  moodData = split("3 2 1 0 3 5 5 7 6 4 6 1 5 0 4 3 7 6 7 6 7 6 7 6 5 4 3 2 1 6 7 6 7 6 7 6 7 6 7 6 5 7 4 3 2 1 0 1 2 3 4 5 6 0 4 3 4 5 6 7 2 1 0 3 3 4 0 7 4 1 0 5 2 7 5 2 0 2 6 3 1 6 4 0 2 6 1 3 0 1 6 5 6 7 2 3 3 0 1 2 2 3 4 5 6 7 5 4 4 4 3 3 2 2 1 4 5 0 3 5 3 4 7 6 2 0 2 4 3 5 2 3 3 3 7 4 4 3 5 3 3 3 2 0 3 4 3 4 4 4 3 2 2 4 4 6 7 6 7 6 7 6 4 3 7 6 7 3 1 3 2 7 0 5 4 0 6 3 1 4 3 2 1 3 3 4 5 1 2 4 5 6 7 0 3 2 7 2 3 5 3 4 3 4 3 4 3 4 3 4 3 4 3 5 5 3 4 3 4 5 4 5 4 4 4 4 4 4 3 4 3 5 4 4 4 4 4 4 4 4 4 4 4 4 4 4 0 4 4 4 4 5 4 4 4 4 4 4 4 4 4 4 5 6 0 7 1 2 3 4 5 7 3 3 0 4 5 6 7 3 2 1 7", " ");
-  for (int i=0; i < max(moodData.length, 100); i++) {
-    moodValues.append(int(moodData[i]));
-  }
-
-  weatherScores = new FloatList();
-  weatherData = split("61.48 57.94 88 101.96 61.48 100", " ");
-  for (int i=0; i < weatherData.length; i++) {
-    weatherScores.append(float(weatherData[i]));
-  }
+  DataLoader dload = new DataLoader(this); 
+  
+  soundScores = dload.getSound1Scores(now); 
+  moodValues = dload.getMoodValues(now);
+  weatherScores = dload.getWeatherScores(now);
 
   if (!SKIP_CLOTH) {
     // w h amp detail
@@ -151,7 +147,6 @@ void setup() {
 
   textPara = new TextParagraph(600, 400);
 
-
   if (!SKIP_LOGO) {
     MICA_logo = loadShape("mica_logo-01.svg");
   }
@@ -164,28 +159,41 @@ void setup() {
     counter = new TextCounter(width, height);
   }
 
-  if (!SKIP_PATHS) {
-
-    //zigzag path stuff
-    for (int lp = 0; lp <9; lp+=2) {
-      float spacing = height*0.1;
-      float offset = height*0.1;
-      zig_points[lp] = new Point(width*0.1, offset +lp*spacing);
-    }
-    for (int rp = 1; rp <9; rp+=2) {
-      float spacing = height*0.1;
-      float offset = height*0.1;
-      zig_points[rp] = new Point(width*0.8, offset + rp*spacing);
-    }
-
-    zig_points[9] = new Point(width*0.9, height*0.9);
-    zig_points[10] = new Point(width*0.9, height*0.1);
-  }
+  generatePaths();
 }
 
-float soundToScore(int level) {
-  level = constrain(level, 200, 10000);
-  return float(level) / 10000.0;
+void generatePaths() {
+  //TRIANGLE STUFF
+  origin = new Point(width*0.1, height*0.97); //bottom left pt
+  p1 = new Point(width*0.5, height*0.03);//top middle pt
+  p2 = new Point(width*0.9, height*0.97);//bottom right pt
+  triangle = new PolygonPath(new Point[]{ origin, p1, p2 }, MAX_COUNTER);
+  //TRIANGLE STUFF
+
+  //SQUARE STUFF
+  squareOrigin = new Point(width*0.1, height*0.03); //top left pt
+  ps1 = new Point(width*0.9, height*0.03);//top right pt
+  ps2 = new Point(width*0.9, height*0.97);//bottom right pt
+  ps3 = new Point(width*0.1, height*0.97);//bottom left pt
+  square = new PolygonPath(new Point[]{ squareOrigin, ps1, ps2, ps3 }, 3000);
+  //SQUARE STUFF
+
+  // ZIGZAG
+  for (int lp = 0; lp <9; lp+=2) {
+    float spacing = height*0.1;
+    float offset = height*0.1;
+    zig_points[lp] = new Point(width*0.1, offset +lp*spacing);
+  }
+  for (int rp = 1; rp <9; rp+=2) {
+    float spacing = height*0.1;
+    float offset = height*0.1;
+    zig_points[rp] = new Point(width*0.8, offset + rp*spacing);
+  }
+
+  zig_points[9] = new Point(width*0.9, height*0.9);
+  zig_points[10] = new Point(width*0.9, height*0.1);
+  zigzag = new PolygonPath(zig_points, 4000);
+  // ZIGZAG STUFF
 }
 
 void draw() {
@@ -236,9 +244,8 @@ void draw() {
     drawTimestamp(now);
   }
 
-
   if (!SKIP_COUNTER) {
-    drawCounter(now);
+    drawCounter(index);
   }
 
   if (ONE_SHOT) {
@@ -250,7 +257,7 @@ void draw() {
 }
 
 void drawDonut(long ts) {
-
+  /// TODO
   Point donut_center = getEllipsePoint(frameCount*10 % MAX_COUNTER, height*0.5, 1.0, 0.5);
 
   pushMatrix();
@@ -277,7 +284,6 @@ void drawDonut(long ts) {
 }
 
 void drawPlanets(long ts) {
-
   Point planets_center = getEllipsePoint((frameCount*5) % MAX_COUNTER, width*0.27, 0.4, 1.0);
 
   pushMatrix();
@@ -300,9 +306,6 @@ void drawPlanets(long ts) {
 }
 
 void drawWords(long ts) {
-  //ZIGZAG
-  zigzag = new PolygonPath(zig_points, 4000);
-
   Point zig_center = zigzag.point(frameCount*3 % 4000);
 
   pushMatrix();
@@ -314,9 +317,11 @@ void drawWords(long ts) {
   popMatrix();
 }
 
-/*void mouseMoved() {
- println(mouseX * 1.0f/width * TWO_PI, mouseY * 1.0f/height * TWO_PI);
- }*/
+/*
+void mouseMoved() {
+  println(mouseX * 1.0f/width * TWO_PI, mouseY * 1.0f/height * TWO_PI);
+}
+*/
 
 void drawCloth(long ts) {
   pushMatrix();
@@ -367,9 +372,9 @@ void drawTimestamp(long ts) {
   popMatrix();
 }
 
-void drawCounter(long ts) {
+void drawCounter(int count) {
   Point square_center = square.point(frameCount*5 % 3000);
-  counter.draw(2000); 
+  counter.draw(count); 
   pushMatrix();
   translate(width*0.42+square_center.x*0.64, height*0.52+square_center.y*0.64, 250);
   scale(0.7);
@@ -399,10 +404,10 @@ void drawSplash(long ts) {
 
 void drawWeatherGraph(long ts) {
   //relative adjustments for weathergraph
-  float tolerance1 = (float(weatherData[0])-float(weatherData[1]))/2;
-  float tolerance2 = (float(weatherData[1])-float(weatherData[2]))/2;
-  float tolerance3 = (float(weatherData[2])-float(weatherData[3]))/2;
-  float tolerance4 = (float(weatherData[3])-float(weatherData[4]))/2;
+  float tolerance1 = (weatherScores.get(0)-weatherScores.get(1))/2;
+  float tolerance2 = (weatherScores.get(1)-weatherScores.get(2))/2;
+  float tolerance3 = (weatherScores.get(2)-weatherScores.get(3))/2;
+  float tolerance4 = (weatherScores.get(3)-weatherScores.get(4))/2;
 
   Point weather_center = getEllipsePoint((frameCount * 10) % MAX_COUNTER, width*0.35, 0.85, 0.5);
 
@@ -466,24 +471,6 @@ void mouseClicked() {
 //draw paths
 void drawPaths(long ts) {
 
-  //TRIANGLE STUFF
-  origin = new Point(width*0.1, height*0.97); //bottom left pt
-  p1 = new Point(width*0.5, height*0.03);//top middle pt
-  p2 = new Point(width*0.9, height*0.97);//bottom right pt
-  triangle = new PolygonPath(new Point[]{ origin, p1, p2 }, MAX_COUNTER);
-  //TRIANGLE STUFF
-
-  //SQUARE STUFF
-  squareOrigin = new Point(width*0.1, height*0.03); //top left pt
-  ps1 = new Point(width*0.9, height*0.03);//top right pt
-  ps2 = new Point(width*0.9, height*0.97);//bottom right pt
-  ps3 = new Point(width*0.1, height*0.97);//bottom left pt
-  square = new PolygonPath(new Point[]{ squareOrigin, ps1, ps2, ps3 }, 3000);
-  //SQUARE STUFF
-
-  //ZIGZAG
-  zigzag = new PolygonPath(zig_points, 4000);
-
   //draw zigzag and square
   for (int i=0; i<4000; i+=1) {
     Point zig_center = zigzag.point(i);
@@ -503,8 +490,7 @@ void drawPaths(long ts) {
      rect(0, 0, 1, 1);
      popMatrix();
   }
-
-
+  
   noStroke();
 
   //draw the rest of the paths
