@@ -1,11 +1,7 @@
 /*TODO:
- • fix rectangle thin stroke? 
- • organize paths (can we draw them on the z-axis?) /dione
- • implement polygon paths /dione
- * why do text paths put images at 0,0 for point(0)?
+ •finesse line work, and arrows //dione 
  */
 import peasy.*; 
-
 final boolean CONTROL_POSITION = false;
 final boolean DEBUG = false;
 final boolean ONE_SHOT = false;
@@ -71,7 +67,6 @@ TextCounter counter;
 // 4 words
 MoodWords wordart;
 
-
 long now;
 int index;
 
@@ -83,6 +78,7 @@ String[] moodData;
 Point origin, p1, p2, squareOrigin, ps1, ps2, ps3;
 PolygonPath triangle, square, zigzag;
 
+PShape arrow;
 
 int MAX_COUNTER = 1000;
 
@@ -98,7 +94,10 @@ void setup() {
   index = getIndexFromArgs();
 
   soundScores = new FloatList();
-  soundData = split("750 610 1853 636 923 381 485 220 532 351 308 533 310 319 1069 655 801 521 694 332 621 359 214 550 405 801 476 745 313 504 346 623 333 492 325 9404 2336 1098 1344 432 592 379 897 403 678 379 382 707 413 1219 715 1025 485 711 414 376 817 532 411 669 387 376 836 480 338 961 1335 513 1962 833 928 447 1060 678 630 1551 607 802 333 638 420 293 511 541 278 505 221 438 289 442 345 519 311 651 301 459 252 620 294 529 256 459 316 627 343 273 501 316 578 333 769 415 696 409 500 336 315 612 663 463 381 188 502 324 451 364 510 270 604 248 613 297 199 915 352 539 337 286 425 233 508 320 489 341 613 373 270 457 259 416", " ");
+  //soundData = split("750 610 1853 636 923 381 485 220 532 351 308 533 310 319 1069 655 801 521 694 332 621 359 214 550 405 801 476 745 313 504 346 623 333 492 325 9404 2336 1098 1344 432 592 379 897 403 678 379 382 707 413 1219 715 1025 485 711 414 376 817 532 411 669 387 376 836 480 338 961 1335 513 1962 833 928 447 1060 678 630 1551 607 802 333 638 420 293 511 541 278 505 221 438 289 442 345 519 311 651 301 459 252 620 294 529 256 459 316 627 343 273 501 316 578 333 769 415 696 409 500 336 315 612 663 463 381 188 502 324 451 364 510 270 604 248 613 297 199 915 352 539 337 286 425 233 508 320 489 341 613 373 270 457 259 416", " ");
+
+  soundData = split("532 351 308 533 310 319 1069 655 532 351 308 533 310 319 1069 655 801 521 694 332 621 359 214 550 405 801 476 745 313 504 346 623 333 492 325 9404 2336 1098 1344 432 592 379 897 403 678 379 382 707 413 1219 715 1025 485 711 414 376 817 532 411 669 387 376 836 480 338 961 1335 513 1962 833 928 447 1060 678 630 1551 607 802 333 638 420 293 511 541 278 505 221 438 289 442 345 519 311 651 301 459 252 620 294 529 256 459 316 627 343 273 501 316 578 333 769 415 696 409 500 336 315 612 663 463 381 188 502 324 451 364 510 270 604 248 613 297 199 915 352 539 337 286 425 233 508 320 489 341 613 373 270 457 259 416", " ");
+
   for (int i=0; i < soundData.length; i++) {
     soundScores.append(soundToScore(int(soundData[i])));
   }
@@ -119,13 +118,15 @@ void setup() {
     // w h amp detail
     // more amp -> bigger hills
     // more detail -> tighter hills
-    cloth = new ClothShape(floor(width * 0.5), floor(height * 2), 2500, 200);
+    //int amp = map (motion data, 0, 5344, 1000, 4000);
+    cloth = new ClothShape(floor(width * 0.5), floor(height * 3), 1500, 200);
     fabric = cloth.create(moodValues, this);
   }
 
   if (!SKIP_DONUT) {
     // just give size
-    toroid = new SparkleDonut(width * 0.08);
+    //int size = map(soundScore, 898, 839413, 100,400);
+    toroid = new SparkleDonut(100); //size
     donut = toroid.create(soundScores, this);
   }
 
@@ -135,18 +136,23 @@ void setup() {
   }
 
   if (!SKIP_WORDS) {
-    wordart = new MoodWords(width * 0.4, height * 0.3, moodValues);
+    wordart = new MoodWords(width * 0.6, height * 0.3, moodValues);
   }
 
   if (!SKIP_WEATHER) {
     WeatherGraph weather = new WeatherGraph();
-    weatherObjects = weather.create(weatherScores, this);
+    //int radius = map(weatherScores, 0, 100, 1, 5); 
+    weatherObjects = weather.create(weatherScores, 5, this);
   }
 
   if (!SKIP_SPLASH) {
     // TO ADD: Motion Scores?
-    explosion = new SplashMotion(width * 0.05);
-    splash = explosion.create(24, this); //change to higher number for funky glitches
+    //mapping motion scores to points and thickness
+    //int points = map(motion scores, 0, 5344, 5, 25);    //25 = max, 3 = min
+    //int thickness = map(motion scores, 0, 5344, 5, 100); //50 = max, 5 = min
+    //int size = map(motion scores, 0, 5344, 50, 500);
+    explosion = new SplashMotion(300);
+    splash = explosion.create(24, 5, this); //change to higher number for funky glitches
   }
 
   textPara = new TextParagraph(600, 400);
@@ -165,6 +171,17 @@ void setup() {
   }
 
   if (!SKIP_PATHS) {
+
+    //arrows
+    arrow = createShape();
+    arrow.beginShape();
+    arrow.noStroke();
+    //arrow.stroke(0);
+    //arrow.strokeWeight(2);
+    arrow.vertex(0, 0);
+    arrow.vertex(7, 7);
+    arrow.vertex(0, 14);
+    arrow.endShape();
 
     //zigzag path stuff
     for (int lp = 0; lp <9; lp+=2) {
@@ -252,6 +269,18 @@ void draw() {
 void drawDonut(long ts) {
 
   Point donut_center = getEllipsePoint(frameCount*10 % MAX_COUNTER, height*0.5, 1.0, 0.5);
+  //arrow
+  arrow.disableStyle();
+  fill(50);
+  Point arrow_center = getEllipsePoint((frameCount*10+100) % MAX_COUNTER, height*0.5, 1.045, 0.19);
+  float progress = map((frameCount*10+100), 0, MAX_COUNTER, 0, TWO_PI); 
+  pushMatrix();
+  translate(width/2 + arrow_center.x, height*0.828+arrow_center.y);
+  rotate(progress+radians(90));
+  shape(arrow, -6, -6);
+  popMatrix();
+  //arrow
+  fill(255);
 
   pushMatrix();
   //move it along a XZ axis, circularly
@@ -280,6 +309,20 @@ void drawPlanets(long ts) {
 
   Point planets_center = getEllipsePoint((frameCount*5) % MAX_COUNTER, width*0.27, 0.4, 1.0);
 
+  //arrow
+  arrow.disableStyle();
+  fill(#FFF700);
+  Point arrow_center = getEllipsePoint((frameCount * 5+100) % MAX_COUNTER, width*0.27, 0.4, 1.0);
+  float progress = map(frameCount * 5 +100, 0, MAX_COUNTER, 0, TWO_PI); 
+  pushMatrix();
+  translate(width*0.7 + arrow_center.x, height*0.5 + arrow_center.y, 0);
+  rotate(progress+radians(90));
+  shape(arrow, -6, -6);
+  popMatrix();
+  //arrow
+  fill(255);
+
+
   pushMatrix();
   noStroke();
   translate(width*0.7 + planets_center.x, height*0.5 + planets_center.y, 40);
@@ -300,18 +343,52 @@ void drawPlanets(long ts) {
 }
 
 void drawWords(long ts) {
+
+  boolean movingRight = true;
+  boolean movingUp = false;
   //ZIGZAG
   zigzag = new PolygonPath(zig_points, 4000);
-
   Point zig_center = zigzag.point(frameCount*3 % 4000);
+
+  //arrow
+  Point arrow_center = zigzag.point((frameCount*3+50) % 4000);
+
+  if (arrow_center.y > height*0.1 && arrow_center.y < height*0.2 && arrow_center.x < width*0.85|| 
+    arrow_center.y > height*0.3 && arrow_center.y < height*0.4 && arrow_center.x < width*0.85||
+    arrow_center.y > height*0.5 && arrow_center.y < height*0.6 && arrow_center.x < width*0.85||
+    arrow_center.y > height*0.7 && arrow_center.y < height*0.8 && arrow_center.x < width*0.85||
+    arrow_center.y == height*0.9 && arrow_center.x < width*0.9
+    ) {
+    movingRight = !movingRight;
+  } else if (arrow_center.x == width*0.9) {
+    movingUp = true;
+  }
+  pushMatrix();
+  translate(arrow_center.x, arrow_center.y);
+  if (!movingRight) {
+  } else {
+    scale(-1, 1);
+  }
+  if (movingUp) {
+    translate(-2, 0);
+    rotate(-radians(90));
+  }
+  arrow.disableStyle();
+  fill(#0000FF);
+
+  shape(arrow, -6, -6);
+  popMatrix();
+  //arrow
 
   pushMatrix();
   // translate(width * 0.7, height * 0.2);
-  translate(250+zig_center.x*0.75, 150+zig_center.y*0.73, 200);
+  translate(width*0.25+zig_center.x*0.68, 150+zig_center.y*0.73, 200);
   scale(0.55);
   imageMode(CENTER);
   image(wordart.draw(), 0, 0);
   popMatrix();
+
+  fill(255);
 }
 
 /*void mouseMoved() {
@@ -321,12 +398,12 @@ void drawWords(long ts) {
 void drawCloth(long ts) {
   pushMatrix();
 
-  translate(width * 0.58, 100, -400);
+  translate(width * 0.55, 100, -500);
   /* if (CONTROL_POSITION) {
    rotateY(mouseX * 1.0f/width * TWO_PI);
    rotateX(mouseY * 1.0f/height * TWO_PI);
    } else { */
-  rotateY(-2.649);
+  rotateY(-1.649);
   rotateX(2.989);
   //}
 
@@ -340,6 +417,17 @@ void drawText(long ts) {
   float border = 20;
 
   Point text_center = getEllipsePoint(frameCount*6 % MAX_COUNTER, width*0.27, 0.1, 0.85);
+  //arrow
+  Point arrow_center = getEllipsePoint((frameCount * 6 +200) % MAX_COUNTER, width*0.27, 0.1, 0.85);
+  float progress = map(frameCount * 6 +200, 0, MAX_COUNTER, 0, TWO_PI); 
+  pushMatrix();
+  translate(-width*0.199, 0, 0);
+  translate(width/2 + arrow_center.x, height/2 + arrow_center.y, 0);
+  rotate(progress+radians(90));
+  shape(arrow, -6, -6);
+  popMatrix();
+  //arrow
+
   textPara.draw(ts); 
   pushMatrix();
   translate(width*0.15, height*0.35, 200);
@@ -356,10 +444,9 @@ void drawText(long ts) {
 }
 
 void drawTimestamp(long ts) {
-  Point tri_center = triangle.point(0);
+  Point tri_center = triangle.point(frameCount*5 % MAX_COUNTER);
   timestamp.draw(ts);
   pushMatrix();
-  println(width*0.42+tri_center.x*0.64, height*0.52+tri_center.y*0.64, 250);
   translate(width*0.42+tri_center.x*0.64, height*0.52+tri_center.y*0.64, 250);
   scale(0.7); 
   imageMode(CENTER);
@@ -380,7 +467,20 @@ void drawCounter(long ts) {
 
 
 void drawSplash(long ts) {
-  Point splash_center = getMoebiusPoint(frameCount% MAX_COUNTER, 300);
+  Point splash_center = getMoebiusPoint(frameCount % MAX_COUNTER, 300);
+
+  //arrow
+  arrow.disableStyle();
+  fill(#FF0DAA);
+  Point arrow_center = getMoebiusPoint((frameCount+50) % MAX_COUNTER, 300);
+  println(arrow_center.y);
+  float progress = map((frameCount+50), 0, 300, 0, TWO_PI); 
+  pushMatrix();
+  translate(width*0.5+arrow_center.x, height*0.5+arrow_center.y, arrow_center.z);
+  rotate(progress+radians(180));
+  shape(arrow, -6, -6);
+  popMatrix();
+  //arrow
 
   pushMatrix();
   translate(width*0.5+splash_center.x, height*0.5+splash_center.y, splash_center.z);
@@ -394,6 +494,7 @@ void drawSplash(long ts) {
   scale(0.8);
   shape(splash);
   popMatrix();
+  fill(255);
 }
 
 
@@ -403,17 +504,25 @@ void drawWeatherGraph(long ts) {
   float tolerance2 = (float(weatherData[1])-float(weatherData[2]))/2;
   float tolerance3 = (float(weatherData[2])-float(weatherData[3]))/2;
   float tolerance4 = (float(weatherData[3])-float(weatherData[4]))/2;
-
+  float tolerance5 = (float(weatherData[0])/2);
   Point weather_center = getEllipsePoint((frameCount * 10) % MAX_COUNTER, width*0.35, 0.85, 0.5);
 
+  //arrow
+  arrow.disableStyle();
+  fill(#00ED18);
+  Point arrow_center = getEllipsePoint((frameCount * 10 +50) % MAX_COUNTER, width*0.5, 0.851, 0.5);
+  float progress = map(frameCount * 10 +50, 0, MAX_COUNTER, 0, TWO_PI); 
   pushMatrix();
+  translate(width/2 + arrow_center.x, height/2 + arrow_center.y, 0);
+  rotate(progress+radians(90));
+  shape(arrow, -6, -6);
+  popMatrix();
+  //arrow
+  fill(255);
 
+  pushMatrix();
   // primary positioning
   translate(width/2 + weather_center.x, height/2 + weather_center.y, 200);
-
-  int rot = int(ts % (long)60);
-  float ry = map(rot, 0, 60, -1.48, 0.48);
-  float rx = map(rot, 0, 60, -0.78, 1.2);
 
   if (CONTROL_POSITION) {  
     rotateY(mouseX * 1.5f/width * TWO_PI);
@@ -424,6 +533,7 @@ void drawWeatherGraph(long ts) {
   }
   scale(0.8);
 
+  pushMatrix();
   // draw each shape
   shape(weatherObjects[0]);
   translate(20, tolerance1);
@@ -435,21 +545,25 @@ void drawWeatherGraph(long ts) {
   translate(20, tolerance4);
   shape(weatherObjects[4]);
   rotateZ(radians(90));
-  translate(30, 50);
+  translate(tolerance5, 50);
   shape(weatherObjects[5]);
+  popMatrix();
 
   popMatrix();
 }
 
 void drawLogo(long ts) {
   pushMatrix();
-  translate(width*0.5125, height*0.4, 100);
+  translate(width*0.5, height*0.5, 500);
   rotate(radians(90));
   // MICA_logo.fill(255);
+  scale(0.35);
+  shapeMode(CENTER);
+
   shape(MICA_logo);
-  scale(1);
   MICA_logo.disableStyle();
   popMatrix();
+  shapeMode(CORNER);
 }
 
 
@@ -482,82 +596,97 @@ void drawPaths(long ts) {
   //SQUARE STUFF
 
   //ZIGZAG
-  zigzag = new PolygonPath(zig_points, 4000);
+  zigzag = new PolygonPath(zig_points, 6000);
 
   //draw zigzag and square
-  for (int i=0; i<4000; i+=1) {
+  for (int i=0; i<6000; i+=1) {
     Point zig_center = zigzag.point(i);
-    Point square_center = square.point(i);
+    //Point square_center = square.point(i);
 
     //zigzag path, moodwords
     pushMatrix();
-    fill(0, 255, 255);
+    fill(#0000FF);
     translate(zig_center.x, zig_center.y);
-    rect(0, 0, 1, 1);
+    rect(0, 0, 1.2, 1.2);
     popMatrix();
 
     //square path, timestamp
-    pushMatrix();
+    /*pushMatrix();
      fill(58);
      translate(square_center.x, square_center.y);
      rect(0, 0, 1, 1);
-     popMatrix();
+     popMatrix();*/
   }
 
-
-  noStroke();
-
   //draw the rest of the paths
-  for (int i=0; i< MAX_COUNTER; i+=1) {
-
-    // 1. locate
+  for (int i=0; i< MAX_COUNTER; i+=2) {
     Point weather_center = getEllipsePoint(i, width*0.5, 0.85, 0.5);
+
+    //ellipse(width*0.5, height*0.5, width*0.842, height*0.737);
+    noStroke();
+    //weather path
+    fill(#00ED18);
+    pushMatrix();
+    translate(width*0.5 + weather_center.x, height*0.5 + weather_center.y);
+    //rotate(0.1);
+    rect(0, 0, 1.5, 1.5);
+    //rotate(-cos(weather_center.x)*(-sin(weather_center.y))+radians(90));
+    popMatrix();
+  }  
+
+  for (int i=0; i< MAX_COUNTER; i+=2) {
     Point donut_center = getEllipsePoint(i, height*0.5, 1.0, 0.5);
+    float progress = map(i, 0, MAX_COUNTER, 0, TWO_PI); 
+
+    //donut path
+    fill(0);
+    pushMatrix();  
+    //ellipse(width*0.5, height*0.5, width*0.84, height*0.735);
+    translate(width*0.5 + donut_center.x, height*0.8, donut_center.y);
+    rotate(progress+radians(90));
+    rotateZ(progress);
+    ellipse(0, 0, 1.2, 1.2);
+    popMatrix();
+  }
+
+  for (int i=0; i< MAX_COUNTER; i+=2) {
     Point planets_center = getEllipsePoint(i, width*0.27, 0.4, 1.0);
     Point text_center = getEllipsePoint(i, width*0.27, 0.1, 0.85);
     Point tri_center = triangle.point(i);
-    Point splash_center = getMoebiusPoint(i, 300);
-
-    //weather path
-     fill(255, 0, 0);
-     pushMatrix();
-     translate(width*0.5 + weather_center.x, height*0.5 + weather_center.y);
-     rect(0, 0, 1, 1);
-     popMatrix();
-
-    //donut path
-    fill(100);
-    pushMatrix();  
-    translate(width*0.5 + donut_center.x, height*0.8, donut_center.y);
-    rect(0, 0, 1, 1);
-    popMatrix();
 
     //planets path
-     fill(251, 255, 10);
-     pushMatrix();
-     translate(width*0.7 + planets_center.x, height*0.5 + planets_center.y);
-     rect(0, 0, 1, 1);
-     popMatrix();
+    fill(#FFF700);
+    pushMatrix();
+    translate(width*0.7 + planets_center.x, height*0.5 + planets_center.y);
+    rect(0, 0, 1.5, 1.5);
+    popMatrix();
 
     //text path
-     fill(0, 255, 0);
-     pushMatrix();
-     translate(width*0.3 + text_center.x, height*0.5 + text_center.y);
-     rect(0, 0, 1, 1);
-     popMatrix();
+    fill(0);
+    pushMatrix();
+    translate(width*0.3 + text_center.x, height*0.5 + text_center.y);
+    rect(0, 0, 1.2, 1.2);
+    popMatrix();
 
-    //triangle path, counter
+    /*//triangle path, counter
      pushMatrix();
      fill(0, 13, 255);
      translate(tri_center.x, tri_center.y);
      rect(0, 0, 1, 1);
-     popMatrix();
+     popMatrix();*/
+  }
+  for (float i=0; i< MAX_COUNTER; i+=0.5) {
+    Point splash_center = getMoebiusPoint(i, 300);
 
     //moebius path, splash
     pushMatrix();
-    fill(252, 186, 3);
+    fill(#FF0DAA);
+
+    float progress = map(i, 0, MAX_COUNTER, 0, 1.5*TWO_PI); 
     translate(width*0.5+splash_center.x, height*0.5+splash_center.y, splash_center.z );
-    rect(0, 0, 1, 1);
+    //rotate(progress + radians(90));
+    rotate(0.1);
+    rect(0, 0, 1.2, 1.2);
     popMatrix();
 
     fill(255);
@@ -577,7 +706,7 @@ Point getEllipsePoint(long counter, float radius, float wide, float flat) {
 } 
 
 
-Point getMoebiusPoint(long counter, float radius) {
+Point getMoebiusPoint(float counter, float radius) {
   float progress = map(counter, 0, MAX_COUNTER, 0, radians(720)); 
   float y = cos(progress) + radius*(cos(progress/2));
   float x = sin(progress) + radius*(sin(progress/1));
