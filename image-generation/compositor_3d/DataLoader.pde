@@ -13,9 +13,23 @@ class DataLoader {
   }
   
   String conditionsAtTimeForKey(long ts, String sensor) {
-     return  "created_at > '" + Long.toString(ts) + "' and key = '" + sensor + "' ";
+    return  "created_at > '" + Long.toString(ts) + "' and key = '" + sensor + "' ";
+  }
+ 
+  StringList queryAtTimeForKey(long ts, String _key, int limit) {
+    String conditions = conditionsAtTimeForKey(ts, _key);
+    db.query("select value from data where " + conditions + " limit " + str(limit));
+    StringList results = new StringList();
+    while (db.next()) {
+      println("LOADED " + _key + " DATA:", db.getString("value"));
+      results.append(db.getString("value"));
+    }
+    return results;
   }
     
+  //////////
+  // Sound Data
+  //////////
   float soundToScore(int level) {
     level = constrain(level, 200, 10000);
     return float(level) / 10000.0;
@@ -49,17 +63,11 @@ class DataLoader {
     
     return soundScores;
   }
-  
-  StringList queryAtTimeForKey(long ts, String _key, int limit) {
-    String conditions = conditionsAtTimeForKey(ts, _key);
-    db.query("select value from data where " + conditions + " limit " + str(limit));
-    StringList results = new StringList();
-    while (db.next()) {
-      println("LOADED " + _key + " DATA:", db.getString("value"));
-      results.append(db.getString("value"));
-    }
-    return results;
-  }
+
+
+  //////////
+  // Motion Data
+  //////////
   
   FloatList getMotionScores(long ts) {
     int limit = 4;
@@ -74,6 +82,10 @@ class DataLoader {
     
     return motionScores;
   }
+  
+  //////////
+  // Mood Data
+  //////////
   
   IntList getMoodValues(long ts) {
     int limit = 100;
@@ -127,19 +139,27 @@ class DataLoader {
   }
   */
   
+  //////////
+  // Weather Data
+  //////////
+  
   FloatList getWeatherScores(long ts) {
     FloatList weatherScores = new FloatList();
+    String conditions = " created_at < '" + Long.toString(ts) + "' ";
     
     // set default values in case the web API craps out for some reason
-    weatherData = split("61.48 57.94 88 101.96 61.48 100", " ");
+    String result = "61.48 57.94 88 101.96 61.48 100";
     
-    String url = "https://micavibe.com/weather?at=" + Long.toString(ts);
-    GetRequest get = new GetRequest(url);
-    get.send();
-    String response = get.getContent();
+    db.query("select value from weather where " + conditions + " limit 1");
+    while (db.next()) {
+      println("LOADED WEATHER DATA:", db.getString("value"));
+      result = db.getString("value");
+    }
+    
+    weatherData = split(result, " ");
+    
     try {
-      JSONObject json = parseJSONObject(response);
-      JSONObject current = json.getJSONObject("current"); 
+      JSONObject current = parseJSONObject(result); 
       weatherData = new String[]{
         str(current.getFloat("temperature")),
         str(current.getFloat("dewPoint")),
@@ -150,7 +170,7 @@ class DataLoader {
       };
       println("LOADED WEATHER DATA", join(weatherData, " "));
     } catch (RuntimeException ex) {      
-      println("ERROR failed to retrieve data from", url, ". error:", response);
+      println("ERROR failed to retrieve weather data:", ex.getMessage());
     }
     
     for (int i=0; i < weatherData.length; i++) {

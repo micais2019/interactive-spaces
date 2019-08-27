@@ -22,7 +22,7 @@ class TextCounter {
     surface.clear();
     surface.fill(0);
     surface.textFont(nfont, nFontSize);
-    surface.text(nf(int(count), 5) + "/75000",100,20);
+    surface.text(nf(count, 5) + "/75000",100,20);
 
     surface.endDraw();
 
