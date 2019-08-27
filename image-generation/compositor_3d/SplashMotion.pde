@@ -10,21 +10,19 @@ class SplashMotion {
   WB_Render3D render;
   float size;
 
-  float thickness = random(10, 20);
-
   SplashMotion(float rad) {
     this.size = rad;
   }
 
-  PShape create(int points, PApplet app) {
+  PShape create(int points, float thickness, int reach, PApplet app) {
 
     //number of points in the splash
     WB_Point[] basepoints =new WB_Point[points];
 
     for (int i=0; i<points; i++) {
-      basepoints[i]=new WB_Point(0, random(200), 0);
+      basepoints[i]=new WB_Point(0, random(reach), random(-10, 10));
       //note: in Math.PI/x....etc, x must be no. of points/2
-      if (i>0) basepoints[i].rotateAboutAxisSelf(Math.PI/12.0*i, 0, 0, 0, 0, 0, 1);
+      if (i>0) basepoints[i].rotateAboutAxisSelf(Math.PI/(points*0.5)*i, 0, 0, 0, 0, 0, 1);
     }
 
     WB_Polygon polygon=new WB_Polygon(basepoints); //create polygon from base points, HEC_Polygon assumes the polygon is planar
@@ -37,13 +35,17 @@ class SplashMotion {
     HET_Diagnosis.validate(mesh);
 
 
-    //vertexcolor
     HE_VertexIterator vitr=mesh.vItr();
     while (vitr.hasNext()) {
-      vitr.next().setColor(color(random(255), random(50), random(100, 255)));
+      colorMode(RGB);
+      vitr.next().setColor(255);//day b&w
+      //vitr.next().setColor(int(random(100))); //night b&w
+
+      //vitr.next().setColor(color(random(0,100), random(10), random(50,100))); //night
+      //vitr.next().setColor(color(random(255), random(50), random(100, 255)));//default
+      //vitr.next().setColor(color(random(180,230), random(100,150), random(200, 255)));//day
       noStroke();//color, random
     }
-
     PShape splashmesh = WB_PShapeFactory.createFacetedPShapeWithVertexColor(mesh, app);
     noStroke();
     //splashmesh.disableStyle();

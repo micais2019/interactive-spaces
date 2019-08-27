@@ -10,11 +10,10 @@ class WeatherGraph {
   WB_Render render;
   HE_Mesh [] mesh = new HE_Mesh[6];
 
-  float radius = 2;
   PGraphics [] texture = new PGraphics[6]; // texture
   color [] colors = {color(#EB5118), color(#59CEEB), color(#FF55AD), color(#FFEE00), color(#1E00F0), color(#000000)};
 
-  PShape[] create(FloatList wscores, PApplet app) {
+  PShape[] create(FloatList wscores, float radius, PApplet app) {
 
     PShape[] objects = new PShape[6];
 
