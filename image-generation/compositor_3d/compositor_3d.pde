@@ -105,8 +105,9 @@ void setup() {
   ONE_SHOT = getOneShotFromArgs();
   now = getTimestampFromArgs();
   index = getIndexFromArgs();
-  DataLoader dload = new DataLoader(this); 
   
+  // loading data
+  DataLoader dload = new DataLoader(this); 
   soundScores = dload.getSound1Scores(now); 
   moodValues = dload.getMoodValues(now);
   weatherScores = dload.getWeatherScores(now);
@@ -251,6 +252,7 @@ void draw() {
   if (ONE_SHOT) {
     String filename = String.format("%s_%d_%d.png", now, 
       coverFinalWidth, coverFinalHeight);
+    println("@" + filename);
     saveFrame(filename);
     exit();
   }
