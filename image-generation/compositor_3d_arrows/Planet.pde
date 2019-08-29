@@ -27,7 +27,7 @@ class Planet {
     rotations.clear();
     scales.clear();
     for (int i=0; i < count; i++) {
-      offsets.append((15 * i));
+      offsets.append((55 * i));
       rotations.append(random(TWO_PI));
       scales.append(random(0.6, 2.0));
     }

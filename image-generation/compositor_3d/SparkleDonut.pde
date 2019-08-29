@@ -23,12 +23,12 @@ class SparkleDonut {
 
   void drawTexture(FloatList scores) {
     pix.beginDraw();
-    pix.noStroke();
-    pix.background(0);
-    pix.fill(255);
+    pix.stroke(0);
+    pix.background(255); //white torus
+    pix.fill(0);
 
     int hh = pix.height / 2;
-    float pixelsize = hh / 50;//128.0;
+    float pixelsize = hh / 40;//128.0;
     float barwidth = float(pix.width) / scores.size();
     float score;
 

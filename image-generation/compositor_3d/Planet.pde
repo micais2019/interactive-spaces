@@ -21,7 +21,8 @@ class Planet {
     rotations = new FloatList();
     scales = new FloatList();
     
-    int count = floor(random(3, 8));
+    int count = 5; //set planet count to be 5
+    //int count = floor(random(3, 8));
     offsets.clear();
     rotations.clear();
     scales.clear();
