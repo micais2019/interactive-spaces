@@ -128,7 +128,7 @@ void setup() {
     // TODO: add sound2 scores
     // is it possible to have a singular sound value to affect the distance between the spheres? (offset) 
     // i.e. larger value = more spread out, smaller value = clumped together
-    planet = new Planet(height * 0.04, now, this);
+    planet = new Planet(height * 0.03, now, this);
   }
 
   if (!SKIP_WORDS) {
@@ -411,7 +411,7 @@ void drawText(long ts) {
   //draw white rectangle
   fill(255);
   rectMode(CORNER);
-  rect(text_center.x*0.8, text_center.y*0.8, 500 + border, 270 + border);
+  rect(text_center.x*0.8, text_center.y*0.8, 500 + border, 280 + border);
   noFill();
   //draw text
   image(textPara.surface, text_center.x*0.8, text_center.y*0.8);
@@ -646,7 +646,7 @@ float R = 100.0;
 
 Point getEllipsePoint(long counter, float radius, float wide, float flat) {
   float progress = map(counter, 0, MAX_COUNTER, 0, TWO_PI);
-
+  
   //        > 1.0 means wider
   float x = wide * radius * cos(progress);
   //        < 1.0 means flatter

@@ -10,7 +10,7 @@ class TextCounter {
   PGraphics surface;
 
   TextCounter(int w, int h) {
-    this.nfont = loadFont("TerminalGrotesque-Open-48.vlw");
+    this.nfont = createFont("Pitch-Bold.otf", nFontSize);
     this.w = w;
     this.h = h; 
     this.surface = createGraphics(w, h, P3D);

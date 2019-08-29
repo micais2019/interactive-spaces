@@ -28,7 +28,7 @@ class MoodWords {
 
     // The font must be located in the sketch's 
     // "data" directory to load successfully
-    font = loadFont("Syne-Bold-54.vlw");
+    font = createFont("Patron-Bold.otf", fontSize);
 
     surface = (PGraphics2D) createGraphics(this.w, this.h, P2D); 
     surface.smooth(4);
@@ -43,7 +43,11 @@ class MoodWords {
   PGraphics draw() {
     String text = "";
     for (int i=0; i < 4; i++) {
-      text += " (" + pickWord(floor(random(8))) + ") ";
+      if (i < 3) {
+        text += pickWord(floor(random(8))) + ", ";
+      } else {
+        text += pickWord(floor(random(8)));
+      }
     }
     int level = 30;
 
@@ -55,6 +59,7 @@ class MoodWords {
 
     for (int i=0; i < 4; i++) {
       int mood = floor(random(8));
+
       String word = "(" + this.pickWord(mood) + ")";
 
       surface.noFill();

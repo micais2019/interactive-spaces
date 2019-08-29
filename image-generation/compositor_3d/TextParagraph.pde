@@ -4,7 +4,7 @@ class TextParagraph {
   long ts;
   boolean drawn = false;
 
-  int fontSize = 14; // demo
+  int fontSize = 17; // demo
   // int fontSize = 96; // big
   PFont bfont;
 
@@ -13,7 +13,7 @@ class TextParagraph {
   int border = 20;
 
   TextParagraph(int w, int h) {
-    this.bfont = loadFont("Avara-Bold-48.vlw");
+    this.bfont = createFont("Balto-Book.otf", fontSize);
     this.w = w;
     this.h = h; 
     this.surface = createGraphics(w, h, P3D);
