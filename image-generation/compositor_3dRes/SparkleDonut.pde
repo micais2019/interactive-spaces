@@ -24,11 +24,11 @@ class SparkleDonut {
   void drawTexture(FloatList scores) {
     pix.beginDraw();
     pix.noStroke();
-    pix.background(0);
-    pix.fill(255);
+    pix.background(255);
+    pix.fill(0);
 
     int hh = pix.height / 2;
-    float pixelsize = hh / 50;//128.0;
+    float pixelsize = hh / 32;//128.0;
     float barwidth = float(pix.width) / scores.size();
     float score;
 
@@ -38,10 +38,12 @@ class SparkleDonut {
       score = scores.get(idx);
       for (int y = -(hh - 1); y < hh; y += pixelsize) {
         float adj = abs(y);
-        //float lim = (score * hh) - pixelsize;
+        //float lim = (score* hh) - pixelsize;
 
-        float lim = (score*5 * hh) - pixelsize;
+        float lim = (score*2* hh) - pixelsize;
         if (random(adj) < random(lim)) {
+          pix.stroke(0);
+          pix.strokeWeight(0.8);
           pix.rect(0, y, barwidth, pixelsize);
         }
       }
