@@ -201,7 +201,6 @@ void generatePaths() {
 
   Point text_center = getEllipsePoint(index % MAX_COUNTER, width*0.27, 0.1, 0.85); //create points
 
-
   //TRIANGLE STUFF
   origin = new Point(width*0.1, height*0.97); //bottom left pt
   p1 = new Point(width*0.5, height*0.03);//top middle pt
