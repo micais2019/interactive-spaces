@@ -98,10 +98,10 @@ void setup() {
   smooth(8);
 
   ONE_SHOT = getOneShotFromArgs();
-  now = 1555750935;
+  now = 1556725883;
   //now = getTimestampFromArgs();
   //index = getIndexFromArgs();
-  index = 10;
+  index = 35000;
 
     // loading data
     DataLoader dload = new DataLoader(this);
@@ -109,6 +109,8 @@ void setup() {
   soundScores = dload.getSound1Scores(now);
   moodValues = dload.getMoodValues(now);
   weatherScores = dload.getWeatherScores(now);
+  float tRad = soundScores.max()*5000;
+  println(tRad);
 
   if (!SKIP_CLOTH) {
     // w h amp detail
@@ -122,7 +124,7 @@ void setup() {
   if (!SKIP_DONUT) {
     // just give size
     //int size = map(single value soundScore, 898, 839413, 100,400);
-    toroid = new SparkleDonut(100); //size
+    toroid = new SparkleDonut(tRad); //size
     donut = toroid.create(soundScores, this);
   }
 
@@ -276,6 +278,7 @@ void draw() {
     saveFrame(filename);
     exit();
   }
+  
 }
 
 void drawDonut(long ts) {
