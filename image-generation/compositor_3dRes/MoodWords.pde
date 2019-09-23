@@ -6,23 +6,10 @@ class MoodWords {
   PGraphics2D surface;
   int w, h;
   IntList values;
-
-  int rowHeight = 70;
-  int fontSize = 40;
-
-  color[] colors = {  
-    #0061ff, 
-    #ffff00, 
-    #ff0000, 
-    #009104, 
-    #ff0f97, 
-    #0073a8, 
-    #00FF9F, 
-    #00FDFF, 
-  };
+  int fontSize = 50;
 
   MoodWords(float w, float h, IntList values) {
-    mood_words = loadJSONObject("word-test.json"); // new text .json file, with nouns from Amazon's Rekognition + MICA photos
+    mood_words = loadJSONObject("imagetoword.json"); // new text .json file, with nouns from Amazon's Rekognition + MICA photos
 
     this.w = floor(w);
     this.h = floor(h);
@@ -30,10 +17,10 @@ class MoodWords {
 
     // The font must be located in the sketch's 
     // "data" directory to load successfully
-    font = loadFont("Syne-Bold-54.vlw");
+    font = createFont("Patron-Bold.otf", 50);
 
     surface = (PGraphics2D) createGraphics(this.w, this.h, P2D); 
-    surface.smooth(4);
+    surface.smooth();
   }
 
   String pickWord(int value) {
@@ -45,32 +32,30 @@ class MoodWords {
   PGraphics draw() {
     String text = "";
     for (int i=0; i < 4; i++) {
-      text += " (" + pickWord(floor(random(8))) + " ) ";
+      if (i < 3) {
+        text += pickWord(i) + ", ";
+
+        //text += pickWord(floor(random(4))) + ", ";
+      } else {
+        //text += pickWord(floor(random(4)));
+        text += pickWord(i);
+      }
     }
-    int level = 70;
 
     surface.beginDraw();
     surface.clear();
     surface.textFont(font, fontSize);
-    surface.noStroke();
 
-    for (int i=0; i < 4; i++) {
-      int mood = floor(random(8));
-      String word = this.pickWord(mood);
-
-      surface.noFill();
-      for (int n=-1; n < 2; n++) {
-        surface.text(text, n, 30 );
-
-        //surface.text(word, n, level); 
-        //surface.text(word, 0, level + n);
+    for (int n=-1; n < 2; n++) {
+      for (int x = -1; x < 2; x++) {
+        surface.fill(0);
+        surface.text(text, n+x, 50); // outline
+        surface.text(text, n, 50+x); //outline
       }
-
       surface.fill(255);
-      //surface.text(word, 0, level);
-
-      //level += this.rowHeight;
+      surface.text(text, n, 50);
     }
+
     surface.endDraw();
 
     return surface;

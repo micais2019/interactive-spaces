@@ -1,12 +1,9 @@
-/*TODO:
- - change cloth width, amplitude and detail /dione
- 
- */
+
 import peasy.*; 
 
 final boolean CONTROL_POSITION = false;
 final boolean DEBUG = false;
-final boolean ONE_SHOT = false;
+boolean ONE_SHOT = false;
 
 final boolean SKIP_DONUT = false;
 final boolean SKIP_CLOTH = false;
@@ -84,7 +81,7 @@ PolygonPath triangle, square, zigzag;
 
 PShape arrow;
 
-int MAX_COUNTER = 2000;
+int MAX_COUNTER = 75000;
 
 //zigzag points
 Point [] zig_points = new Point [11];
@@ -94,26 +91,18 @@ void setup() {
   //size(3600, 2400, P3D);
   smooth(8);
 
-  now = getTimestampFromArgs();
-  index = getIndexFromArgs();
+  ONE_SHOT = getOneShotFromArgs();
+  now = 1555750935;
+  //now = getTimestampFromArgs();
+  //index = getIndexFromArgs();
+  index = 10;
 
-  soundScores = new FloatList();
-  soundData = split("750 610 1853 636 923 381 485 220 532 351 308 533 310 319 1069 655 801 521 694 332 621 359 214 550 405 801 476 745 313 504 346 623 333 492 325 9404 2336 1098 1344 432 592 379 897 403 678 379 382 707 413 1219 715 1025 485 711 414 376 817 532 411 669 387 376 836 480 338 961 1335 513 1962 833 928 447 1060 678 630 1551 607 802 333 638 420 293 511 541 278 505 221 438 289 442 345 519 311 651 301 459 252 620 294 529 256 459 316 627 343 273 501 316 578 333 769 415 696 409 500 336 315 612 663 463 381 188 502 324 451 364 510 270 604 248 613 297 199 915 352 539 337 286 425 233 508 320 489 341 613 373 270 457 259 416", " ");
-  for (int i=0; i < soundData.length; i++) {
-    soundScores.append(soundToScore(int(soundData[i])));
-  }
+  // loading data
+  DataLoader dload = new DataLoader(this);
 
-  moodValues = new IntList();
-  moodData = split("3 2 1 0 3 5 5 7 6 4 6 1 5 0 4 3 7 6 7 6 7 6 7 6 5 4 3 2 1 6 7 6 7 6 7 6 7 6 7 6 5 7 4 3 2 1 0 1 2 3 4 5 6 0 4 3 4 5 6 7 2 1 0 3 3 4 0 7 4 1 0 5 2 7 5 2 0 2 6 3 1 6 4 0 2 6 1 3 0 1 6 5 6 7 2 3 3 0 1 2 2 3 4 5 6 7 5 4 4 4 3 3 2 2 1 4 5 0 3 5 3 4 7 6 2 0 2 4 3 5 2 3 3 3 7 4 4 3 5 3 3 3 2 0 3 4 3 4 4 4 3 2 2 4 4 6 7 6 7 6 7 6 4 3 7 6 7 3 1 3 2 7 0 5 4 0 6 3 1 4 3 2 1 3 3 4 5 1 2 4 5 6 7 0 3 2 7 2 3 5 3 4 3 4 3 4 3 4 3 4 3 4 3 5 5 3 4 3 4 5 4 5 4 4 4 4 4 4 3 4 3 5 4 4 4 4 4 4 4 4 4 4 4 4 4 4 0 4 4 4 4 5 4 4 4 4 4 4 4 4 4 4 5 6 0 7 1 2 3 4 5 7 3 3 0 4 5 6 7 3 2 1 7", " ");
-  for (int i=0; i < max(moodData.length, 100); i++) {
-    moodValues.append(int(moodData[i]));
-  }
-
-  weatherScores = new FloatList();
-  weatherData = split("61.48 57.94 88 101.96 61.48 100", " ");
-  for (int i=0; i < weatherData.length; i++) {
-    weatherScores.append(float(weatherData[i]));
-  }
+  soundScores = dload.getSound1Scores(now);
+  moodValues = dload.getMoodValues(now);
+  weatherScores = dload.getWeatherScores(now);
 
   if (!SKIP_CLOTH) {
     // w h amp detail
@@ -127,7 +116,7 @@ void setup() {
   if (!SKIP_DONUT) {
     // just give size
     //int size = map(soundScore, 898, 839413, width * 0.08, width * 0.7);
-    toroid = new SparkleDonut(width *0.16);
+    toroid = new SparkleDonut(width *0.08);
     donut = toroid.create(soundScores, this);
   }
 
@@ -137,7 +126,7 @@ void setup() {
   }
 
   if (!SKIP_WORDS) {
-    wordart = new MoodWords(width * 0.6, 50, moodValues);
+    wordart = new MoodWords(width * 0.6, 70, moodValues);
   }
 
   if (!SKIP_WEATHER) {
@@ -153,7 +142,7 @@ void setup() {
     //int thickness = map(motion scores, 0, 5344, 5, 100); //50 = max, 5 = min
     //int size = map(motion scores, 0, 5344, 50, 500);
     explosion = new SplashMotion(width * 0.1);
-    splash = explosion.create(24, 50, 100,this); //change to higher number for funky glitches
+    splash = explosion.create(24, 20, 500, this); //change to higher number for funky glitches
   }
 
   if (!SKIP_TEXT) { 
@@ -168,46 +157,60 @@ void setup() {
   }
 
   if (!SKIP_TIME) { 
-    timestamp = new TimeStamp(800, 100);
+    timestamp = new TimeStamp(1200, 100);
   }
 
   if (!SKIP_COUNTER) {
     counter = new TextCounter(800, 100);
   }
 
-  if (!SKIP_PATHS) {
-
-    //arrows
-    arrow = createShape();
-    arrow.beginShape();
-    arrow.noStroke();
-    //arrow.stroke(0);
-    //arrow.strokeWeight(2);
-    arrow.vertex(0, 0);
-    arrow.vertex(20, 20);
-    arrow.vertex(0, 40);
-    arrow.endShape();
-
-    //zigzag path stuff
-    for (int lp = 0; lp <9; lp+=2) {
-      float spacing = height*0.1;
-      float offset = height*0.1;
-      zig_points[lp] = new Point(width*0.1, offset +lp*spacing);
-    }
-    for (int rp = 1; rp <9; rp+=2) {
-      float spacing = height*0.1;
-      float offset = height*0.1;
-      zig_points[rp] = new Point(width*0.8, offset + rp*spacing);
-    }
-
-    zig_points[9] = new Point(width*0.9, height*0.9);
-    zig_points[10] = new Point(width*0.9, height*0.1);
-  }
+  generatePaths(); // create paths but don't draw them
 }
 
-float soundToScore(int level) {
-  level = constrain(level, 200, 10000);
-  return float(level) / 10000.0;
+void generatePaths() {
+
+  arrow = createShape();
+  arrow.beginShape();
+  arrow.noStroke();
+  //arrow.stroke(0);
+  //arrow.strokeWeight(2);
+  arrow.vertex(0, 0);
+  arrow.vertex(7, 7);
+  arrow.vertex(0, 14);
+  arrow.endShape();
+
+  // ZIGZAG
+  for (int lp = 0; lp <9; lp+=2) {
+    float spacing = height*0.1;
+    float offset = height*0.1;
+    zig_points[lp] = new Point(width*0.1, offset +lp*spacing);
+  }
+  for (int rp = 1; rp <9; rp+=2) {
+    float spacing = height*0.1;
+    float offset = height*0.1;
+    zig_points[rp] = new Point(width*0.8, offset + rp*spacing);
+  }
+
+  zig_points[9] = new Point(width*0.9, height*0.9);
+  zig_points[10] = new Point(width*0.9, height*0.1);
+  zigzag = new PolygonPath(zig_points, 4000);
+
+  Point text_center = getEllipsePoint(index % MAX_COUNTER, width*0.27, 0.1, 0.85); //create points
+
+  //TRIANGLE STUFF
+  origin = new Point(width*0.1, height*0.97); //bottom left pt
+  p1 = new Point(width*0.5, height*0.03);//top middle pt
+  p2 = new Point(width*0.9, height*0.97);//bottom right pt
+  triangle = new PolygonPath(new Point[]{ origin, p1, p2 }, MAX_COUNTER);
+  //TRIANGLE STUFF
+
+  //SQUARE STUFF
+  squareOrigin = new Point(width*0.1, height*0.03); //top left pt
+  ps1 = new Point(width*0.9, height*0.03);//top right pt
+  ps2 = new Point(width*0.9, height*0.97);//bottom right pt
+  ps3 = new Point(width*0.1, height*0.97);//bottom left pt
+  square = new PolygonPath(new Point[]{ squareOrigin, ps1, ps2, ps3 }, 3000);
+  //SQUARE STUFF
 }
 
 void draw() {
@@ -260,9 +263,8 @@ void draw() {
     drawTimestamp(now);
   }
 
-
   if (!SKIP_COUNTER) {
-    drawCounter(now);
+    drawCounter(index);
   }
 
   if (!SKIP_ARROWS) {
@@ -271,7 +273,7 @@ void draw() {
 
   if (ONE_SHOT) {
     String filename = String.format("%s_%d_%d.png", now, 
-      coverFinalWidth, coverFinalHeight);
+      coverFinalWidth, coverFinalHeight, index);
     saveFrame(filename);
     exit();
   }
@@ -279,8 +281,7 @@ void draw() {
 
 void drawDonut(long ts) {
 
-  Point donut_center = getEllipsePoint(frameCount*10 % MAX_COUNTER, height*0.5, 1.0, 0.5);
-
+  Point donut_center = getEllipsePoint(index % MAX_COUNTER, height*0.5, 1.0, 0.5);
 
   pushMatrix();
   //move it along a XZ axis, circularly
@@ -294,8 +295,8 @@ void drawDonut(long ts) {
     rotateY(mouseX * 1.0f/width * TWO_PI);
     rotateX(mouseY * 1.0f/height * TWO_PI);
   } else { 
-    rotateX(frameCount * 0.1);
-    rotateZ(frameCount * 0.1);
+    rotateX(index * 0.1);
+    rotateZ(index * 0.1);
   }
   noStroke();
   textureMode(NORMAL);
@@ -307,7 +308,7 @@ void drawDonut(long ts) {
 
 void drawPlanets(long ts) {
 
-  Point planets_center = getEllipsePoint((frameCount*5) % MAX_COUNTER, width*0.27, 0.4, 1.0);
+  Point planets_center = getEllipsePoint(index % MAX_COUNTER, width*0.27, 0.4, 1.0);
 
   pushMatrix();
   noStroke();
@@ -318,7 +319,7 @@ void drawPlanets(long ts) {
   for (int n=0; n < planet.offsets.size(); n++) {
     pushMatrix();
     rotateX(PI);
-    rotateZ(planet.rotations.get(n) + (frameCount * 0.01));
+    rotateZ(planet.rotations.get(n) + (index * 0.01));
     translate(planet.offsets.get(n), 0, 0);
     scale(planet.scales.get(n));
     shape(orb);
@@ -329,10 +330,11 @@ void drawPlanets(long ts) {
 }
 
 void drawWords(long ts) {
-  //ZIGZAG
-  zigzag = new PolygonPath(zig_points, 4000);
 
-  Point zig_center = zigzag.point(frameCount*1 % 4000);
+  boolean movingRight = true;
+  boolean movingUp = false;
+
+  Point zig_center = zigzag.point(index % MAX_COUNTER);  //create zigzag points
 
   pushMatrix();
   scale(0.8);
@@ -343,14 +345,11 @@ void drawWords(long ts) {
   popMatrix();
 }
 
-/*void mouseMoved() {
- println(mouseX * 1.0f/width * TWO_PI, mouseY * 1.0f/height * TWO_PI);
- }*/
 
 void drawCloth(long ts) {
   pushMatrix();
 
-  translate(width * 0.4, 100, -700);
+  translate(width * 0.4, 100, -900);
   /* if (CONTROL_POSITION) {
    rotateY(mouseX * 1.0f/width * TWO_PI);
    rotateX(mouseY * 1.0f/height * TWO_PI);
@@ -368,7 +367,7 @@ void drawCloth(long ts) {
 void drawText(long ts) {
   float border = 50;
 
-  Point text_center = getEllipsePoint(frameCount*6 % MAX_COUNTER, width*0.27, 0.1, 0.85);
+  Point text_center = getEllipsePoint(index % MAX_COUNTER, width*0.27, 0.1, 0.85);
   textPara.draw(ts); 
   pushMatrix();
   translate(width*0.08, height*0.35, 200);
@@ -385,7 +384,7 @@ void drawText(long ts) {
 }
 
 void drawTimestamp(long ts) {
-  Point tri_center = triangle.point(frameCount*5 % MAX_COUNTER);
+  Point tri_center = triangle.point(index % MAX_COUNTER);
   timestamp.draw(ts);
   pushMatrix();
   scale(0.75);
@@ -397,8 +396,8 @@ void drawTimestamp(long ts) {
 }
 
 void drawCounter(long ts) {
-  Point square_center = square.point(frameCount*5 % 3000);
-  counter.draw(23680); 
+  Point square_center = square.point(index % MAX_COUNTER);
+  counter.draw(index); 
   pushMatrix();
   scale(0.75);
   translate(square_center.x + 200, square_center.y + 400, 800);
@@ -409,7 +408,7 @@ void drawCounter(long ts) {
 
 
 void drawSplash(long ts) {
-  Point splash_center = getMoebiusPoint(frameCount% MAX_COUNTER, width*0.25);
+  Point splash_center = getMoebiusPoint(index % MAX_COUNTER, width*0.25);
 
   pushMatrix();
   translate(width*0.5+splash_center.x, height*0.5+splash_center.y, splash_center.z);
@@ -417,8 +416,8 @@ void drawSplash(long ts) {
     rotateY(mouseX * 1.0f/width * TWO_PI);
     rotateX(mouseY * 1.0f/height * TWO_PI);
   } else { 
-    rotateX(frameCount * 0.2);
-    rotateZ(frameCount * 0.2);
+    rotateX(index * 0.2);
+    rotateZ(index * 0.2);
   }
   scale(2.5);
   shape(splash);
@@ -428,13 +427,14 @@ void drawSplash(long ts) {
 
 void drawWeatherGraph(long ts) {
   //relative adjustments for weathergraph
-  float tolerance1 = (float(weatherData[0])-float(weatherData[1]))/2;
-  float tolerance2 = (float(weatherData[1])-float(weatherData[2]))/2;
-  float tolerance3 = (float(weatherData[2])-float(weatherData[3]))/2;
-  float tolerance4 = (float(weatherData[3])-float(weatherData[4]))/2;
-  float tolerance5 = (float(weatherData[0])/2);
+  float tolerance1 = (weatherScores.get(0)-weatherScores.get(1))/2;
+  float tolerance2 = (weatherScores.get(1)-weatherScores.get(2))/2;
+  float tolerance3 = (weatherScores.get(2)-weatherScores.get(3))/2;
+  float tolerance4 = (weatherScores.get(3)-weatherScores.get(4))/2;
+  float tolerance5 = ((weatherScores.get(0))/2);
 
-  Point weather_center = getEllipsePoint((frameCount*3) % MAX_COUNTER, width*0.4, 0.85, 0.5);
+
+  Point weather_center = getEllipsePoint(index % MAX_COUNTER, width*0.4, 0.85, 0.5);
 
   pushMatrix();
 
@@ -450,8 +450,8 @@ void drawWeatherGraph(long ts) {
     rotateY(mouseX * 1.5f/width * TWO_PI);
     rotateX(mouseY * 1.25f/height * TWO_PI);
   } else { 
-    rotateX(frameCount * 0.1);
-    rotateZ(frameCount * 0.1);
+    rotateX(index * 0.1);
+    rotateZ(index * 0.1);
   }
   scale(3); // just adjust this when scaling resolution
   // draw each shape
@@ -485,9 +485,6 @@ void drawLogo(long ts) {
 
 
 void mouseClicked() {
-  /* println( 
-   mouseX * 1.0f/width * TWO_PI, 
-   mouseY * 1.0f/height * TWO_PI); */
   long t = (new Date()).getTime() / 1000;
   String filename = String.format("%s_%d_%d.png", now, 
     coverFinalWidth, coverFinalHeight);
@@ -498,28 +495,12 @@ void mouseClicked() {
 //draw paths
 void drawPaths(long ts) {
 
-  //TRIANGLE STUFF
-  origin = new Point(width*0.13, height*0.97); //bottom left pt
-  p1 = new Point(width*0.5, height*0.03);//top middle pt
-  p2 = new Point(width*0.87, height*0.97);//bottom right pt
-  triangle = new PolygonPath(new Point[]{ origin, p1, p2 }, MAX_COUNTER);
-  //TRIANGLE STUFF
-
-  //SQUARE STUFF
-  squareOrigin = new Point(width*0.12, height*0.05 ); //top left pt
-  ps1 = new Point(width*0.96, height*0.05);//top right pt
-  ps2 = new Point(width*0.9, height*0.95);//bottom right pt
-  ps3 = new Point(width*0.12, height*0.95);//bottom left pt
-  square = new PolygonPath(new Point[]{ squareOrigin, ps1, ps2, ps3 }, 3000);
-  //SQUARE STUFF
-
   //ZIGZAG
   zigzag = new PolygonPath(zig_points, 4500);
 
-  //draw zigzag and square and weather
-  for (int i=0; i<6000; i+=1) {
+  //draw zigzag and weather
+  for (int i=0; i<MAX_COUNTER; i+=1) {
     Point zig_center = zigzag.point(i);
-    Point square_center = square.point(i);
 
     //zigzag path, moodwords
     pushMatrix();
@@ -528,15 +509,6 @@ void drawPaths(long ts) {
     translate(zig_center.x, zig_center.y);
     rect(0, 0, 3, 3);
     popMatrix();
-
-    /* //square path, timestamp
-     pushMatrix();
-     //fill(58);
-     fill(#E89E0C);
-     translate(square_center.x, square_center.y);
-     rect(0, 0, 6, 6);
-     popMatrix();
-     */
   }
 
   //draw the rest of the paths
@@ -547,8 +519,8 @@ void drawPaths(long ts) {
     Point donut_center = getEllipsePoint(i, height*0.5, 1.0, 0.5);
     Point planets_center = getEllipsePoint(i, width*0.27, 0.4, 1.0);
     Point text_center = getEllipsePoint(i, width*0.27, 0.1, 0.85);
-    Point tri_center = triangle.point(i);
     Point splash_center = getMoebiusPoint(i, width*0.25);
+
     noStroke();
     //weather path
     fill(#00ED18);
@@ -571,20 +543,6 @@ void drawPaths(long ts) {
     rect(0, 0, width*0.0007, width*0.0007);
     popMatrix();
 
-    //text path
-    fill(#00AD5F);
-    pushMatrix();
-    translate(width*0.3 + text_center.x, height*0.5 + text_center.y);
-    rect(0, 0, width*0.0007, width*0.0007);
-    popMatrix();
-
-    /*//triangle path, counter
-     pushMatrix();
-     fill(#6A00AD);
-     translate(tri_center.x, tri_center.y);
-     rect(0, 0, width*0.0007, width*0.0007);
-     popMatrix();*/
-
     //moebius path, splash
     pushMatrix();
     fill(#FF0DAA);
@@ -602,12 +560,13 @@ void drawArrows(long ts) {
   //donut arrow
   arrow.disableStyle();
   fill(50);
-  Point arrow_centerD = getEllipsePoint((frameCount*10+150) % MAX_COUNTER, height*0.5, 1.045, 0.18);
-  float progressD = map((frameCount*10+150), 0, MAX_COUNTER, 0, TWO_PI); 
+  Point arrow_centerD = getEllipsePoint((index+250) % MAX_COUNTER, height*0.5, 1.045, 0.182);
+  float progressD = map((index+250), 0, MAX_COUNTER, 0, TWO_PI); 
   pushMatrix();
   translate(width/2 + arrow_centerD.x, height*0.828+arrow_centerD.y);
   rotate(progressD+radians(90));
   shapeMode(CENTER);
+  scale(4);
   shape(arrow, 0, 0);
   popMatrix();
   shapeMode(CORNER);
@@ -617,12 +576,13 @@ void drawArrows(long ts) {
   //planets arrow
   arrow.disableStyle();
   fill(#FFF700);
-  Point arrow_centerP = getEllipsePoint((frameCount * 5+100) % MAX_COUNTER, width*0.27, 0.4, 1.0);
-  float progressP = map(frameCount * 5 +100, 0, MAX_COUNTER, 0, TWO_PI); 
+  Point arrow_centerP = getEllipsePoint((index+150) % MAX_COUNTER, width*0.27, 0.4, 1.0);
+  float progressP = map(index +150, 0, MAX_COUNTER, 0, TWO_PI); 
   pushMatrix();
   translate(width*0.7 + arrow_centerP.x, height*0.5 + arrow_centerP.y, 0);
   rotate(progressP+radians(90));
   shapeMode(CENTER);
+  scale(4);
   shape(arrow, 0, 0);
   popMatrix();
   //planets arrow
@@ -632,7 +592,7 @@ void drawArrows(long ts) {
   //zigzag arrow
   boolean movingRight = true;
   boolean movingUp = false;
-  Point arrow_center = zigzag.point((frameCount*1+30) % 4000);
+  Point arrow_center = zigzag.point((index+30)  % MAX_COUNTER);
 
   if (arrow_center.y > height*0.1 && arrow_center.y < height*0.2 && arrow_center.x < width*0.85|| 
     arrow_center.y > height*0.3 && arrow_center.y < height*0.4 && arrow_center.x < width*0.85||
@@ -656,22 +616,56 @@ void drawArrows(long ts) {
   }
   arrow.disableStyle();
   fill(#0000FF);
-  shape(arrow, 5, -17);
+  scale(4);
+  shape(arrow, 0, -6);
   popMatrix();
   //zigzag arrow
 
   //weather arrow
   arrow.disableStyle();
   fill(#00ED18);
-  Point arrow_centerW = getEllipsePoint((frameCount * 3 +50) % MAX_COUNTER, width*0.51, 0.845, 0.5);
-  float progressW = map(frameCount * 3 +50, 0, MAX_COUNTER, 0, TWO_PI); 
+  Point arrow_centerW = getEllipsePoint((index +50) % MAX_COUNTER, width*0.51, 0.845, 0.505);
+  float progressW = map(index +50, 0, MAX_COUNTER, 0, TWO_PI); 
   pushMatrix();
   translate(width/2 + arrow_centerW.x, height/2 + arrow_centerW.y, 0);
   rotate(progressW+radians(90));
+  scale(4);
+
   shape(arrow, 0, 0);
   popMatrix();
   //weather arrow
   fill(255);
+
+  //splash arrow
+  //Point splash_center = getMoebiusPoint(i, width*0.25);
+
+  //arrow
+  arrow.disableStyle();
+  fill(#FF0DAA);
+  Point arrow_centerS = getMoebiusPoint((25000+frameCount*100+50) % MAX_COUNTER, width*0.25);
+  float progress = map((frameCount*100+50), 0, 3400, 0, PI/2);
+  pushMatrix();
+  translate(width*0.5+arrow_centerS.x, height*0.5+arrow_centerS.y, arrow_centerS.z);
+  if (arrow_centerS.y > 520 && arrow_centerS.y < 900 && arrow_centerS.x < 1100 && arrow_centerS.x > 600) {
+    rotate(-progress+radians(180));
+  }
+  if (arrow_centerS.z > 910 && arrow_centerS.z < 1100 && arrow_centerS.y < 520) {
+    rotate(-radians(160));
+  }
+
+  if (arrow_centerS.y < -450 && arrow_centerS.y > -850) {
+    rotate(progress+radians(230));
+  }
+
+  if (arrow_centerS.x > 250 && arrow_centerS.y > -850) {
+    rotate(progress+radians(230));
+  }
+  println(arrow_centerS.x);
+  scale(4);
+  shapeMode(CENTER);
+  shape(arrow, 0, 0);
+  popMatrix();
+  //arrow3
 }
 
 float R = 100.0;
@@ -686,65 +680,10 @@ Point getEllipsePoint(long counter, float radius, float wide, float flat) {
   return new Point(x, y);
 } 
 
-
 Point getMoebiusPoint(long counter, float radius) {
   float progress = map(counter, 0, MAX_COUNTER, 0, radians(720)); 
   float y = cos(progress) + radius*(cos(progress/2));
   float x = sin(progress) + radius*(sin(progress/1));
   float z = radius*sin(0.5*progress);
   return new Point(x, y, z);
-}
-
-void dashedLine(float x1, float y1, float x2, float y2, float dashL, float space) {
-  float pc = dist(x1, y1, x2, y2) / 100;
-  float pcCount = 1;
-  float gPercent = 0;
-  float lPercent = 0;
-  float currentPos = 0;
-  float xx1 = 0, 
-    yy1 = 0, 
-    xx2 = 0, 
-    yy2 = 0;
-
-  while (int(pcCount * pc) < dashL) {
-    pcCount+= 0.1;
-  }
-  lPercent = pcCount;
-  pcCount = 0.1;
-  while (int(pcCount * pc) < space) {
-    pcCount++;
-  }
-  gPercent = pcCount;
-
-  lPercent = lPercent / 100;
-  gPercent = gPercent / 100;
-  while (currentPos < 1) {
-    xx1 = lerp(x1, x2, currentPos);
-    yy1 = lerp(y1, y2, currentPos);
-    xx2 = lerp(x1, x2, currentPos + lPercent);
-    yy2 = lerp(y1, y2, currentPos + lPercent);
-    if (x1 > x2) {
-      if (xx2 < x2) {
-        xx2 = x2;
-      }
-    }
-    if (x1 < x2) {
-      if (xx2 > x2) {
-        xx2 = x2;
-      }
-    }
-    if (y1 > y2) {
-      if (yy2 < y2) {
-        yy2 = y2;
-      }
-    }
-    if (y1 < y2) {
-      if (yy2 > y2) {
-        yy2 = y2;
-      }
-    }
-
-    line(xx1, yy1, xx2, yy2);
-    currentPos = currentPos + lPercent + gPercent;
-  }
 }
