@@ -98,7 +98,7 @@ void setup() {
   smooth(8);
 
   ONE_SHOT = getOneShotFromArgs();
-  now = 1556725883;
+  now = 1556704283;
   //now = getTimestampFromArgs();
   //index = getIndexFromArgs();
   index = 35000;
@@ -293,7 +293,7 @@ void drawDonut(long ts) {
   float progress = map((index+100), 0, MAX_COUNTER, 0, TWO_PI);
   pushMatrix();
   translate(width/2 + arrow_center.x, height*0.828+arrow_center.y);
-  rotate(progress+radians(90));
+  rotate(progress+radians(random(90)));
   shape(arrow, -6, -6);
   popMatrix();
   fill(255);
