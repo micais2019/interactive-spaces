@@ -4,15 +4,35 @@ import csv
 conn = sqlite3.connect('archive.sqlite')
 c = conn.cursor()
 
-# with open('2019-04-17_12pm-8pm.csv', 'w', newline='') as csvfile:
-#     spamwriter = csv.writer(csvfile, delimiter=',',
-#                             quotechar='"', quoting=csv.QUOTE_MINIMAL)
-#     for row in c.execute('select * from data where created_at BETWEEN 1555516800 and 1555545600'):
-#         spamwriter.writerow(row)
+# start: 2019-04-15 16:00:00
+# end:   2019-05-05 09:00:00
+#
+#  'motion': { 'avg': 212.34256309757833,
+#              'count': 821545,
+#              'max': 5344,
+#              'min': 0,
+#              'sum': 174448971},
+#  'sound': { 'avg': 15749.590682942171,
+#             'count': 403797,
+#             'max': 839413,
+#             'min': 898,
+#             'sum': 6359637469},
+#  'sound-2': { 'avg': 16553.804505787237,
+#               'count': 408053,
+#               'max': 785436,
+#               'min': 4497,
+#               'sum': 6754829590}
+
 
 import pprint
 pp = pprint.PrettyPrinter(indent=2)
 stations = {}
+
+start_date = datetime.fromtimestamp(1555358400)
+end_date = datetime.fromtimestamp(1557061200)
+
+print("start: {}".format(start_date))
+print("end:   {}".format(end_date))
 
 #for row in c.execute('select * from data where created_at BETWEEN 1555516800 and 1555545600'):
 for row in c.execute('select * from data where created_at BETWEEN 1555358400 and 1557061200'):

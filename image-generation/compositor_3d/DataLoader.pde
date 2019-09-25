@@ -2,6 +2,19 @@ import de.bezier.data.sql.*;
 import de.bezier.data.sql.mapper.*;
 import http.requests.*;
 
+float sum(FloatList values) {
+  float out = 0;
+  for (float val : values) {
+    out += val;
+  }
+  return out;
+}
+
+float average(FloatList values) {
+  return sum(values) / values.size();
+}
+
+
 class DataLoader {
   SQLite db;
   
