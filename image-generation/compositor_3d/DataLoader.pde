@@ -40,7 +40,7 @@ class DataLoader {
   }
   
   FloatList getSound2Scores(long ts) {
-    return getSoundScores(ts, 1);
+    return getSoundScores(ts, 2);
   }
 
   FloatList getSoundScores(long ts, int station) {

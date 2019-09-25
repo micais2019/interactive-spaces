@@ -35,8 +35,10 @@ int dpi = 300;
 int coverFinalWidth = int(coverWidth * dpi);
 int coverFinalHeight = int(coverHeight * dpi);
 
-FloatList soundScores;
+FloatList sound1Scores;
+FloatList sound2Scores;
 FloatList weatherScores;
+FloatList motionScores;
 
 IntList moodValues;
 
@@ -82,8 +84,10 @@ Point origin, p1, p2, squareOrigin, ps1, ps2, ps3;
 PolygonPath triangle, square, zigzag;
 
 String[] weatherData;
-String[] soundData;
+String[] sound1Data;
+String[] sound2Data;
 String[] moodData;
+String[] motionData;
 
 int MAX_COUNTER = 75000;
 
@@ -93,46 +97,66 @@ PShape arrow;
 Point [] zig_points = new Point [11];
 
 void setup() {
-  // size(4950, 2550, P3D); // FULL
-  size(1200, 800, P3D);
+  //size(4200, 2847, P3D); // FULL
+  // size(1200, 800, P3D);
+  size(2100, 1424, P3D);
   smooth(8);
 
+  //testing
+  //randomSeed(200);
+
+  int randomIndex = int(random(0, 75000));
+  int mappedTS = int(map(randomIndex, 0, 75000, 1555344000, 1557046800));
+  //testing 
+
   ONE_SHOT = getOneShotFromArgs();
-  now = 1556704283;
+  now = mappedTS;
+  // 1555344000 to 1557046800
   //now = getTimestampFromArgs();
   //index = getIndexFromArgs();
-  index = 35000;
+  index = randomIndex;
+  println("RandomIndex:" + randomIndex); //debug
 
-    // loading data
-    DataLoader dload = new DataLoader(this);
+  // loading data
+  DataLoader dload = new DataLoader(this);
 
-  soundScores = dload.getSound1Scores(now);
+  sound1Scores = dload.getSound1Scores(now);
+  sound2Scores = dload.getSound2Scores(now);
   moodValues = dload.getMoodValues(now);
+  motionScores = dload.getMotionScores(now);
   weatherScores = dload.getWeatherScores(now);
-  float tRad = soundScores.max()*5000;
-  println(tRad);
+
+  float sound1avg = average(sound1Scores)*10000;
+  float sound2avg = average(sound2Scores)*10000;
+  int motionMax = int(motionScores.max());
+
+  println("sound1avg:" + sound1avg);
+  println("sound2avg:" +sound2avg);
+  println("motionMax:" +motionMax);
+
 
   if (!SKIP_CLOTH) {
     // w h amp detail
     // more amp -> bigger hills
     // more detail -> tighter hills
-    //int amp = map (single value motion data, 0, 5344, 1000, 4000);
-    cloth = new ClothShape(floor(width * 0.5), floor(height * 3), 3000, 200);
+    int clothWidth = int(map(motionMax, 0, 600, width*0.6, height*5)); //map avg motion val to cloth thickness
+    cloth = new ClothShape(floor(width * 0.5), floor(height * 3), clothWidth, 200);
     fabric = cloth.create(moodValues, this);
   }
 
   if (!SKIP_DONUT) {
     // just give size
-    //int size = map(single value soundScore, 898, 839413, 100,400);
-    toroid = new SparkleDonut(tRad); //size
-    donut = toroid.create(soundScores, this);
+    float size = map(sound1avg, 200, 10000, width*0.2, width*0.8); //map avg sound1 val to torus radius
+    toroid = new SparkleDonut(sound1avg); //size
+    donut = toroid.create(sound1Scores, this);
   }
 
   if (!SKIP_PLANETS) {
     // TODO: add sound2 scores
     // is it possible to have a singular sound value to affect the distance between the spheres? (offset) 
     // i.e. larger value = more spread out, smaller value = clumped together
-    planet = new Planet(height * 0.03, now, this);
+    float spacing = map(sound2avg, 200, 1000, 5, 60);
+    planet = new Planet(height * 0.03, spacing, now, this);
   }
 
   if (!SKIP_WORDS) {
@@ -156,10 +180,12 @@ void setup() {
     splash = explosion.create(45, 20, 500, this); //change to higher number for funky glitches
   }
 
-  textPara = new TextParagraph(600, 400);
+  textPara = new TextParagraph(width*0.4, height*0.5);
 
   if (!SKIP_LOGO) {
     MICA_logo = loadShape("mica_logo-01.svg");
+    MICA_logo.disableStyle();
+    MICA_logo.setFill(255);
   }
 
   if (!SKIP_TIME) {
@@ -251,11 +277,11 @@ void draw() {
     drawWeatherGraph(now);
   }
 
+  noLights();
+
   if (!SKIP_LOGO) {
     drawLogo(now);
   }
-
-  noLights();
 
   drawText(now);
 
@@ -276,9 +302,9 @@ void draw() {
       coverFinalWidth, coverFinalHeight, index);
     println("@" + filename);
     saveFrame(filename);
+    println("success!");
     exit();
   }
-  
 }
 
 void drawDonut(long ts) {
@@ -292,7 +318,7 @@ void drawDonut(long ts) {
   float progress = map((index+100), 0, MAX_COUNTER, 0, TWO_PI);
   pushMatrix();
   translate(width/2 + arrow_center.x, height*0.828+arrow_center.y);
-  rotate(progress+radians(random(90)));
+  rotate(progress+radians(90));
   shape(arrow, -6, -6);
   popMatrix();
   fill(255);
@@ -357,7 +383,7 @@ void drawWords(long ts) {
   Point zig_center = zigzag.point(index % MAX_COUNTER);  //create zigzag points
 
   //arrow path on zigzag
-  Point arrow_center = zigzag.point((index+50) % MAX_COUNTER); //create arrow points
+  Point arrow_center = zigzag.point((index+1) % MAX_COUNTER); //create arrow points
   if (arrow_center.y > height*0.1 && arrow_center.y < height*0.2 && arrow_center.x < width*0.85||
     arrow_center.y > height*0.3 && arrow_center.y < height*0.4 && arrow_center.x < width*0.85||
     arrow_center.y > height*0.5 && arrow_center.y < height*0.6 && arrow_center.x < width*0.85||
@@ -385,17 +411,19 @@ void drawWords(long ts) {
   //arrow
 
   pushMatrix();
-  // translate(width * 0.7, height * 0.2);
-  translate(290+zig_center.x*0.75, 150+zig_center.y*0.73, 200);
-  scale(0.55);
-  imageMode(CENTER);
+  scale(0.5);
+  //translate(width *0.2, height * 0.1);
+  translate(zig_center.x+200, zig_center.y + 250, width*0.2);
+  imageMode(CORNER);
+  stroke(0);
   image(wordart.draw(), 0, 0);
   popMatrix();
+  noStroke();
 }
 
 void drawCloth(long ts) {
   pushMatrix();
-  translate(width * 0.55, 100, -500);
+  translate(width * 0.5, height*0.125, -width*0.42);
   rotateY(-1.649); //rotate it sideways
   rotateX(2.989);
   noStroke();
@@ -406,16 +434,16 @@ void drawCloth(long ts) {
 
 void drawText(long ts) {
   Point text_center = getEllipsePoint(index % MAX_COUNTER, width*0.27, 0.1, 0.85); //create points
-  float border = 20;
+  float border = width*0.02;
   textPara.draw(ts);
   pushMatrix();
-  translate(width*0.15, height*0.35, 200);
-  scale(0.7);
+  translate(width*0.2, height*0.35, width*0.1);
+  scale(0.6);
   imageMode(CORNER);
   //draw white rectangle
   fill(255);
   rectMode(CORNER);
-  rect(text_center.x*0.8, text_center.y*0.8, 500 + border, 280 + border);
+  rect(text_center.x*0.8, text_center.y*0.8, width*0.4 + border, height*0.338 + border);
   noFill();
   //draw text
   image(textPara.surface, text_center.x*0.8, text_center.y*0.8);
@@ -426,9 +454,9 @@ void drawTimestamp(long ts) {
   Point tri_center = triangle.point(index % MAX_COUNTER);
   timestamp.draw(ts);
   pushMatrix();
-  translate(width*0.42+tri_center.x*0.64, height*0.52+tri_center.y*0.64, 250);
-  scale(0.7);
-  imageMode(CENTER);
+  scale(0.75);
+  translate(tri_center.x + width*0.038, tri_center.y + width*0.095, width*0.19);
+  imageMode(CORNER);
   image(timestamp.surface, 0, 0);
   popMatrix();
 }
@@ -437,9 +465,9 @@ void drawCounter(int count) {
   Point square_center = square.point(index % MAX_COUNTER);
   counter.draw(index);
   pushMatrix();
-  translate(width*0.42+square_center.x*0.64, height*0.52+square_center.y*0.64, 250);
-  scale(0.7);
-  imageMode(CENTER);
+  scale(0.75);
+  translate(square_center.x + width*0.038, square_center.y + width*0.1, width*0.19);
+  imageMode(CORNER);
   image(counter.surface, 0, 0);
   popMatrix();
 }
@@ -542,13 +570,12 @@ void drawWeatherGraph(long ts) {
 
 void drawLogo(long ts) {
   pushMatrix();
-  translate(width*0.5, height*0.5, 500);
+  translate(width*0.5, height*0.5, width*0.4);
+  scale(width*0.0002);
   rotate(radians(90));
   // MICA_logo.fill(255);
-  scale(0.35);
   shapeMode(CENTER);
   shape(MICA_logo);
-  MICA_logo.disableStyle();
   popMatrix();
   shapeMode(CORNER);
 }
@@ -628,7 +655,7 @@ void drawPaths(long ts) {
     popMatrix();
   }
   for (float i=0; i< MAX_COUNTER; i+=0.5) {
-    Point splash_center = getMoebiusPoint(i, 300);
+    Point splash_center = getMoebiusPoint(i, width*0.25);
 
     //moebius path, splash
     pushMatrix();
@@ -664,4 +691,16 @@ Point getMoebiusPoint(float counter, float radius) {
   float x = sin(progress) + radius*(sin(progress/1));
   float z = radius*sin(0.5*progress);
   return new Point(x, y, z);
+}
+
+float sum(FloatList values) {
+  float out = 0;
+  for (float val : values) {
+    out += val;
+  }
+  return out;
+}
+
+float average(FloatList values) {
+  return sum(values) / values.size();
 }
