@@ -30,15 +30,17 @@ class SparkleDonut {
     int hh = pix.height / 2;
     float pixelsize = hh / 40;//128.0;
     float barwidth = float(pix.width) / scores.size();
+    float pixMultiplier;
     float score;
 
     for (int idx=0; idx < scores.size(); idx++) {
       pix.pushMatrix();
       pix.translate(idx * barwidth, hh);
       score = scores.get(idx);
+      pixMultiplier = scores.max()*100;
       for (int y = -(hh - 1); y < hh; y += pixelsize) {
         float adj = abs(y);
-        float lim = (score * hh) - pixelsize;
+        float lim = (score* pixMultiplier * hh) - pixelsize;
         if (random(adj) < random(lim)) {
           pix.rect(0, y, barwidth, pixelsize);
         }

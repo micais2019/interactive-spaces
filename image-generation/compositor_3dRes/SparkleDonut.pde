@@ -40,7 +40,7 @@ class SparkleDonut {
         float adj = abs(y);
         //float lim = (score* hh) - pixelsize;
 
-        float lim = (score*2* hh) - pixelsize;
+        float lim = (score*8* hh) - pixelsize;
         if (random(adj) < random(lim)) {
           pix.stroke(0);
           pix.strokeWeight(0.8);

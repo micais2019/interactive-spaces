@@ -20,7 +20,7 @@ class MoodWords {
   };
 
   MoodWords(float w, float h, IntList values) {
-    mood_words = loadJSONObject("word-test.json"); // new text .json file, with nouns from Amazon's Rekognition + MICA photos
+    mood_words = loadJSONObject("imagetoword.json"); // new text .json file, with nouns from Amazon's Rekognition + MICA photos
 
     this.w = floor(w);
     this.h = floor(h);
@@ -44,9 +44,12 @@ class MoodWords {
     String text = "";
     for (int i=0; i < 4; i++) {
       if (i < 3) {
-        text += pickWord(floor(random(8))) + ", ";
+        text += pickWord(i) + ", ";
+
+        //text += pickWord(floor(random(4))) + ", ";
       } else {
-        text += pickWord(floor(random(8)));
+        //text += pickWord(floor(random(4)));
+        text += pickWord(i);
       }
     }
     int level = 30;
@@ -56,13 +59,12 @@ class MoodWords {
     surface.textFont(font, fontSize);
     surface.textAlign(LEFT);
     surface.noStroke();
+      surface.noFill();
 
     for (int i=0; i < 4; i++) {
-      int mood = floor(random(8));
+      int mood = floor(random(4));
 
       String word = "(" + this.pickWord(mood) + ")";
-
-      surface.noFill();
 
       //surface.text(word,0,30);
       for (int n=1; n < 4; n+= 3) {
@@ -70,7 +72,6 @@ class MoodWords {
         surface.text(text, n, 30 );
         //surface.text(word, n, height*0.1);
       }
-      surface.fill(255);
 
       // level += this.rowHeight;
     }

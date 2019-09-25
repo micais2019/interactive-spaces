@@ -12,7 +12,7 @@ class TimeStamp {
   PGraphics surface;
 
   TimeStamp(int w, int h) {
-    this.nfont = loadFont("TerminalGrotesque-Open-48.vlw");
+    this.nfont = createFont("Pitch-Bold.otf",80);
     this.w = w;
     this.h = h; 
     this.surface = createGraphics(w, h, P3D);
