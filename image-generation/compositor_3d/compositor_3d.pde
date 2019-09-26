@@ -692,15 +692,3 @@ Point getMoebiusPoint(float counter, float radius) {
   float z = radius*sin(0.5*progress);
   return new Point(x, y, z);
 }
-
-float sum(FloatList values) {
-  float out = 0;
-  for (float val : values) {
-    out += val;
-  }
-  return out;
-}
-
-float average(FloatList values) {
-  return sum(values) / values.size();
-}
