@@ -13,7 +13,7 @@ class Planet {
   
   FloatList offsets, rotations, scales;
   
-  Planet(float value, long ts, PApplet app) {
+  Planet(float value, float Spacefactor, long ts, PApplet app) {
     this.radius = value;
     this.app = app;
     
@@ -27,7 +27,7 @@ class Planet {
     rotations.clear();
     scales.clear();
     for (int i=0; i < count; i++) {
-      offsets.append((40 * i));
+      offsets.append((Spacefactor* i));
       rotations.append(random(TWO_PI));
       scales.append(random(0.6, 2.0));
     }

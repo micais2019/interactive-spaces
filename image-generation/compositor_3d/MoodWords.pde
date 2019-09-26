@@ -1,12 +1,10 @@
 class MoodWords {
   JSONObject mood_words;
   PFont font;
-  PGraphics2D surface;
+  PGraphics surface;
   int w, h;
   IntList values;
-
-  int rowHeight = 200;
-  int fontSize = 22;
+  int fontSize = 50;
 
   color[] colors = {  
     #0061ff, 
@@ -30,8 +28,8 @@ class MoodWords {
     // "data" directory to load successfully
     font = createFont("Patron-Bold.otf", fontSize);
 
-    surface = (PGraphics2D) createGraphics(this.w, this.h, P2D); 
-    surface.smooth(4);
+    surface = createGraphics(this.w, this.h); 
+    surface.smooth();
   }
 
   String pickWord(int value) {
@@ -59,22 +57,21 @@ class MoodWords {
     surface.textFont(font, fontSize);
     surface.textAlign(LEFT);
     surface.noStroke();
-      surface.noFill();
+    surface.noFill();
 
-    for (int i=0; i < 4; i++) {
-      int mood = floor(random(4));
-
-      String word = "(" + this.pickWord(mood) + ")";
-
-      //surface.text(word,0,30);
-      for (int n=1; n < 4; n+= 3) {
-        //surface.text(word, n, level); 
-        surface.text(text, n, 30 );
-        //surface.text(word, n, height*0.1);
+    for (int n=-1; n < 2; n++) {
+      for (int x = -1; x < 1; x++) {
+        surface.fill(0);
+        //surface.textSize(61);
+        //surface.text(text, n-x, 50+x); // outline
+        //surface.text(text, n+x, 50-x); //outline
       }
-
-      // level += this.rowHeight;
+      surface.fill(255);
+      //surface.textSize(60);
+      surface.text(text, n, 50);
     }
+      // level += this.rowHeight;
+    
     surface.endDraw();
 
     return surface;
