@@ -12,3 +12,23 @@ scripts.local
 *.csv
 
 /image-generation/karlssonwilker-resources
+image-generation/compositor_3d/compositor_3d.pde
+image-generation/compositor_3d/data/archive.sqlite
+image-generation/compositor_3d/data/imagetoword.json
+image-generation/compositor_3d/data/word-test.json
+image-generation/compositor_3d/MoodWords.pde
+image-generation/compositor_3d/SparkleDonut.pde
+image-generation/compositor_3d/TimeStamp.pde
+image-generation/compositor_3dRes/CommandLineArguments.pde
+image-generation/compositor_3dRes/compositor_3dRes.pde
+image-generation/compositor_3dRes/data/Balto-Book.otf
+image-generation/compositor_3dRes/data/imagetoword.json
+image-generation/compositor_3dRes/data/Patron-Bold.otf
+image-generation/compositor_3dRes/data/Pitch-Bold.otf
+image-generation/compositor_3dRes/DataLoader.pde
+image-generation/compositor_3dRes/MoodWords.pde
+image-generation/compositor_3dRes/SparkleDonut.pde
+image-generation/compositor_3dRes/TextCounter.pde
+image-generation/compositor_3dRes/TextParagraph.pde
+image-generation/compositor_3dRes/TimeStamp.pde
+image-generation/compositor_3dRes/utilities.pde
