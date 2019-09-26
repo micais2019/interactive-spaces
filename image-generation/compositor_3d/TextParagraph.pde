@@ -29,10 +29,9 @@ class TextParagraph {
 
     // line height
     String paragraph = 
-      "Acknowledged nationally as a premier leader in art and design education, MICA is deliberately cultivating a new generation of artist—one that is capable of seamlessly integrating innovation entrepreneurship and creative citizenship with contemporary approaches to art, design and media. MICA is redefining the role of the artists and designers as creative, solutions-oriented makers and thinkers who will drive social cultural, and economic advancement for our future. As the oldest continuously degree-granting college of art and design in the nation, MICA is located in Baltimore, deeply connected to the community. It is a leading contributor to the creative economy regionally and a top producer of nationally and internationally recognized professional artists and designers."
-      ;
+"As the oldest continuously degree-granting college of art and design in the nation, MICA is acknowledged nationally as a leader among its peers—one that is deliberately cultivating a new generation of creatives and redefining the role of artists and designers in society." +"\n" +"\n" + "As a student here, you will be challenged to shape new and distinct career pathways. You will learn to integrate innovation, entrepreneurship, and creative citizenship with contemporary approaches to art, design, and media. You will leave the College empowered as a creative, solutions-oriented maker and thinker with the ability to drive cultural, social, and economic advancements that will impact our future. You will create work that breaks new ground while honoring tradition. You will make art and design that matters."      ;
 
-    surface.text(paragraph, 20, 20, width*0.4, height*0.338);
+    surface.text(paragraph, 20, 20, width*0.42, height*0.33);
     surface.endDraw();
 
     this.drawn = true;

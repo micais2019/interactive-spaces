@@ -1,7 +1,5 @@
-
 /*
  Calling this sketch from the command line:
- 
  
  */
 /*TODO:
@@ -114,7 +112,8 @@ void setup() {
   // 1555344000 to 1557046800
   //now = getTimestampFromArgs();
   //index = getIndexFromArgs();
-  index = randomIndex;
+  index = 68500;
+  
   println("RandomIndex:" + randomIndex); //debug
 
   // loading data
@@ -145,42 +144,31 @@ void setup() {
   }
 
   if (!SKIP_DONUT) {
-    // just give size
     float size = map(sound1avg, 200, 10000, width*0.2, width*0.8); //map avg sound1 val to torus radius
     toroid = new SparkleDonut(sound1avg); //size
     donut = toroid.create(sound1Scores, this);
   }
 
   if (!SKIP_PLANETS) {
-    // TODO: add sound2 scores
-    // is it possible to have a singular sound value to affect the distance between the spheres? (offset) 
-    // i.e. larger value = more spread out, smaller value = clumped together
     float spacing = map(sound2avg, 200, 1000, 5, 60);
     planet = new Planet(height * 0.03, spacing, now, this);
   }
 
   if (!SKIP_WORDS) {
-    wordart = new MoodWords(width * 0.6, height * 0.3, moodValues);
+    wordart = new MoodWords(width * 0.6, height * 0.1, moodValues);
   }
 
   if (!SKIP_WEATHER) {
     WeatherGraph weather = new WeatherGraph();
-    //int radius = map(weatherScores, 0, 100, 1, 5);
-    //weather.create(scores,radius,this);
     weatherObjects = weather.create(weatherScores, 2, this);
   }
 
   if (!SKIP_SPLASH) {
-    // TO ADD: Motion Scores?
-    //mapping single value motion score to points and thickness
-    //int points = map(motion scores, 0, 5344, 5, 25);    //25 = max, 3 = min
-    //int thickness = map(motion scores, 0, 5344, 5, 100); //50 = max, 5 = min
-    //int size = map(motion scores, 0, 5344, 50, 500);
     explosion = new SplashMotion(500);
     splash = explosion.create(45, 20, 500, this); //change to higher number for funky glitches
   }
 
-  textPara = new TextParagraph(width*0.4, height*0.5);
+  textPara = new TextParagraph(width*0.43, height*0.5);
 
   if (!SKIP_LOGO) {
     MICA_logo = loadShape("mica_logo-01.svg");
@@ -204,12 +192,12 @@ void generatePaths() {
   arrow = createShape();
   arrow.beginShape();
   arrow.noStroke();
-  //arrow.stroke(0);
-  //arrow.strokeWeight(2);
   arrow.vertex(0, 0);
   arrow.vertex(7, 7);
   arrow.vertex(0, 14);
   arrow.endShape();
+  arrow.disableStyle();
+
 
   // ZIGZAG
   for (int lp = 0; lp <9; lp+=2) {
@@ -226,8 +214,6 @@ void generatePaths() {
   zig_points[9] = new Point(width*0.9, height*0.9);
   zig_points[10] = new Point(width*0.9, height*0.1);
   zigzag = new PolygonPath(zig_points, MAX_COUNTER);
-
-  Point text_center = getEllipsePoint(index % MAX_COUNTER, width*0.27, 0.1, 0.85); //create points
 
   //TRIANGLE STUFF
   origin = new Point(width*0.1, height*0.97); //bottom left pt
@@ -249,12 +235,12 @@ void draw() {
   background(BACKGROUND);
 
   directionalLight(200, 200, 200, 0, 0, -1);
-  directionalLight(127, 127, 127, 0, 1, 0);
+  directionalLight(200, 200, 200, 1, 0, -1);
   directionalLight(18, 18, 18, -1, 0, 0);
   lights();
 
   if (!SKIP_PATHS) {
-    drawPaths(now);
+    drawPathsandArrows(now);
   }
 
   if (!SKIP_CLOTH) {
@@ -278,6 +264,8 @@ void draw() {
   }
 
   noLights();
+  //directionalLight(127, 127, 127, 0, 0, -1);
+  //directionalLight(255, 255, 255, 0, 0, -1);
 
   if (!SKIP_LOGO) {
     drawLogo(now);
@@ -308,30 +296,12 @@ void draw() {
 }
 
 void drawDonut(long ts) {
-  /// TODO
   Point donut_center = getEllipsePoint(index % MAX_COUNTER, height*0.5, 1.0, 0.5);
 
-  //arrow
-  arrow.disableStyle();
-  fill(50);
-  Point arrow_center = getEllipsePoint((index+100) % MAX_COUNTER, height*0.5, 1.045, 0.19);
-  float progress = map((index+100), 0, MAX_COUNTER, 0, TWO_PI);
   pushMatrix();
-  translate(width/2 + arrow_center.x, height*0.828+arrow_center.y);
-  rotate(progress+radians(90));
-  shape(arrow, -6, -6);
-  popMatrix();
-  fill(255);
-  //arrow
-
-  pushMatrix();
-  //move it along a XZ axis, circularly
   translate(width*0.5+donut_center.x, height*0.8, donut_center.y);
-
-  // rotate constantly
   rotateX(index * 0.2);
   rotateZ(index * 0.3);
-
   noStroke();
   textureMode(NORMAL);
   scale(1);
@@ -343,23 +313,9 @@ void drawDonut(long ts) {
 void drawPlanets(long ts) {
   Point planets_center = getEllipsePoint(index % MAX_COUNTER, width*0.27, 0.4, 1.0);
 
-  //arrow
-  arrow.disableStyle();
-  fill(#FFF700);
-  Point arrow_center = getEllipsePoint((index+100) % MAX_COUNTER, width*0.27, 0.4, 1.0);
-  float progress = map(index+100, 0, MAX_COUNTER, 0, TWO_PI);
-  pushMatrix();
-  translate(width*0.7 + arrow_center.x, height*0.5 + arrow_center.y, 0);
-  rotate(progress+radians(90));
-  shape(arrow, -6, -6);
-  popMatrix();
-  //arrow
-  fill(255);
-
   pushMatrix();
   noStroke();
   translate(width*0.7 + planets_center.x, height*0.5 + planets_center.y, 40);
-  // rotateY(0.2);`
 
   orb = planet.create();
   for (int n=0; n < planet.offsets.size(); n++) {
@@ -377,48 +333,15 @@ void drawPlanets(long ts) {
 
 void drawWords(long ts) {
 
-  boolean movingRight = true;
-  boolean movingUp = false;
-
   Point zig_center = zigzag.point(index % MAX_COUNTER);  //create zigzag points
-
-  //arrow path on zigzag
-  Point arrow_center = zigzag.point((index+1) % MAX_COUNTER); //create arrow points
-  if (arrow_center.y > height*0.1 && arrow_center.y < height*0.2 && arrow_center.x < width*0.85||
-    arrow_center.y > height*0.3 && arrow_center.y < height*0.4 && arrow_center.x < width*0.85||
-    arrow_center.y > height*0.5 && arrow_center.y < height*0.6 && arrow_center.x < width*0.85||
-    arrow_center.y > height*0.7 && arrow_center.y < height*0.8 && arrow_center.x < width*0.85||
-    arrow_center.y == height*0.9 && arrow_center.x < width*0.9
-    ) {
-    movingRight = !movingRight;
-  } else if (arrow_center.x == width*0.9) {
-    movingUp = true;
-  }
   pushMatrix();
-  translate(arrow_center.x, arrow_center.y);
-  if (!movingRight) {
-  } else {
-    scale(-1, 1);
-  }
-  if (movingUp) {
-    translate(-2, 0);
-    rotate(-radians(90));
-  }
-  arrow.disableStyle();
-  fill(#0000FF);
-  shape(arrow, -6, -6);
-  popMatrix();
-  //arrow
-
-  pushMatrix();
-  scale(0.5);
-  //translate(width *0.2, height * 0.1);
-  translate(zig_center.x+200, zig_center.y + 250, width*0.2);
-  imageMode(CORNER);
-  stroke(0);
+  scale(0.75);
+  translate(width*0.34+zig_center.x*0.9, height*0.12 +zig_center.y*0.7, width*0.1);
+  imageMode(CENTER);
   image(wordart.draw(), 0, 0);
   popMatrix();
   noStroke();
+  
 }
 
 void drawCloth(long ts) {
@@ -443,7 +366,7 @@ void drawText(long ts) {
   //draw white rectangle
   fill(255);
   rectMode(CORNER);
-  rect(text_center.x*0.8, text_center.y*0.8, width*0.4 + border, height*0.338 + border);
+  rect(text_center.x*0.8, text_center.y*0.8, width*0.42 + border, height*0.33 + border);
   noFill();
   //draw text
   image(textPara.surface, text_center.x*0.8, text_center.y*0.8);
@@ -474,38 +397,10 @@ void drawCounter(int count) {
 
 
 void drawSplash(long ts) {
-  Point splash_center = getMoebiusPoint(index % MAX_COUNTER, 300);
-
-  //arrow
-  arrow.disableStyle();
-  fill(#FF0DAA);
-  Point arrow_center = getMoebiusPoint((index+50) % MAX_COUNTER, 300);
-  float progress = map((index+50), 0, 100, 0, PI/2);
-  pushMatrix();
-  translate(width*0.5+arrow_center.x, height*0.5+arrow_center.y, arrow_center.z);
-  if (arrow_center.z < 301 && arrow_center.z> 240) {
-    rotate(radians(210));
-  }
-  if (arrow_center.x > 290 && arrow_center.x < 302) {
-    rotate(-progress +radians(180));
-  }
-  if (arrow_center.z > -301 && arrow_center.z < -220) {
-    rotate(radians(140));
-  }
-  shape(arrow, -6, -6);
-  popMatrix();
-  //arrow
+  Point splash_center = getMoebiusPoint(index % MAX_COUNTER, width*0.25);
 
   pushMatrix();
   translate(width*0.5+splash_center.x, height*0.5+splash_center.y, splash_center.z);
-  if (CONTROL_POSITION) {
-    rotateY(mouseX * 1.0f/width * TWO_PI);
-    rotateX(mouseY * 1.0f/height * TWO_PI);
-  } else {
-    rotateY(index * 0.2);
-    rotateX(index *0.1);
-    rotateZ(index * 0.2);
-  }
   scale(0.8);
   shape(splash);
   popMatrix();
@@ -523,31 +418,12 @@ void drawWeatherGraph(long ts) {
 
   Point weather_center = getEllipsePoint(index % MAX_COUNTER, width*0.35, 0.85, 0.5);
 
-  //arrow
-  arrow.disableStyle();
-  fill(#00ED18);
-  Point arrow_center = getEllipsePoint((index +50) % MAX_COUNTER, width*0.5, 0.851, 0.5);
-  float progress = map(index +50, 0, MAX_COUNTER, 0, TWO_PI);
-  pushMatrix();
-  translate(width/2 + arrow_center.x, height/2 + arrow_center.y+5, 0);
-  rotate(progress+radians(90));
-  shape(arrow, -6, -6);
-  popMatrix();
-  //arrow
-  fill(255);
-
   pushMatrix();
   // primary positioning
   translate(width/2 + weather_center.x, height/2 + weather_center.y, 200);
-
-  if (CONTROL_POSITION) { 
-    rotateY(mouseX * 1.5f/width * TWO_PI);
-    rotateX(mouseY * 1.25f/height * TWO_PI);
-  } else {
-    rotateX(index * 0.1);
-    rotateZ(index * 0.1);
-  }
   scale(0.8);
+  rotateX(index * 0.2);
+  rotateZ(index * 0.1);
 
   pushMatrix();
   // draw each shape
@@ -573,7 +449,6 @@ void drawLogo(long ts) {
   translate(width*0.5, height*0.5, width*0.4);
   scale(width*0.0002);
   rotate(radians(90));
-  // MICA_logo.fill(255);
   shapeMode(CENTER);
   shape(MICA_logo);
   popMatrix();
@@ -587,100 +462,133 @@ void mouseClicked() {
   saveFrame(filename);
 }
 
-//get points for paths
-//draw paths
-void drawPaths(long ts) {
+
+void drawPathsandArrows(long ts) {
+
+  noStroke();
+  shapeMode(CENTER);//for arrows
 
   //ZIGZAG
   zigzag = new PolygonPath(zig_points, MAX_COUNTER);
 
-  //draw zigzag
   for (int i=0; i<MAX_COUNTER; i+=1) {
     Point zig_center = zigzag.point(i);
-    //Point square_center = square.point(i);
-
-    //zigzag path, moodwords
     pushMatrix();
     fill(#0000FF);
     translate(zig_center.x, zig_center.y);
-    rect(0, 0, 1.2, 1.2);
+    rect(0, 0, width*0.0007, width*0.0007);
     popMatrix();
   }
 
-  //draw the rest of the paths
-  for (int i=0; i< MAX_COUNTER; i+=2) {
+  for (int i=0; i< MAX_COUNTER; i+=1) {
+
     Point weather_center = getEllipsePoint(i, width*0.5, 0.85, 0.5);
-    //ellipse(width*0.5, height*0.5, width*0.842, height*0.737);
+    Point donut_center = getEllipsePoint(i, height*0.5, 1.0, 0.5);
+    Point donut_center2 = getEllipsePoint(i, height*0.5, 1.0416, 0.189);
+    Point planets_center = getEllipsePoint(i, width*0.27, 0.4, 1.0);
+    Point splash_center = getMoebiusPoint(i, width*0.25);
+
     noStroke();
     //weather path
     fill(#00ED18);
     pushMatrix();
     translate(width*0.5 + weather_center.x, height*0.5 + weather_center.y);
-    //rotate(0.1);
-    rect(0, 0, 1.5, 1.5);
-    //rotate(-cos(weather_center.x)*(-sin(weather_center.y))+radians(90));
+    rect(0, 0, width*0.0007, width*0.0007);
     popMatrix();
-  }
-
-  for (int i=0; i< MAX_COUNTER; i+=2) {
-    Point donut_center = getEllipsePoint(i, height*0.5, 1.0, 0.5);
-    Point planets_center = getEllipsePoint(i, width*0.27, 0.4, 1.0);
-    Point text_center = getEllipsePoint(i, width*0.27, 0.1, 0.85);
-    Point tri_center = triangle.point(i);
-    Point splash_center = getMoebiusPoint(i, 300);
-
-    float progress = map(i, 0, MAX_COUNTER, 0, TWO_PI);
 
     //donut path
-    fill(0);
-    pushMatrix();
-    //ellipse(width*0.5, height*0.5, width*0.84, height*0.735);
+    fill(50);
+    pushMatrix();  
     translate(width*0.5 + donut_center.x, height*0.8, donut_center.y);
-    rotate(progress+radians(90));
-    rotateZ(progress);
-    ellipse(0, 0, 1.2, 1.2);
+    rect(0, 0, width*0.0007, width*0.0007);
     popMatrix();
-  }
 
-  for (int i=0; i< MAX_COUNTER; i+=2) {
-    Point planets_center = getEllipsePoint(i, width*0.27, 0.4, 1.0);
-    Point text_center = getEllipsePoint(i, width*0.27, 0.1, 0.85);
-    Point tri_center = triangle.point(i);
+    /* //donut2 path
+     fill(50);
+     pushMatrix();  
+     translate(width*0.5 + donut_center2.x, height*0.827+donut_center2.y);
+     rect(0, 0, width*0.0007, width*0.0007);
+     popMatrix();*/
 
     //planets path
     fill(#FFF700);
     pushMatrix();
     translate(width*0.7 + planets_center.x, height*0.5 + planets_center.y);
-    rect(0, 0, 1.5, 1.5);
+    rect(0, 0, width*0.0007, width*0.0007);
     popMatrix();
-  }
-  for (float i=0; i< MAX_COUNTER; i+=0.5) {
-    Point splash_center = getMoebiusPoint(i, width*0.25);
 
     //moebius path, splash
     pushMatrix();
     fill(#FF0DAA);
-
-    float progress = map(i, 0, MAX_COUNTER, 0, 1.5*TWO_PI);
     translate(width*0.5+splash_center.x, height*0.5+splash_center.y, splash_center.z );
-    //rotate(progress + radians(90));
-    rotate(0.1);
-    rect(0, 0, 1.2, 1.2);
+    rect(0, 0, width*0.0007, width*0.0007);
     popMatrix();
 
     fill(255);
   }
+
+  fill(#0000FF);
+  Point Zarrow_center = zigzag.point((index+1) % MAX_COUNTER);
+  Point Znext_center = zigzag.point((index+2) % MAX_COUNTER);
+  float angZ = atan2(Znext_center.y - Zarrow_center.y, Znext_center.x - Zarrow_center.x);
+  pushMatrix();
+  translate(Zarrow_center.x, Zarrow_center.y);
+  rotate(angZ);
+  shape(arrow, 0, 0);
+  popMatrix();
+
+  fill(#00ED18);
+  Point Warrow_center = getEllipsePoint((index+100) % MAX_COUNTER, width*0.5, 0.85, 0.5);
+  Point Wnext_center = getEllipsePoint((index+101) % MAX_COUNTER, width*0.5, 0.85, 0.5);
+  float angW = atan2(Wnext_center.y - Warrow_center.y, Wnext_center.x - Warrow_center.x);
+  pushMatrix();
+  translate(width*0.5 +  Warrow_center.x, height*0.5 + Warrow_center.y);
+  rotate(angW);
+  shape(arrow, 0, 0);
+  popMatrix();
+
+  fill(50);
+  Point Darrow_center = getEllipsePoint((index+100) % MAX_COUNTER, height*0.5, 1.04176, 0.1895);
+  Point Dnext_center = getEllipsePoint((index+101) % MAX_COUNTER, height*0.5, 1.04176, 0.1895);
+  float angD = atan2(Dnext_center.y - Darrow_center.y, Dnext_center.x - Darrow_center.x);
+  pushMatrix();
+  translate(width/2 + Darrow_center.x, height*0.827 + Darrow_center.y);
+  rotate(angD);
+  shape(arrow, 0, 0);
+  popMatrix();
+
+  fill(#FFF700);
+  Point Parrow_center = getEllipsePoint((index+100) % MAX_COUNTER, width*0.27, 0.4, 1.0);
+  Point Pnext_center = getEllipsePoint((index+101) % MAX_COUNTER, width*0.27, 0.4, 1.0);
+  float angP = atan2(Pnext_center.y - Parrow_center.y, Pnext_center.x - Parrow_center.x);
+  pushMatrix();
+  translate(width*0.7 + Parrow_center.x, height*0.5 + Parrow_center.y);
+  rotate(angP);
+  shape(arrow, 0, 0);
+  popMatrix();
+
+  fill(#FF0DAA);
+  Point Marrow_center = getMoebiusPoint((index+100) % MAX_COUNTER, width*0.25);
+  Point Mnext_center =getMoebiusPoint((index+101) % MAX_COUNTER, width*0.25);
+  float angM = atan2(Mnext_center.y - Marrow_center.y, Mnext_center.x - Marrow_center.x);
+  pushMatrix();
+  translate(width*0.5+ Marrow_center.x, height*0.5 + Marrow_center.y, Marrow_center.z);
+  rotate(angM);
+  shape(arrow, 0, 0);
+  popMatrix();
+
+  fill(255);//reset
+  shapeMode(CORNER);//reset
 }
+
 float R = 100.0;
 
 Point getEllipsePoint(long counter, float radius, float wide, float flat) {
   float progress = map(counter, 0, MAX_COUNTER, 0, TWO_PI);
-
   //        > 1.0 means wider
   float x = wide * radius * cos(progress);
   //        < 1.0 means flatter
   float y = flat * radius * sin(progress);
-
   return new Point(x, y);
 }
 

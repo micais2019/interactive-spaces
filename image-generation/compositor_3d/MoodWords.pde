@@ -4,18 +4,7 @@ class MoodWords {
   PGraphics surface;
   int w, h;
   IntList values;
-  int fontSize = 50;
-
-  color[] colors = {  
-    #0061ff, 
-    #ffff00, 
-    #ff0000, 
-    #009104, 
-    #ff0f97, 
-    #0073a8, 
-    #00FF9F, 
-    #00FDFF, 
-  };
+  int fontSize = 30;
 
   MoodWords(float w, float h, IntList values) {
     mood_words = loadJSONObject("imagetoword.json"); // new text .json file, with nouns from Amazon's Rekognition + MICA photos
@@ -43,35 +32,22 @@ class MoodWords {
     for (int i=0; i < 4; i++) {
       if (i < 3) {
         text += pickWord(i) + ", ";
-
-        //text += pickWord(floor(random(4))) + ", ";
       } else {
-        //text += pickWord(floor(random(4)));
         text += pickWord(i);
       }
     }
-    int level = 30;
 
     surface.beginDraw();
     surface.clear();
     surface.textFont(font, fontSize);
     surface.textAlign(LEFT);
-    surface.noStroke();
-    surface.noFill();
-
-    for (int n=-1; n < 2; n++) {
-      for (int x = -1; x < 1; x++) {
+      for (int x = -1; x < 2; x++) {
         surface.fill(0);
-        //surface.textSize(61);
-        //surface.text(text, n-x, 50+x); // outline
-        //surface.text(text, n+x, 50-x); //outline
+        surface.text(text, 0, 50+x); // outline
+        surface.text(text, x, 50); //outline
       }
       surface.fill(255);
-      //surface.textSize(60);
-      surface.text(text, n, 50);
-    }
-      // level += this.rowHeight;
-    
+      surface.text(text, 0, 50);    
     surface.endDraw();
 
     return surface;
