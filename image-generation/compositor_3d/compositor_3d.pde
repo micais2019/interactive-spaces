@@ -110,7 +110,7 @@ void setup() {
   // 1555344000 to 1557046800
   //now = getTimestampFromArgs();
   //index = getIndexFromArgs();
-  index = 74149;
+  index = randomIndex;
   int mappedTS = int(map(index, 0, 75000, 1555344000, 1557046800));
   now = mappedTS;
   println("Index:" + index + "/75000"); //debug
@@ -146,7 +146,7 @@ void setup() {
   }
 
   if (!SKIP_DONUT) {
-    float size = map(sound1avg, 200, 10000, width*0.15, width*0.75); //map avg sound1 val to torus radius
+    float size = map(sound1avg, 200, 10000, width*0.15, width*0.7); //map avg sound1 val to torus radius
     toroid = new SparkleDonut(size); //size
     donut = toroid.create(sound1Scores, this);
   }

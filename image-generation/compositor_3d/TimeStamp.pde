@@ -1,4 +1,5 @@
 import java.util.Date;
+import java.text.SimpleDateFormat;
 
 class TimeStamp {
   String timestamp;
@@ -22,21 +23,26 @@ class TimeStamp {
   // "04.14.2019  14:25:24";
   String timestamp(long ts) {
     Date time = getDateFromTimestamp(ts);
-    String[] stamp = new String[11];
+    SimpleDateFormat sdf = new SimpleDateFormat("MM.dd.yyyy hh:mm:ss");
+    String stamp = sdf.format(time);
+    //println(stamp);
+    //String[] stamp = new String[11];
+    //month day year hour minute second
 
-    stamp[0] = "04";
-    stamp[1] = ".";
-    stamp[2] = "20";
-    stamp[3] = ".";
-    stamp[4] = "2019";
-    stamp[5] = "  ";
-    stamp[6] = "9";
-    stamp[7] = ":";
-    stamp[8] = "02";
-    stamp[9] = ":";
-    stamp[10] = "15";
-
-    return join(stamp, "");
+    /*stamp[0] = "04";
+     stamp[1] = ".";
+     stamp[2] = "20";
+     stamp[3] = ".";
+     stamp[4] = "2019";
+     stamp[5] = "  ";
+     stamp[6] = "9";
+     stamp[7] = ":";
+     stamp[8] = "02";
+     stamp[9] = ":";
+     stamp[10] = "15";
+     
+     return join(stamp, "");*/
+    return(stamp);
   }
 
   void draw(long ts) {
