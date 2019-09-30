@@ -40,7 +40,7 @@ class MoodWords {
     surface.beginDraw();
     surface.clear();
     surface.textFont(font, fontSize);
-    surface.textAlign(LEFT);
+    surface.textAlign(CORNER);
       for (int x = -1; x < 2; x++) {
         surface.fill(0);
         surface.text(text, 0, 50+x); // outline

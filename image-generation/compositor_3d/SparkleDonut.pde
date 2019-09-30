@@ -8,12 +8,12 @@ class SparkleDonut {
   HE_Mesh mesh;
   HEC_Torus creator;
   WB_Render render;
-  
+
   int tubeFacets = 36;
   int torusFacets = 80;
   int twist = 0;//36;
   float size;
-  
+
   PGraphics pix; // texture
 
   SparkleDonut(float rad) {
@@ -38,7 +38,7 @@ class SparkleDonut {
       score = scores.get(idx);
       for (int y = -(hh - 1); y < hh; y += pixelsize) {
         float adj = abs(y);
-        float lim = (score*2 * hh) - pixelsize;
+        float lim = (score*average(sound1Scores)*10 * hh) - pixelsize;
         if (random(adj) < random(lim)) {
           pix.rect(0, y, barwidth, pixelsize);
         }
@@ -50,15 +50,15 @@ class SparkleDonut {
 
   PShape create(FloatList scores, PApplet app) {
     drawTexture(scores);
-    
+
     HEC_Torus creator=new HEC_Torus();
     creator.setRadius(size/3, size); 
     creator.setTubeFacets(tubeFacets);
     creator.setTorusFacets(torusFacets);
     creator.setTwist(twist);//twist the torus a given number of facets
-    
+
     mesh=new HE_Mesh(creator); 
-    
+
     HET_Diagnosis.validate(mesh);
     textureMode(NORMAL);
     textureWrap(REPEAT);

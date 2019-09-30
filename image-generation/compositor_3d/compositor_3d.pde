@@ -95,7 +95,7 @@ PShape arrow;
 Point [] zig_points = new Point [11];
 
 void setup() {
-  //size(4200, 2847, P3D); // FULL
+  //size(4200, 2847, P3D);q // FULL3
   // size(1200, 800, P3D);
   size(2100, 1424, P3D);
   smooth(8);
@@ -104,17 +104,17 @@ void setup() {
   //randomSeed(200);
 
   int randomIndex = int(random(0, 75000));
-  int mappedTS = int(map(randomIndex, 0, 75000, 1555344000, 1557046800));
   //testing 
 
   ONE_SHOT = getOneShotFromArgs();
-  now = mappedTS;
   // 1555344000 to 1557046800
   //now = getTimestampFromArgs();
   //index = getIndexFromArgs();
-  index = 68500;
-  
-  println("RandomIndex:" + randomIndex); //debug
+  index = 74149;
+  int mappedTS = int(map(index, 0, 75000, 1555344000, 1557046800));
+  now = mappedTS;
+  println("Index:" + index + "/75000"); //debug
+  println("TIME:" + now); //debug
 
   // loading data
   DataLoader dload = new DataLoader(this);
@@ -128,24 +128,26 @@ void setup() {
   float sound1avg = average(sound1Scores)*10000;
   float sound2avg = average(sound2Scores)*10000;
   int motionMax = int(motionScores.max());
+  float motionavg = average(motionScores);
 
   println("sound1avg:" + sound1avg);
   println("sound2avg:" +sound2avg);
   println("motionMax:" +motionMax);
+  println("motionAvg:" +motionavg); //gives more dynamic change to cloth width
 
 
   if (!SKIP_CLOTH) {
     // w h amp detail
     // more amp -> bigger hills
     // more detail -> tighter hills
-    int clothWidth = int(map(motionMax, 0, 600, width*0.6, height*5)); //map avg motion val to cloth thickness
+    int clothWidth = int(map(motionavg, 0, 30, width*0.55, height*5)); //map avg motion val to cloth thickness
     cloth = new ClothShape(floor(width * 0.5), floor(height * 3), clothWidth, 200);
     fabric = cloth.create(moodValues, this);
   }
 
   if (!SKIP_DONUT) {
-    float size = map(sound1avg, 200, 10000, width*0.2, width*0.8); //map avg sound1 val to torus radius
-    toroid = new SparkleDonut(sound1avg); //size
+    float size = map(sound1avg, 200, 10000, width*0.15, width*0.75); //map avg sound1 val to torus radius
+    toroid = new SparkleDonut(size); //size
     donut = toroid.create(sound1Scores, this);
   }
 
@@ -165,10 +167,14 @@ void setup() {
 
   if (!SKIP_SPLASH) {
     explosion = new SplashMotion(500);
-    splash = explosion.create(45, 20, 500, this); //change to higher number for funky glitches
+    int splashWidth = int(map(motionavg, 0, 30, 250, 600)); //map avg motion val to cloth thickness
+    int spokes = int(map(motionavg, 0, 30, 30, 50));
+    splash = explosion.create(spokes, 20, splashWidth, this); //change to higher number for funky glitches
   }
 
-  textPara = new TextParagraph(width*0.43, height*0.5);
+  if (!SKIP_TEXT) {
+    textPara = new TextParagraph(width*0.43, height*0.5);
+  }
 
   if (!SKIP_LOGO) {
     MICA_logo = loadShape("mica_logo-01.svg");
@@ -235,7 +241,7 @@ void draw() {
   background(BACKGROUND);
 
   directionalLight(200, 200, 200, 0, 0, -1);
-  directionalLight(200, 200, 200, 1, 0, -1);
+  directionalLight(180, 180, 180, 1, 0, -1);
   directionalLight(18, 18, 18, -1, 0, 0);
   lights();
 
@@ -264,14 +270,14 @@ void draw() {
   }
 
   noLights();
-  //directionalLight(127, 127, 127, 0, 0, -1);
-  //directionalLight(255, 255, 255, 0, 0, -1);
 
   if (!SKIP_LOGO) {
     drawLogo(now);
   }
 
-  drawText(now);
+  if (!SKIP_TEXT) {
+    drawText(now);
+  }
 
   if (!SKIP_WORDS) {
     drawWords(now);
@@ -335,13 +341,12 @@ void drawWords(long ts) {
 
   Point zig_center = zigzag.point(index % MAX_COUNTER);  //create zigzag points
   pushMatrix();
-  scale(0.75);
-  translate(width*0.34+zig_center.x*0.9, height*0.12 +zig_center.y*0.7, width*0.1);
+  translate(width*0.25+zig_center.x*0.8, height*0.16 +zig_center.y*0.7, width*0.1);
   imageMode(CENTER);
+  scale(0.8);
   image(wordart.draw(), 0, 0);
   popMatrix();
   noStroke();
-  
 }
 
 void drawCloth(long ts) {
@@ -401,6 +406,8 @@ void drawSplash(long ts) {
 
   pushMatrix();
   translate(width*0.5+splash_center.x, height*0.5+splash_center.y, splash_center.z);
+  rotateY(index * 0.4);
+  rotateZ(index * 0.6);
   scale(0.8);
   shape(splash);
   popMatrix();
@@ -409,19 +416,21 @@ void drawSplash(long ts) {
 
 
 void drawWeatherGraph(long ts) {
+  noStroke();
+
   //relative adjustments for weathergraph
   float tolerance1 = (weatherScores.get(0)-weatherScores.get(1))/2;
   float tolerance2 = (weatherScores.get(1)-weatherScores.get(2))/2;
   float tolerance3 = (weatherScores.get(2)-weatherScores.get(3))/2;
   float tolerance4 = (weatherScores.get(3)-weatherScores.get(4))/2;
-  float tolerance5 = ((weatherScores.get(0))/2);
+  float tolerance5 = ((weatherScores.get(4))/2);
 
   Point weather_center = getEllipsePoint(index % MAX_COUNTER, width*0.35, 0.85, 0.5);
 
   pushMatrix();
   // primary positioning
   translate(width/2 + weather_center.x, height/2 + weather_center.y, 200);
-  scale(0.8);
+  scale(1.5);
   rotateX(index * 0.2);
   rotateZ(index * 0.1);
 

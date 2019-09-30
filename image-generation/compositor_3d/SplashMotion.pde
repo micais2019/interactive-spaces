@@ -38,7 +38,7 @@ class SplashMotion {
     HE_VertexIterator vitr=mesh.vItr();
     while (vitr.hasNext()) {
       colorMode(RGB);
-      vitr.next().setColor(255);//day b&w
+      vitr.next().setColor(230);//day b&w
       //vitr.next().setColor(int(random(100))); //night b&w
 
       //vitr.next().setColor(color(random(0,100), random(10), random(50,100))); //night

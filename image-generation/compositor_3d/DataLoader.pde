@@ -176,9 +176,9 @@ class DataLoader {
       weatherData = new String[]{
         str(current.getFloat("temperature")),
         str(current.getFloat("dewPoint")),
-        str(current.getFloat("humidity") * 100),
-        str(current.getFloat("pressure") / 10),
-        str(current.getFloat("apparentTemperature")),
+        str(current.getFloat("cloudCover") * 100 ),
+        str(current.getFloat("uvIndex")*10),
+        str(current.getFloat("visibility")*10),
         str(constrain(current.getFloat("windSpeed") * 10, 10, 100)),
       };
       println("LOADED WEATHER DATA", join(weatherData, " "));
