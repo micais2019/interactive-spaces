@@ -23,7 +23,7 @@ class TimeStamp {
   // "04.14.2019  14:25:24";
   String timestamp(long ts) {
     Date time = getDateFromTimestamp(ts);
-    SimpleDateFormat sdf = new SimpleDateFormat("MM.dd.yyyy hh:mm:ss");
+    SimpleDateFormat sdf = new SimpleDateFormat("MM.dd.yyyy HH:mm:ss");
     String stamp = sdf.format(time);
     //println(stamp);
     //String[] stamp = new String[11];

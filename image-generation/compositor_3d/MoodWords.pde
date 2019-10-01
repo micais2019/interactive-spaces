@@ -18,7 +18,7 @@ class MoodWords {
     font = createFont("Patron-Bold.otf", fontSize);
 
     surface = createGraphics(this.w, this.h); 
-    surface.smooth();
+    surface.noSmooth();
   }
 
   String pickWord(int value) {
@@ -43,8 +43,8 @@ class MoodWords {
     surface.textAlign(CORNER);
       for (int x = -1; x < 2; x++) {
         surface.fill(0);
-        surface.text(text, 0, 50+x); // outline
-        surface.text(text, x, 50); //outline
+        //surface.text(text, 0, 50+x); // outline
+       // surface.text(text, x, 50); //outline
       }
       surface.fill(255);
       surface.text(text, 0, 50);    

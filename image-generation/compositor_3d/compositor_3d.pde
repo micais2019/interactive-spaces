@@ -99,6 +99,7 @@ void setup() {
   // size(1200, 800, P3D);
   size(2100, 1424, P3D);
   smooth(8);
+  pixelDensity(displayDensity());
 
   //testing
   //randomSeed(200);
@@ -110,9 +111,9 @@ void setup() {
   // 1555344000 to 1557046800
   //now = getTimestampFromArgs();
   //index = getIndexFromArgs();
-  index = randomIndex;
-  int mappedTS = int(map(index, 0, 75000, 1555344000, 1557046800));
-  now = mappedTS;
+  index = 64765;// int(random(73500,74500));
+  int mappedTS = int(map(index, 0, 75000, 1555344000, 1557046800)); //convert index to timestamp
+  now =  mappedTS;
   println("Index:" + index + "/75000"); //debug
   println("TIME:" + now); //debug
 
@@ -146,7 +147,7 @@ void setup() {
   }
 
   if (!SKIP_DONUT) {
-    float size = map(sound1avg, 200, 10000, width*0.15, width*0.7); //map avg sound1 val to torus radius
+    float size = map(sound1avg, 200, 10000, width*0.1, width*0.7); //map avg sound1 val to torus radius
     toroid = new SparkleDonut(size); //size
     donut = toroid.create(sound1Scores, this);
   }
@@ -341,7 +342,7 @@ void drawWords(long ts) {
 
   Point zig_center = zigzag.point(index % MAX_COUNTER);  //create zigzag points
   pushMatrix();
-  translate(width*0.25+zig_center.x*0.8, height*0.16 +zig_center.y*0.7, width*0.1);
+  translate(width*0.25+zig_center.x*0.7, height*0.13 +zig_center.y*0.7, width*0.1);
   imageMode(CENTER);
   scale(0.8);
   image(wordart.draw(), 0, 0);
@@ -499,14 +500,14 @@ void drawPathsandArrows(long ts) {
 
     noStroke();
     //weather path
-    fill(#00ED18);
+    fill(#2dc84d);
     pushMatrix();
     translate(width*0.5 + weather_center.x, height*0.5 + weather_center.y);
     rect(0, 0, width*0.0007, width*0.0007);
     popMatrix();
 
     //donut path
-    fill(50);
+    fill(#fe5000);
     pushMatrix();  
     translate(width*0.5 + donut_center.x, height*0.8, donut_center.y);
     rect(0, 0, width*0.0007, width*0.0007);
@@ -520,7 +521,7 @@ void drawPathsandArrows(long ts) {
      popMatrix();*/
 
     //planets path
-    fill(#FFF700);
+    fill(#fedb00);
     pushMatrix();
     translate(width*0.7 + planets_center.x, height*0.5 + planets_center.y);
     rect(0, 0, width*0.0007, width*0.0007);
@@ -528,7 +529,7 @@ void drawPathsandArrows(long ts) {
 
     //moebius path, splash
     pushMatrix();
-    fill(#FF0DAA);
+    fill(#e10098);
     translate(width*0.5+splash_center.x, height*0.5+splash_center.y, splash_center.z );
     rect(0, 0, width*0.0007, width*0.0007);
     popMatrix();
@@ -536,7 +537,7 @@ void drawPathsandArrows(long ts) {
     fill(255);
   }
 
-  fill(#0000FF);
+  fill(#10069f);
   Point Zarrow_center = zigzag.point((index+1) % MAX_COUNTER);
   Point Znext_center = zigzag.point((index+2) % MAX_COUNTER);
   float angZ = atan2(Znext_center.y - Zarrow_center.y, Znext_center.x - Zarrow_center.x);
@@ -546,7 +547,7 @@ void drawPathsandArrows(long ts) {
   shape(arrow, 0, 0);
   popMatrix();
 
-  fill(#00ED18);
+  fill(#2dc84d);
   Point Warrow_center = getEllipsePoint((index+100) % MAX_COUNTER, width*0.5, 0.85, 0.5);
   Point Wnext_center = getEllipsePoint((index+101) % MAX_COUNTER, width*0.5, 0.85, 0.5);
   float angW = atan2(Wnext_center.y - Warrow_center.y, Wnext_center.x - Warrow_center.x);
@@ -556,7 +557,7 @@ void drawPathsandArrows(long ts) {
   shape(arrow, 0, 0);
   popMatrix();
 
-  fill(50);
+  fill(#fe5000);
   Point Darrow_center = getEllipsePoint((index+100) % MAX_COUNTER, height*0.5, 1.04176, 0.1895);
   Point Dnext_center = getEllipsePoint((index+101) % MAX_COUNTER, height*0.5, 1.04176, 0.1895);
   float angD = atan2(Dnext_center.y - Darrow_center.y, Dnext_center.x - Darrow_center.x);
@@ -566,7 +567,7 @@ void drawPathsandArrows(long ts) {
   shape(arrow, 0, 0);
   popMatrix();
 
-  fill(#FFF700);
+  fill(#fedb00);
   Point Parrow_center = getEllipsePoint((index+100) % MAX_COUNTER, width*0.27, 0.4, 1.0);
   Point Pnext_center = getEllipsePoint((index+101) % MAX_COUNTER, width*0.27, 0.4, 1.0);
   float angP = atan2(Pnext_center.y - Parrow_center.y, Pnext_center.x - Parrow_center.x);
@@ -576,7 +577,7 @@ void drawPathsandArrows(long ts) {
   shape(arrow, 0, 0);
   popMatrix();
 
-  fill(#FF0DAA);
+  fill(#e10098);
   Point Marrow_center = getMoebiusPoint((index+100) % MAX_COUNTER, width*0.25);
   Point Mnext_center =getMoebiusPoint((index+101) % MAX_COUNTER, width*0.25);
   float angM = atan2(Mnext_center.y - Marrow_center.y, Mnext_center.x - Marrow_center.x);

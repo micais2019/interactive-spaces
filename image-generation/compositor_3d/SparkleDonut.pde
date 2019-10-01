@@ -24,6 +24,7 @@ class SparkleDonut {
   void drawTexture(FloatList scores) {
     pix.beginDraw();
     pix.stroke(0);
+    pix.strokeWeight(3);
     pix.background(255); //white torus
     pix.fill(0);
 
@@ -38,7 +39,7 @@ class SparkleDonut {
       score = scores.get(idx);
       for (int y = -(hh - 1); y < hh; y += pixelsize) {
         float adj = abs(y);
-        float lim = (score*average(sound1Scores)*10 * hh) - pixelsize;
+        float lim = (score*average(sound1Scores)*50 * hh) - pixelsize;
         if (random(adj) < random(lim)) {
           pix.rect(0, y, barwidth, pixelsize);
         }
