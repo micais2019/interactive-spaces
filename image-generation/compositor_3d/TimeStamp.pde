@@ -7,7 +7,7 @@ class TimeStamp {
   long ts;
   float scalar = 0.8;
   boolean drawn = false;
-  int nFontSize = 22;
+  int nFontSize = 40;
   // int fontSize = 96; // big
   PFont nfont;
 
@@ -51,7 +51,7 @@ class TimeStamp {
     surface.clear();
     surface.fill(0);
     surface.textFont(nfont, nFontSize);
-    surface.text(timestamp(ts), 100, nFontSize);
+    surface.text(timestamp(ts),0,25);
     surface.endDraw(); 
 
     this.drawn = true;

@@ -4,7 +4,7 @@ class MoodWords {
   PGraphics surface;
   int w, h;
   IntList values;
-  int fontSize = 30;
+  int fontSize = 38;
 
   MoodWords(float w, float h, IntList values) {
     mood_words = loadJSONObject("imagetoword.json"); // new text .json file, with nouns from Amazon's Rekognition + MICA photos
@@ -18,7 +18,6 @@ class MoodWords {
     font = createFont("Patron-Bold.otf", fontSize);
 
     surface = createGraphics(this.w, this.h); 
-    surface.noSmooth();
   }
 
   String pickWord(int value) {
@@ -36,18 +35,21 @@ class MoodWords {
         text += pickWord(i);
       }
     }
-
+    surface.smooth(4);
     surface.beginDraw();
     surface.clear();
+    surface.background(0,0);
     surface.textFont(font, fontSize);
-    surface.textAlign(CORNER);
-      for (int x = -1; x < 2; x++) {
-        surface.fill(0);
-        //surface.text(text, 0, 50+x); // outline
-       // surface.text(text, x, 50); //outline
-      }
-      surface.fill(255);
-      surface.text(text, 0, 50);    
+    //surface.textAlign(CORNER);
+    for(int x = -1; x < 2; x++){
+    //for(int y = -2; y < 2; y++){
+      surface.fill(0);
+      surface.text(text, 1, 50+x); // outline
+      surface.text(text, 1+x, 50); //outline
+    //}
+    }
+    surface.fill(255);
+    surface.text(text, 1, 50);    
     surface.endDraw();
 
     return surface;
