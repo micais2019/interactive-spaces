@@ -4,7 +4,7 @@ class MoodWords {
   PGraphics surface;
   int w, h;
   IntList values;
-  int fontSize = 38;
+  int fontSize = 55;
 
   MoodWords(float w, float h, IntList values) {
     mood_words = loadJSONObject("imagetoword.json"); // new text .json file, with nouns from Amazon's Rekognition + MICA photos

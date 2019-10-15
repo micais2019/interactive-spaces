@@ -152,7 +152,7 @@ void setup() {
   }
 
   if (!SKIP_DONUT) {
-    float size = map(sound1avg, 200, 10000, width*0.1, width*0.675); //map avg sound1 val to torus radius
+    float size = map(sound1avg, 200, 10000, width*0.1, width*0.672); //map avg sound1 val to torus radius
     toroid = new SparkleDonut(size); //size
     donut = toroid.create(sound1Scores, this);
   }
@@ -173,8 +173,8 @@ void setup() {
 
   if (!SKIP_SPLASH) {
     explosion = new SplashMotion(500);
-    int splashWidth = int(map(motionavg, 0, 30, 250, 600)); //map avg motion val to cloth thickness
-    int spokes = int(map(motionavg, 0, 30, 30, 50));
+    int splashWidth = int(map(motionavg, 0, 30, width*0.1, width*0.4)); //map avg motion val to splash radius
+    int spokes = int(map(motionavg, 0, 30, 30, 70));
     splash = explosion.create(spokes, 20, splashWidth, this); //change to higher number for funky glitches
   }
 
@@ -190,11 +190,11 @@ void setup() {
   }
 
   if (!SKIP_TIME) {
-    timestamp = new TimeStamp(int(width*0.14), int(height*0.01));
+    timestamp = new TimeStamp(int(width*0.16), int(height*0.016));
   }
 
   if (!SKIP_COUNTER) {
-    counter = new TextCounter(int(width*0.1), int(height*0.015));
+    counter = new TextCounter(int(width*0.1), int(height*0.016));
   }
 
   generatePaths(); // create paths but don't draw them
@@ -246,7 +246,6 @@ void generatePaths() {
 
 void draw() {
   background(BACKGROUND);
-
   directionalLight(200, 200, 200, 0, 0, -1);
   directionalLight(180, 180, 180, 1, 0, -1);
   directionalLight(18, 18, 18, -1, 0, 0);
@@ -350,7 +349,7 @@ void drawPlanets(long ts) {
 
 void drawCloth(long ts) {
   pushMatrix();
-  translate(width * 0.5, height*0.125, -width*0.42);
+  translate(width * 0.49, height*0.125, -width*0.42);
   rotateY(-1.649); //rotate it sideways
   rotateX(2.989);
   noStroke();
@@ -361,11 +360,11 @@ void drawCloth(long ts) {
 
 void drawText(long ts) {
   Point text_center = getEllipsePoint(index % MAX_COUNTER, width*0.27, 0.1, 0.85); //create points
-  float border = width*0.02;
+  //float border = width*0.02;
   //textPara.draw(ts); //from text
   pushMatrix();
-  translate(width*0.2, height*0.35, width*0.1);
-  scale(0.55);
+  translate(width*0.12, height*0.35, width*0.1);
+  scale(0.70);
   imageMode(CORNER);
   image(typeset, text_center.x,text_center.y); //from image
 
@@ -421,8 +420,13 @@ void drawSplash(long ts) {
   translate(width*0.5+splash_center.x, height*0.5+splash_center.y, splash_center.z);
   rotateY(index * 0.4);
   rotateZ(index * 0.6);
+  rotateX(index * 0.8);
   scale(0.8);
+  //specular(255, 255, 255);
+   directionalLight(255, 255, 255, 0, -1, -1);
   shape(splash);
+  
+  //specular(30,30,30);
   popMatrix();
   fill(255);
 }
@@ -438,7 +442,7 @@ void drawWeatherGraph(long ts) {
   float tolerance4 = (weatherScores.get(3)-weatherScores.get(4))/2;
   float tolerance5 = ((weatherScores.get(4))/2);
 
-  Point weather_center = getEllipsePoint(index % MAX_COUNTER, width*0.35, 0.85, 0.5);
+  Point weather_center = getEllipsePoint(index % MAX_COUNTER, width*0.35, 1, 0.65);
 
   pushMatrix();
   // primary positioning

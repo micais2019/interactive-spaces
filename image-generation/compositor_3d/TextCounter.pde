@@ -4,7 +4,7 @@ class TextCounter {
   int count, w, h;
   boolean drawn = false;
 
-  int nFontSize = 42;
+  int nFontSize = 55;
   PFont nfont;
 
   PGraphics surface;
@@ -24,11 +24,11 @@ class TextCounter {
     surface.textFont(nfont, nFontSize);
     for (int x = -1; x < 2; x++) {
         surface.fill(0);
-        surface.text(nf(count, 5) + "/75000", 0, 30+x); // outline
-        surface.text(nf(count, 5) + "/75000", x, 30); //outline
+        surface.text(nf(count, 5) + "/75000", 0, 37+x); // outline
+        surface.text(nf(count, 5) + "/75000", x, 37); //outline
     }
     surface.fill(255);
-    surface.text(nf(count, 5) + "/75000", 0, 30);
+    surface.text(nf(count, 5) + "/75000", 0, 37);
 
     surface.endDraw();
 
