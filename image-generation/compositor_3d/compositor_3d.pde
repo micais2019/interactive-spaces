@@ -17,14 +17,14 @@ boolean ONE_SHOT = false;
 final boolean SKIP_DONUT = false;
 final boolean SKIP_CLOTH = false;
 final boolean SKIP_PLANETS = false;
-final boolean SKIP_TEXT = true;
-final boolean SKIP_WORDS = true;
+final boolean SKIP_TEXT = false;
+final boolean SKIP_WORDS =  false;
 final boolean SKIP_SPLASH = false;
 final boolean SKIP_WEATHER = false;
-final boolean SKIP_LOGO = true;
-final boolean SKIP_PATHS = true;
-final boolean SKIP_TIME = true;
-final boolean SKIP_COUNTER = true;
+final boolean SKIP_LOGO = false;
+final boolean SKIP_PATHS = false;
+final boolean SKIP_TIME = false;
+final boolean SKIP_COUNTER = false;
 
 final color BACKGROUND = color(255, 255, 255);
 
@@ -104,7 +104,7 @@ void setup() {
   // size(1200, 800, P3D);
   //size(2100, 1424, P3D);
   smooth(8);
-  pixelDensity(displayDensity());
+  //pixelDensity(displayDensity());
 
   //testing
   //randomSeed(200);
@@ -116,7 +116,7 @@ void setup() {
   // 1555344000 to 1557046800
   //now = getTimestampFromArgs();
   //index = getIndexFromArgs();
-  index = 7272; //int(random(74000,74550));
+  index = 1; //int(random(74000,74550));
   int mappedTS = int(map(index, 0, 75000, 1555344000, 1557046800)); //convert index to timestamp
   now =  mappedTS;
   println("Index:" + index + "/75000"); //debug
@@ -194,7 +194,7 @@ void setup() {
   }
 
   if (!SKIP_COUNTER) {
-    counter = new TextCounter(int(width*0.18), int(height*0.016));
+    counter = new TextCounter(int(width*0.15), int(height*0.016));
   }
 
 
