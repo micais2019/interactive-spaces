@@ -17,14 +17,14 @@ boolean ONE_SHOT = false;
 final boolean SKIP_DONUT = false;
 final boolean SKIP_CLOTH = false;
 final boolean SKIP_PLANETS = false;
-final boolean SKIP_TEXT = false;
-final boolean SKIP_WORDS = false;
+final boolean SKIP_TEXT = true;
+final boolean SKIP_WORDS = true;
 final boolean SKIP_SPLASH = false;
 final boolean SKIP_WEATHER = false;
-final boolean SKIP_LOGO = false;
-final boolean SKIP_PATHS = false;
-final boolean SKIP_TIME = false;
-final boolean SKIP_COUNTER = false;
+final boolean SKIP_LOGO = true;
+final boolean SKIP_PATHS = true;
+final boolean SKIP_TIME = true;
+final boolean SKIP_COUNTER = true;
 
 final color BACKGROUND = color(255, 255, 255);
 
@@ -99,8 +99,8 @@ PImage typeset;
 Point [] zig_points = new Point [11];
 
 void setup() {
-  //size(6300,4200,P3D); //renders
-  size(4200, 2847, P3D); // FULL3
+  size(6300,4200,P3D); //renders
+  //size(4200, 2847, P3D); // FULL3
   // size(1200, 800, P3D);
   //size(2100, 1424, P3D);
   smooth(8);
@@ -116,7 +116,7 @@ void setup() {
   // 1555344000 to 1557046800
   //now = getTimestampFromArgs();
   //index = getIndexFromArgs();
-  index = randomIndex;//int(random(74000,74550));
+  index = 7272; //int(random(74000,74550));
   int mappedTS = int(map(index, 0, 75000, 1555344000, 1557046800)); //convert index to timestamp
   now =  mappedTS;
   println("Index:" + index + "/75000"); //debug
@@ -180,7 +180,7 @@ void setup() {
 
   if (!SKIP_TEXT) {
     textPara = new TextParagraph(width*0.43, height*0.5);
-    typeset = loadImage("typeset.png");
+    typeset = loadImage("typeset2.png");
   }
 
   if (!SKIP_LOGO) {
@@ -190,12 +190,13 @@ void setup() {
   }
 
   if (!SKIP_TIME) {
-    timestamp = new TimeStamp(int(width*0.16), int(height*0.016));
+    timestamp = new TimeStamp(int(width*0.18), int(height*0.016));
   }
 
   if (!SKIP_COUNTER) {
-    counter = new TextCounter(int(width*0.1), int(height*0.016));
+    counter = new TextCounter(int(width*0.18), int(height*0.016));
   }
+
 
   generatePaths(); // create paths but don't draw them
 }
@@ -236,10 +237,10 @@ void generatePaths() {
   //TRIANGLE STUFF
 
   //SQUARE STUFF
-  squareOrigin = new Point(width*0.1, height*0.03); //top left pt
-  ps1 = new Point(width*0.9, height*0.03);//top right pt
-  ps2 = new Point(width*0.9, height*0.97);//bottom right pt
-  ps3 = new Point(width*0.1, height*0.97);//bottom left pt
+  squareOrigin = new Point(width*0.12, height*0.03); //top left pt
+  ps1 = new Point(width*0.88, height*0.03);//top right pt
+  ps2 = new Point(width*0.88, height*0.97);//bottom right pt
+  ps3 = new Point(width*0.12, height*0.97);//bottom left pt
   square = new PolygonPath(new Point[]{ squareOrigin, ps1, ps2, ps3 }, MAX_COUNTER);
   //SQUARE STUFF
 }
@@ -276,17 +277,17 @@ void draw() {
   }
 
   noLights();
-  
+
   if (!SKIP_TEXT) {
     drawText(now);
   }
-  
- hint(DISABLE_DEPTH_TEST); //draw on top of all the other stuff
- 
-   if (!SKIP_WORDS) {
+
+  hint(DISABLE_DEPTH_TEST); //draw on top of all the other stuff
+
+  if (!SKIP_WORDS) {
     drawWords(now);
   }
- 
+
   if (!SKIP_TIME) {
     drawTimestamp(now);
   }
@@ -294,13 +295,13 @@ void draw() {
   if (!SKIP_COUNTER) {
     drawCounter(index);
   }
-  
-    if (!SKIP_LOGO) {
+
+  if (!SKIP_LOGO) {
     drawLogo(now);
   }
-  
- hint(ENABLE_DEPTH_TEST); //draw on top of all the other stuff (close loop)
-    
+
+  hint(ENABLE_DEPTH_TEST); //draw on top of all the other stuff (close loop)
+
   if (ONE_SHOT) {
     String filename = String.format("%s_%d_%d.png", now, 
       coverFinalWidth, coverFinalHeight, index);
@@ -364,17 +365,17 @@ void drawText(long ts) {
   //textPara.draw(ts); //from text
   pushMatrix();
   translate(width*0.12, height*0.35, width*0.1);
-  scale(0.70);
+  scale(0.33);
   imageMode(CORNER);
-  image(typeset, text_center.x,text_center.y); //from image
+  image(typeset, text_center.x, text_center.y); //from image
 
   //from text:
   //draw white rectangle
   /*fill(255);
-  rectMode(CORNER);
-  rect(text_center.x*0.8, text_center.y*0.8, width*0.42 + border, height*0.34 + border);
-  noFill();
-  image(textPara.surface, text_center.x*0.8+width*0.01, text_center.y*0.8+width*0.01);*/
+   rectMode(CORNER);
+   rect(text_center.x*0.8, text_center.y*0.8, width*0.42 + border, height*0.34 + border);
+   noFill();
+   image(textPara.surface, text_center.x*0.8+width*0.01, text_center.y*0.8+width*0.01);*/
   popMatrix();
   noStroke();
 }
@@ -386,7 +387,7 @@ void drawWords(long ts) {
   //translate(width*0.285+zig_center.x*0.7, height*0.11 +zig_center.y*0.7, width*0.1);
   imageMode(CORNER);
   scale(1);
-  image(wordart.draw(), zig_center.x - width*0.05, zig_center.y);
+  image(wordart.draw(), zig_center.x - width*0.05, zig_center.y + height*0.005);
   popMatrix();
   noStroke();
 }
@@ -404,7 +405,8 @@ void drawTimestamp(long ts) {
 
 void drawCounter(int count) {
   Point square_center = square.point(index % MAX_COUNTER);
-  counter.draw(index); pushMatrix();
+  counter.draw(index); 
+  pushMatrix();
   //translate(width*0.17,height*0.19, width*0.2);
   imageMode(CENTER);
   scale(1);
@@ -423,9 +425,9 @@ void drawSplash(long ts) {
   rotateX(index * 0.8);
   scale(0.8);
   //specular(255, 255, 255);
-   directionalLight(255, 255, 255, 0, -1, -1);
+  directionalLight(255, 255, 255, 0, -1, -1);
   shape(splash);
-  
+
   //specular(30,30,30);
   popMatrix();
   fill(255);
@@ -473,7 +475,7 @@ void drawWeatherGraph(long ts) {
 void drawLogo(long ts) {
   pushMatrix();
   translate(width*0.5, height*0.5, width*0.4);
-  scale(width*0.0002);
+  scale(width*0.0005);
   rotate(radians(90));
   shapeMode(CENTER);
   shape(MICA_logo);
@@ -491,11 +493,14 @@ void mouseClicked() {
 
 void drawPathsandArrows(long ts) {
 
+  PFont font;
+  font = createFont("Pitch-Bold.otf", 10);
   noStroke();
   shapeMode(CENTER);//for arrows
 
   //ZIGZAG
   zigzag = new PolygonPath(zig_points, MAX_COUNTER);
+  textFont(font, 20);
 
   for (int i=1; i<MAX_COUNTER; i+=1) {
     Point zig_center = zigzag.point(i);
@@ -503,6 +508,12 @@ void drawPathsandArrows(long ts) {
     fill(#0000FF);
     translate(zig_center.x, zig_center.y);
     rect(0, 0, width*0.0007, width*0.0007);
+    if (i == 68160) {
+      pushMatrix();
+      rotate(radians(90));
+      text("image recognition labels", 0, -10);
+      popMatrix();
+    }
     popMatrix();
   }
 
@@ -520,6 +531,12 @@ void drawPathsandArrows(long ts) {
     pushMatrix();
     translate(width*0.5 + weather_center.x, height*0.5 + weather_center.y);
     rect(0, 0, width*0.0007, width*0.0007);
+    if (i == 67000) {
+      pushMatrix();
+      rotate(radians(38));
+      text("weather", 0, -10);
+      popMatrix();
+    }
     popMatrix();
 
     //donut path
@@ -527,20 +544,26 @@ void drawPathsandArrows(long ts) {
     pushMatrix();  
     translate(width*0.5 + donut_center.x, height*0.8, donut_center.y);
     rect(0, 0, width*0.0007, width*0.0007);
+    if (i == 8500) {
+      pushMatrix();
+      rotate(-radians(20));
+      scale(0.9);
+      text("sound-1", 0, 20);
+      popMatrix();
+    }
     popMatrix();
-
-    /* //donut2 path
-     fill(50);
-     pushMatrix();  
-     translate(width*0.5 + donut_center2.x, height*0.827+donut_center2.y);
-     rect(0, 0, width*0.0007, width*0.0007);
-     popMatrix();*/
 
     //planets path
     fill(#fedb00);
     pushMatrix();
     translate(width*0.7 + planets_center.x, height*0.5 + planets_center.y);
     rect(0, 0, width*0.0007, width*0.0007);
+    if (i == 1) {
+      pushMatrix();
+      rotate(radians(90));
+      text("sound-2", 0, -10);
+      popMatrix();
+    }
     popMatrix();
 
     //moebius path, splash
@@ -548,11 +571,18 @@ void drawPathsandArrows(long ts) {
     fill(#e10098);
     translate(width*0.5+splash_center.x, height*0.5+splash_center.y, splash_center.z );
     rect(0, 0, width*0.0007, width*0.0007);
+    if (i == 17000) {
+      pushMatrix();
+      rotate(radians(28));
+      scale(0.6);
+      text("motion", 0, -10);
+      popMatrix();
+    }
     popMatrix();
 
     fill(255);
   }
-
+  textMode(SHAPE);
   fill(#10069f);
   Point Zarrow_center = zigzag.point((index+1) % MAX_COUNTER);
   Point Znext_center = zigzag.point((index+2) % MAX_COUNTER);
@@ -564,8 +594,8 @@ void drawPathsandArrows(long ts) {
   popMatrix();
 
   fill(#2dc84d);
-  Point Warrow_center = getEllipsePoint((index+100) % MAX_COUNTER, width*0.5, 0.85, 0.5);
-  Point Wnext_center = getEllipsePoint((index+101) % MAX_COUNTER, width*0.5, 0.85, 0.5);
+  Point Warrow_center = getEllipsePoint((index+300) % MAX_COUNTER, width*0.5, 0.85, 0.5);
+  Point Wnext_center = getEllipsePoint((index+301) % MAX_COUNTER, width*0.5, 0.85, 0.5);
   float angW = atan2(Wnext_center.y - Warrow_center.y, Wnext_center.x - Warrow_center.x);
   pushMatrix();
   translate(width*0.5 +  Warrow_center.x, height*0.5 + Warrow_center.y);
@@ -580,6 +610,7 @@ void drawPathsandArrows(long ts) {
   pushMatrix();
   translate(width/2 + Darrow_center.x, height*0.827 + Darrow_center.y);
   rotate(angD);
+  fill(#fe5000);
   shape(arrow, 0, 0);
   popMatrix();
 

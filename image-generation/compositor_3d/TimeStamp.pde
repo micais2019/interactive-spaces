@@ -7,7 +7,7 @@ class TimeStamp {
   long ts;
   float scalar = 0.8;
   boolean drawn = false;
-  int nFontSize = 55;
+  int nFontSize = 45;
   // int fontSize = 96; // big
   PFont nfont;
 
@@ -23,7 +23,7 @@ class TimeStamp {
   // "04.14.2019  14:25:24";
   String timestamp(long ts) {
     Date time = getDateFromTimestamp(ts);
-    SimpleDateFormat sdf = new SimpleDateFormat("MM.dd.yyyy HH:mm:ss");
+    SimpleDateFormat sdf = new SimpleDateFormat("MM/dd/yyyy hh:mm:ss a");
     String stamp = sdf.format(time);
     //println(stamp);
     //String[] stamp = new String[11];
@@ -53,11 +53,11 @@ class TimeStamp {
     surface.textFont(nfont, nFontSize);
         for (int x = -1; x < 2; x++) {
         surface.fill(0);
-        surface.text(timestamp(ts), 0, 35+x); // outline
-        surface.text(timestamp(ts), x, 35); //outline
+        surface.text(timestamp(ts), 0, 37+x); // outline
+        surface.text(timestamp(ts), x, 37); //outline
     }
     surface.fill(255);
-    surface.text(timestamp(ts),0,35);
+    surface.text(timestamp(ts),0,37);
     surface.endDraw(); 
 
     this.drawn = true;

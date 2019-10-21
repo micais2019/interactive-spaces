@@ -4,7 +4,7 @@ class MoodWords {
   PGraphics surface;
   int w, h;
   IntList values;
-  int fontSize = 55;
+  int fontSize = 70;
 
   MoodWords(float w, float h, IntList values) {
     mood_words = loadJSONObject("imagetoword.json"); // new text .json file, with nouns from Amazon's Rekognition + MICA photos
@@ -15,7 +15,7 @@ class MoodWords {
 
     // The font must be located in the sketch's 
     // "data" directory to load successfully
-    font = createFont("Patron-Bold.otf", fontSize);
+    font = createFont("PatronTRIAL-BoldItalic.otf", fontSize);
 
     surface = createGraphics(this.w, this.h); 
   }
@@ -44,12 +44,12 @@ class MoodWords {
     for(int x = -1; x < 2; x++){
     //for(int y = -2; y < 2; y++){
       surface.fill(0);
-      surface.text(text, 1, 50+x); // outline
-      surface.text(text, 1+x, 50); //outline
+      surface.text(text, 1, 60+x); // outline
+      surface.text(text, 1+x, 60); //outline
     //}
     }
     surface.fill(255);
-    surface.text(text, 1, 50);    
+    surface.text(text, 1, 60);    
     surface.endDraw();
 
     return surface;
