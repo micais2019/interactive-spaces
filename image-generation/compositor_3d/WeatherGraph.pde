@@ -36,11 +36,10 @@ class WeatherGraph {
 
       mesh[i] = new HE_Mesh(creator);
 
-      HET_Diagnosis.validate(mesh[i]);
+      // HET_Diagnosis.validate(mesh[i]);
 
       objects[i] = WB_PShapeFactory.createSmoothPShape(mesh[i], texture[i], app);
-    objects[i].disableStyle();
-
+      objects[i].disableStyle();
   }
     
     /* objects[1] = WB_PShapeFactory.createSmoothPShape(dewpoint_mesh, app);

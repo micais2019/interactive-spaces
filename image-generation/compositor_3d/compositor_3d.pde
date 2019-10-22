@@ -1,4 +1,5 @@
 //import controlP5.*;
+import java.io.PrintWriter;
 
 /*
  Calling this sketch from the command line:
@@ -13,28 +14,30 @@
 final boolean CONTROL_POSITION = false;
 final boolean DEBUG = false;
 boolean ONE_SHOT = false;
+final boolean MULTI_SHOT = true;
 
 final boolean SKIP_DONUT = false;
 final boolean SKIP_CLOTH = false;
 final boolean SKIP_PLANETS = false;
-final boolean SKIP_TEXT = true;
-final boolean SKIP_WORDS = true;
+final boolean SKIP_TEXT = false;
+final boolean SKIP_WORDS = false;
 final boolean SKIP_SPLASH = false;
 final boolean SKIP_WEATHER = false;
 final boolean SKIP_LOGO = true;
-final boolean SKIP_PATHS = true;
-final boolean SKIP_TIME = true;
-final boolean SKIP_COUNTER = true;
+final boolean SKIP_PATHS = false;
+final boolean SKIP_TIME = false;
+final boolean SKIP_COUNTER = false;
 
 final color BACKGROUND = color(255, 255, 255);
 
-float coverWidth = 15;
-float coverHeight = 10;
+float coverWidth = 13.25;
+float coverHeight = 9.25;
 int dpi = 300;
 
 int coverFinalWidth = int(coverWidth * dpi);
 int coverFinalHeight = int(coverHeight * dpi);
 
+DataLoader dload;
 FloatList sound1Scores;
 FloatList sound2Scores;
 FloatList weatherScores;
@@ -78,6 +81,8 @@ MoodWords wordart;
 
 long now;
 int index;
+int starting_index;
+int IMAGE_GENERATION_COUNT = 10;
 
 //triangular paths
 Point origin, p1, p2, squareOrigin, ps1, ps2, ps3;
@@ -98,49 +103,51 @@ PImage typeset;
 //zigzag points
 Point [] zig_points = new Point [11];
 
-void setup() {
-  size(6300,4200,P3D); //renders
-  //size(4200, 2847, P3D); // FULL3
+void settings() {
+  // 13.25" x 9.25" @ 300dpi 
+  size(coverFinalWidth, coverFinalHeight, P3D); //renders
+  // pixelDensity(2);
+ 
+  // size(200, 200, P3D);
+  // size(4200, 2847, P3D); // FULL3
+  // size(2100, 1424, P3D);
   // size(1200, 800, P3D);
-  //size(2100, 1424, P3D);
   smooth(8);
-  pixelDensity(displayDensity());
+}
 
-  //testing
-  //randomSeed(200);
-
-  int randomIndex = int(random(0, 75000));
-  //testing 
-
-  ONE_SHOT = getOneShotFromArgs();
-  // 1555344000 to 1557046800
-  //now = getTimestampFromArgs();
-  //index = getIndexFromArgs();
-  index = 7272; //int(random(74000,74550));
-  int mappedTS = int(map(index, 0, 75000, 1555344000, 1557046800)); //convert index to timestamp
-  now =  mappedTS;
-  println("Index:" + index + "/75000"); //debug
-  println("TIME:" + now); //debug
-
+void setup() {
+  getOneShotFromArgs();
+  
   // loading data
-  DataLoader dload = new DataLoader(this);
+  dload = new DataLoader(this);
+  starting_index = getIndexFromArgs();
+  index = starting_index;
+  resetDataAndObjects();
+  generatePaths(); // create paths but don't draw them
+}
+ 
+void resetDataAndObjects() {
+  now = getTimestampFromIndex(index);
+  
+  println("IMAGE", index, "AT", now);
 
-  sound1Scores = dload.getSound1Scores(now);
-  sound2Scores = dload.getSound2Scores(now);
-  moodValues = dload.getMoodValues(now);
-  motionScores = dload.getMotionScores(now);
+  // debugDataLoader(dload);
+  
+  sound1Scores  = dload.getSound1Scores(now);
+  sound2Scores  = dload.getSound2Scores(now);
+  moodValues    = dload.getMoodValues(now);
+  motionScores  = dload.getMotionScores(now);
   weatherScores = dload.getWeatherScores(now);
 
   float sound1avg = average(sound1Scores)*10000;
   float sound2avg = average(sound2Scores)*10000;
-  int motionMax = int(motionScores.max());
+  int motionMax   = int(motionScores.max());
   float motionavg = average(motionScores);
-
-  println("sound1avg:" + sound1avg);
-  println("sound2avg:" +sound2avg);
-  println("motionMax:" +motionMax);
-  println("motionAvg:" +motionavg); //gives more dynamic change to cloth width
-
+  
+  //println("sound1avg:" + sound1avg);
+  //println("sound2avg:" + sound2avg);
+  //println("motionMax:" + motionMax);
+  //println("motionAvg:" + motionavg); //gives more dynamic change to cloth width
 
   if (!SKIP_CLOTH) {
     // w h amp detail
@@ -196,13 +203,9 @@ void setup() {
   if (!SKIP_COUNTER) {
     counter = new TextCounter(int(width*0.18), int(height*0.016));
   }
-
-
-  generatePaths(); // create paths but don't draw them
 }
 
 void generatePaths() {
-
   arrow = createShape();
   arrow.scale(3);
   arrow.beginShape();
@@ -242,7 +245,7 @@ void generatePaths() {
   ps2 = new Point(width*0.88, height*0.97);//bottom right pt
   ps3 = new Point(width*0.12, height*0.97);//bottom left pt
   square = new PolygonPath(new Point[]{ squareOrigin, ps1, ps2, ps3 }, MAX_COUNTER);
-  //SQUARE STUFF
+  // SQUARE STUFF
 }
 
 void draw() {
@@ -253,11 +256,11 @@ void draw() {
   lights();
 
   if (!SKIP_PATHS) {
-    drawPathsandArrows(now);
+    drawPathsandArrows();
   }
 
   if (!SKIP_CLOTH) {
-    drawCloth(now);
+    drawCloth();
   }
 
   if (!SKIP_DONUT) {
@@ -269,23 +272,23 @@ void draw() {
   }
 
   if (!SKIP_SPLASH) {
-    drawSplash(now);
+    drawSplash();
   }
 
   if (!SKIP_WEATHER) {
-    drawWeatherGraph(now);
+    drawWeatherGraph();
   }
 
   noLights();
 
   if (!SKIP_TEXT) {
-    drawText(now);
+    drawText();
   }
 
-  hint(DISABLE_DEPTH_TEST); //draw on top of all the other stuff
+  hint(DISABLE_DEPTH_TEST); // draw on top of all the other stuff
 
   if (!SKIP_WORDS) {
-    drawWords(now);
+    drawWords();
   }
 
   if (!SKIP_TIME) {
@@ -293,21 +296,30 @@ void draw() {
   }
 
   if (!SKIP_COUNTER) {
-    drawCounter(index);
+    drawCounter();
   }
 
   if (!SKIP_LOGO) {
     drawLogo(now);
   }
 
-  hint(ENABLE_DEPTH_TEST); //draw on top of all the other stuff (close loop)
+  hint(ENABLE_DEPTH_TEST); // stop drawing on top of all the other stuff (close loop)
 
+  // save image of the current frame
+  String filename = String.format("output/%s_%d_%d_%d.png", now, index, width, height);
+  println("@" + filename);
+  saveFrame(filename);
+  
   if (ONE_SHOT) {
-    String filename = String.format("%s_%d_%d.png", now, 
-      coverFinalWidth, coverFinalHeight, index);
-    println("@" + filename);
-    saveFrame(filename);
-    println("success!");
+    println("done");
+    exit();
+  }
+  
+  index++;
+  if (index < starting_index + IMAGE_GENERATION_COUNT && index <= MAX_COUNTER) {
+    resetDataAndObjects();
+  } else {
+    println("done");
     exit();
   }
 }
@@ -348,7 +360,7 @@ void drawPlanets(long ts) {
   popMatrix();
 }
 
-void drawCloth(long ts) {
+void drawCloth() {
   pushMatrix();
   translate(width * 0.49, height*0.125, -width*0.42);
   rotateY(-1.649); //rotate it sideways
@@ -359,32 +371,20 @@ void drawCloth(long ts) {
   popMatrix();
 }
 
-void drawText(long ts) {
+void drawText() {
   Point text_center = getEllipsePoint(index % MAX_COUNTER, width*0.27, 0.1, 0.85); //create points
-  //float border = width*0.02;
-  //textPara.draw(ts); //from text
   pushMatrix();
   translate(width*0.12, height*0.35, width*0.1);
   scale(0.33);
   imageMode(CORNER);
-  image(typeset, text_center.x, text_center.y); //from image
-
-  //from text:
-  //draw white rectangle
-  /*fill(255);
-   rectMode(CORNER);
-   rect(text_center.x*0.8, text_center.y*0.8, width*0.42 + border, height*0.34 + border);
-   noFill();
-   image(textPara.surface, text_center.x*0.8+width*0.01, text_center.y*0.8+width*0.01);*/
+  image(typeset, text_center.x, text_center.y); // from image
   popMatrix();
   noStroke();
 }
 
-void drawWords(long ts) {
-
+void drawWords() {
   Point zig_center = zigzag.point(index % MAX_COUNTER);  //create zigzag points
   pushMatrix();
-  //translate(width*0.285+zig_center.x*0.7, height*0.11 +zig_center.y*0.7, width*0.1);
   imageMode(CORNER);
   scale(1);
   image(wordart.draw(), zig_center.x - width*0.05, zig_center.y + height*0.005);
@@ -403,7 +403,7 @@ void drawTimestamp(long ts) {
   popMatrix();
 }
 
-void drawCounter(int count) {
+void drawCounter() {
   Point square_center = square.point(index % MAX_COUNTER);
   counter.draw(index); 
   pushMatrix();
@@ -415,7 +415,7 @@ void drawCounter(int count) {
 }
 
 
-void drawSplash(long ts) {
+void drawSplash() {
   Point splash_center = getMoebiusPoint(index % MAX_COUNTER, width*0.25);
 
   pushMatrix();
@@ -434,7 +434,7 @@ void drawSplash(long ts) {
 }
 
 
-void drawWeatherGraph(long ts) {
+void drawWeatherGraph() {
   noStroke();
 
   //relative adjustments for weathergraph
@@ -491,12 +491,12 @@ void mouseClicked() {
 }
 
 
-void drawPathsandArrows(long ts) {
+void drawPathsandArrows() {
 
   PFont font;
   font = createFont("Pitch-Bold.otf", 10);
   noStroke();
-  shapeMode(CENTER);//for arrows
+  shapeMode(CENTER); //for arrows
 
   //ZIGZAG
   zigzag = new PolygonPath(zig_points, MAX_COUNTER);
@@ -521,7 +521,6 @@ void drawPathsandArrows(long ts) {
 
     Point weather_center = getEllipsePoint(i, width*0.5, 0.85, 0.5);
     Point donut_center = getEllipsePoint(i, height*0.5, 1.0, 0.5);
-    Point donut_center2 = getEllipsePoint(i, height*0.5, 1.0416, 0.189);
     Point planets_center = getEllipsePoint(i, width*0.27, 0.4, 1.0);
     Point splash_center = getMoebiusPoint(i, width*0.25);
 
@@ -648,7 +647,6 @@ Point getEllipsePoint(long counter, float radius, float wide, float flat) {
   float y = flat * radius * sin(progress);
   return new Point(x, y);
 }
-
 
 Point getMoebiusPoint(float counter, float radius) {
   float progress = map(counter, 0, MAX_COUNTER, 0, radians(720));

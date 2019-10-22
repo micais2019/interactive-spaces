@@ -34,7 +34,7 @@ class DataLoader {
     db.query("select value from data where " + conditions + " limit " + str(limit));
     StringList results = new StringList();
     while (db.next()) {
-      println("LOADED " + _key + " DATA:", db.getString("value"));
+      // println("LOADED " + _key + " DATA:", db.getString("value"));
       results.append(db.getString("value"));
     }
     return results;
@@ -162,10 +162,10 @@ class DataLoader {
     
     // set default values in case the web API craps out for some reason
     String result = "61.48 57.94 88 101.96 61.48 100";
-    
-    db.query("select value from weather where " + conditions + " limit 1");
+    // ﻿1555092402
+    db.query("select value from weather where " + conditions + " ORDER BY created_at DESC limit 1");
     while (db.next()) {
-      println("LOADED WEATHER DATA:", db.getString("value"));
+      // println("LOADED WEATHER DATA:", db.getString("value"), "AT", ts);
       result = db.getString("value");
     }
     
@@ -181,7 +181,7 @@ class DataLoader {
         str(current.getFloat("visibility")*10),
         str(constrain(current.getFloat("windSpeed") * 10, 10, 100)),
       };
-      println("LOADED WEATHER DATA", join(weatherData, " "));
+      // println("LOADED WEATHER DATA", join(weatherData, " "));
     } catch (RuntimeException ex) {      
       println("ERROR failed to retrieve weather data:", ex.getMessage());
     }
@@ -191,5 +191,43 @@ class DataLoader {
     } 
     return weatherScores;
   }
+}
+
+void debugDataLoader(DataLoader dload) {
+  PrintWriter outfile = createWriter("debug-data.csv");
+
+  for (int i=1; i <= 1000; i++) {
+    now = getTimestampFromIndex(i);
+    Date d = getDateFromTimestamp(now);
+
+    sound1Scores  = dload.getSound1Scores(now);
+    sound2Scores  = dload.getSound2Scores(now);
+    moodValues    = dload.getMoodValues(now);
+    motionScores  = dload.getMotionScores(now);
+    weatherScores = dload.getWeatherScores(now);
+
+    String sound1avg = str(average(sound1Scores) * 10000);
+    String sound2avg = str(average(sound2Scores) * 10000);
+    String motionMax = str(int(motionScores.max()));
+    String motionavg = str(average(motionScores));
+    String weather   = "\"" + weatherScores.toString() + "\"";
+    String mcount = str(moodValues.size());
+    String ns = String.valueOf(now);
+    String ds = d.toString();
+    String line[] = {
+      str(i), ns, ds, sound1avg, sound2avg, motionMax, motionavg, mcount, weather
+    };
+    String out = join(line, ",");
+    
+    outfile.println(out);
+    println(i, String.valueOf(now));
+  }
   
+  outfile.flush();
+  outfile.close();
+  exit();
+
+  if (true) {
+    throw new Error("break");
+  }
 }

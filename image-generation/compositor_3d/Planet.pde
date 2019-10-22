@@ -4,8 +4,6 @@ import wblut.core.*;
 import wblut.hemesh.*;
 import wblut.geom.*;
 
-
-
 class Planet {
   HE_Mesh mesh;
   PApplet app;

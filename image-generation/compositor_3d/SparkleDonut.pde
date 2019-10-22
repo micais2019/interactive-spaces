@@ -59,8 +59,8 @@ class SparkleDonut {
     creator.setTwist(twist);//twist the torus a given number of facets
 
     mesh=new HE_Mesh(creator); 
-
-    HET_Diagnosis.validate(mesh);
+    // HET_Diagnosis.validate(mesh);
+    
     textureMode(NORMAL);
     textureWrap(REPEAT);
     PShape ring = WB_PShapeFactory.createSmoothPShape(mesh, pix, app);

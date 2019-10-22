@@ -49,7 +49,7 @@ class ClothShape {
   
   void update() {
     int d1 = detail + 1;
-    float[][] values=new float[d1][d1 * 2];
+    float[][] values = new float[d1][d1 * 2];
     for (int y = 0; y < d1 * 2; y++) {
       for (int x = 0; x < d1; x++) {
         //              amp        factor favoring higher y value

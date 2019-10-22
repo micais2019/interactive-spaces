@@ -20,28 +20,11 @@ class TimeStamp {
     this.surface = createGraphics(w, h, P3D);
   }
 
-  // "04.14.2019  14:25:24";
+  // "04/14/2019 02:25:24 PM";
   String timestamp(long ts) {
     Date time = getDateFromTimestamp(ts);
     SimpleDateFormat sdf = new SimpleDateFormat("MM/dd/yyyy hh:mm:ss a");
     String stamp = sdf.format(time);
-    //println(stamp);
-    //String[] stamp = new String[11];
-    //month day year hour minute second
-
-    /*stamp[0] = "04";
-     stamp[1] = ".";
-     stamp[2] = "20";
-     stamp[3] = ".";
-     stamp[4] = "2019";
-     stamp[5] = "  ";
-     stamp[6] = "9";
-     stamp[7] = ":";
-     stamp[8] = "02";
-     stamp[9] = ":";
-     stamp[10] = "15";
-     
-     return join(stamp, "");*/
     return(stamp);
   }
 
@@ -49,15 +32,15 @@ class TimeStamp {
     surface.smooth(4);
     surface.beginDraw();
     surface.clear();
-    surface.background(0,0);
+    surface.background(0, 0);
     surface.textFont(nfont, nFontSize);
-        for (int x = -1; x < 2; x++) {
-        surface.fill(0);
-        surface.text(timestamp(ts), 0, 37+x); // outline
-        surface.text(timestamp(ts), x, 37); //outline
+    surface.fill(0);
+    for (int x = -1; x < 2; x++) {
+      surface.text(timestamp(ts), 0, 37+x); // outline
+      surface.text(timestamp(ts), x, 37);   // outline
     }
     surface.fill(255);
-    surface.text(timestamp(ts),0,37);
+    surface.text(timestamp(ts), 0, 37);
     surface.endDraw(); 
 
     this.drawn = true;

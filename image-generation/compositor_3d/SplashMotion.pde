@@ -32,12 +32,12 @@ class SplashMotion {
     stroke(0);
 
     mesh=new HE_Mesh(creator);
-    HET_Diagnosis.validate(mesh);
+    // HET_Diagnosis.validate(mesh);
 
     HET_MeshOp.splitFacesCenter(mesh);
-        HET_MeshOp.splitFacesCenter(mesh);
+    // HET_MeshOp.splitFacesCenter(mesh);
 
-        //HET_MeshOp.splitFacesCenter(mesh);
+    //HET_MeshOp.splitFacesCenter(mesh);
     //mesh.getSelection("center").modify(new HEM_Extrude().setDistance(-40).setChamfer(0.2));
     HET_MeshOp.splitFacesTri(mesh);
 
