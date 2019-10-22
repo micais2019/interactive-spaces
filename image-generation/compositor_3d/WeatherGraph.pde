@@ -18,8 +18,13 @@ class WeatherGraph {
     PShape[] objects = new PShape[6];
 
     for (int i = 0; i < 6; i ++) {
-      float cylinderHeight = wscores.get(i);
-
+      float cylinderHeight;
+      if (i < 5 && i > -1){
+      cylinderHeight = wscores.get(i);
+      } else {
+      cylinderHeight = 85;
+      }
+      
       texture[i] = createGraphics(800, 800);
       texture[i].beginDraw();
       texture[i].noStroke();
