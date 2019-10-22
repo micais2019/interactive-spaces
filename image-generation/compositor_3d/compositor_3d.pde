@@ -3,7 +3,7 @@ import java.io.PrintWriter;
 
 /*
  Calling this sketch from the command line:
- 
+
  */
 /*TODO:
  * why do text paths put images at 0,0 for point(0)?
@@ -20,10 +20,10 @@ final boolean SKIP_DONUT = false;
 final boolean SKIP_CLOTH = false;
 final boolean SKIP_PLANETS = false;
 final boolean SKIP_TEXT = false;
-final boolean SKIP_WORDS = false;
+final boolean SKIP_WORDS =  false;
 final boolean SKIP_SPLASH = false;
 final boolean SKIP_WEATHER = false;
-final boolean SKIP_LOGO = true;
+final boolean SKIP_LOGO = false;
 final boolean SKIP_PATHS = false;
 final boolean SKIP_TIME = false;
 final boolean SKIP_COUNTER = false;
@@ -104,10 +104,10 @@ PImage typeset;
 Point [] zig_points = new Point [11];
 
 void settings() {
-  // 13.25" x 9.25" @ 300dpi 
+  // 13.25" x 9.25" @ 300dpi
   size(coverFinalWidth, coverFinalHeight, P3D); //renders
   // pixelDensity(2);
- 
+
   // size(200, 200, P3D);
   // size(4200, 2847, P3D); // FULL3
   // size(2100, 1424, P3D);
@@ -117,7 +117,7 @@ void settings() {
 
 void setup() {
   getOneShotFromArgs();
-  
+
   // loading data
   dload = new DataLoader(this);
   starting_index = getIndexFromArgs();
@@ -125,14 +125,14 @@ void setup() {
   resetDataAndObjects();
   generatePaths(); // create paths but don't draw them
 }
- 
+
 void resetDataAndObjects() {
   now = getTimestampFromIndex(index);
-  
+
   println("IMAGE", index, "AT", now);
 
   // debugDataLoader(dload);
-  
+
   sound1Scores  = dload.getSound1Scores(now);
   sound2Scores  = dload.getSound2Scores(now);
   moodValues    = dload.getMoodValues(now);
@@ -143,7 +143,7 @@ void resetDataAndObjects() {
   float sound2avg = average(sound2Scores)*10000;
   int motionMax   = int(motionScores.max());
   float motionavg = average(motionScores);
-  
+
   //println("sound1avg:" + sound1avg);
   //println("sound2avg:" + sound2avg);
   //println("motionMax:" + motionMax);
@@ -201,7 +201,7 @@ void resetDataAndObjects() {
   }
 
   if (!SKIP_COUNTER) {
-    counter = new TextCounter(int(width*0.18), int(height*0.016));
+    counter = new TextCounter(int(width*0.15), int(height*0.016));
   }
 }
 
@@ -309,12 +309,12 @@ void draw() {
   String filename = String.format("output/%s_%d_%d_%d.png", now, index, width, height);
   println("@" + filename);
   saveFrame(filename);
-  
+
   if (ONE_SHOT) {
     println("done");
     exit();
   }
-  
+
   index++;
   if (index < starting_index + IMAGE_GENERATION_COUNT && index <= MAX_COUNTER) {
     resetDataAndObjects();
@@ -396,8 +396,8 @@ void drawTimestamp(long ts) {
   Point tri_center = triangle.point(index % MAX_COUNTER);
   timestamp.draw(ts);
   pushMatrix();
-  //translate(width*0.17,height*0.17, width*0.2); 
-  imageMode(CENTER); 
+  //translate(width*0.17,height*0.17, width*0.2);
+  imageMode(CENTER);
   scale(1);
   image(timestamp.surface, tri_center.x, tri_center.y);
   popMatrix();
@@ -405,7 +405,7 @@ void drawTimestamp(long ts) {
 
 void drawCounter() {
   Point square_center = square.point(index % MAX_COUNTER);
-  counter.draw(index); 
+  counter.draw(index);
   pushMatrix();
   //translate(width*0.17,height*0.19, width*0.2);
   imageMode(CENTER);
@@ -540,7 +540,7 @@ void drawPathsandArrows() {
 
     //donut path
     fill(#fe5000);
-    pushMatrix();  
+    pushMatrix();
     translate(width*0.5 + donut_center.x, height*0.8, donut_center.y);
     rect(0, 0, width*0.0007, width*0.0007);
     if (i == 8500) {
