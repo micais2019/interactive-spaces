@@ -3,11 +3,9 @@ import java.io.PrintWriter;
 
 /*
  Calling this sketch from the command line:
-
+ 
  */
 /*TODO:
- * why do text paths put images at 0,0 for point(0)?
- * convert all draw point calculations from frameCount to index (current image index in 0 - 75000 sequence)
  */
 //import peasy.*;
 
@@ -16,17 +14,17 @@ final boolean DEBUG = false;
 boolean ONE_SHOT = false;
 final boolean MULTI_SHOT = true;
 
-final boolean SKIP_DONUT = false;
-final boolean SKIP_CLOTH = false;
-final boolean SKIP_PLANETS = false;
-final boolean SKIP_TEXT = false;
-final boolean SKIP_WORDS =  false;
-final boolean SKIP_SPLASH = false;
-final boolean SKIP_WEATHER = false;
-final boolean SKIP_LOGO = false;
+final boolean SKIP_DONUT = true;
+final boolean SKIP_CLOTH = true;
+final boolean SKIP_PLANETS = true;
+final boolean SKIP_TEXT = true;
+final boolean SKIP_WORDS =  true;
+final boolean SKIP_SPLASH = true;
+final boolean SKIP_WEATHER = true;
+final boolean SKIP_LOGO = true;
 final boolean SKIP_PATHS = false;
-final boolean SKIP_TIME = false;
-final boolean SKIP_COUNTER = false;
+final boolean SKIP_TIME = true;
+final boolean SKIP_COUNTER = true;
 
 final color BACKGROUND = color(255, 255, 255);
 
@@ -94,7 +92,7 @@ String[] sound2Data;
 String[] moodData;
 String[] motionData;
 
-int MAX_COUNTER = 75000;
+int MAX_COUNTER = 68000;
 
 PShape arrow;
 
@@ -106,12 +104,7 @@ Point [] zig_points = new Point [11];
 void settings() {
   // 13.25" x 9.25" @ 300dpi
   size(coverFinalWidth, coverFinalHeight, P3D); //renders
-  // pixelDensity(2);
-
-  // size(200, 200, P3D);
   // size(4200, 2847, P3D); // FULL3
-  // size(2100, 1424, P3D);
-  // size(1200, 800, P3D);
   smooth(8);
 }
 
@@ -141,7 +134,6 @@ void resetDataAndObjects() {
 
   float sound1avg = average(sound1Scores)*10000;
   float sound2avg = average(sound2Scores)*10000;
-  int motionMax   = int(motionScores.max());
   float motionavg = average(motionScores);
 
   //println("sound1avg:" + sound1avg);
@@ -187,7 +179,7 @@ void resetDataAndObjects() {
 
   if (!SKIP_TEXT) {
     textPara = new TextParagraph(width*0.43, height*0.5);
-    typeset = loadImage("typeset2.png");
+    typeset = loadImage("typeset4.png");
   }
 
   if (!SKIP_LOGO) {
@@ -201,7 +193,7 @@ void resetDataAndObjects() {
   }
 
   if (!SKIP_COUNTER) {
-    counter = new TextCounter(int(width*0.15), int(height*0.016));
+    counter = new TextCounter(int(width*0.16), int(height*0.0166));
   }
 }
 
@@ -233,9 +225,9 @@ void generatePaths() {
   zigzag = new PolygonPath(zig_points, MAX_COUNTER);
 
   //TRIANGLE STUFF
-  origin = new Point(width*0.1, height*0.97); //bottom left pt
+  origin = new Point(width*0.12, height*0.97); //bottom left pt
   p1 = new Point(width*0.5, height*0.03);//top middle pt
-  p2 = new Point(width*0.9, height*0.97);//bottom right pt
+  p2 = new Point(width*0.88, height*0.97);//bottom right pt
   triangle = new PolygonPath(new Point[]{ origin, p1, p2 }, MAX_COUNTER);
   //TRIANGLE STUFF
 
@@ -372,10 +364,10 @@ void drawCloth() {
 }
 
 void drawText() {
-  Point text_center = getEllipsePoint(index % MAX_COUNTER, width*0.27, 0.1, 0.85); //create points
+  Point text_center = getEllipsePoint(index % MAX_COUNTER, width*0.27, 0.1, 0.45); //create points
   pushMatrix();
-  translate(width*0.12, height*0.35, width*0.1);
-  scale(0.33);
+  translate(width*0.12, height*0.25); //width*0.1 z
+  scale(1);
   imageMode(CORNER);
   image(typeset, text_center.x, text_center.y); // from image
   popMatrix();
@@ -387,7 +379,7 @@ void drawWords() {
   pushMatrix();
   imageMode(CORNER);
   scale(1);
-  image(wordart.draw(), zig_center.x - width*0.05, zig_center.y + height*0.005);
+  image(wordart.draw(), zig_center.x - width*0.05, zig_center.y + height*0.007);
   popMatrix();
   noStroke();
 }
@@ -465,7 +457,7 @@ void drawWeatherGraph() {
   translate(20, tolerance4);
   shape(weatherObjects[4]);
   rotateZ(radians(90));
-  translate(tolerance5, 50);
+  translate(tolerance5, 40);
   shape(weatherObjects[5]);
   popMatrix();
 
@@ -498,6 +490,10 @@ void drawPathsandArrows() {
   noStroke();
   shapeMode(CENTER); //for arrows
 
+ pushMatrix();
+  translate(-width*0.1, -height*0.1, -width*0.1);
+  scale(1.2);
+
   //ZIGZAG
   zigzag = new PolygonPath(zig_points, MAX_COUNTER);
   textFont(font, 20);
@@ -508,7 +504,7 @@ void drawPathsandArrows() {
     fill(#0000FF);
     translate(zig_center.x, zig_center.y);
     rect(0, 0, width*0.0007, width*0.0007);
-    if (i == 68160) {
+    if (i == 61800) {
       pushMatrix();
       rotate(radians(90));
       text("image recognition labels", 0, -10);
@@ -530,9 +526,9 @@ void drawPathsandArrows() {
     pushMatrix();
     translate(width*0.5 + weather_center.x, height*0.5 + weather_center.y);
     rect(0, 0, width*0.0007, width*0.0007);
-    if (i == 67000) {
+    if (i == 61000) {
       pushMatrix();
-      rotate(radians(38));
+      rotate(radians(39));
       text("weather", 0, -10);
       popMatrix();
     }
@@ -543,11 +539,11 @@ void drawPathsandArrows() {
     pushMatrix();
     translate(width*0.5 + donut_center.x, height*0.8, donut_center.y);
     rect(0, 0, width*0.0007, width*0.0007);
-    if (i == 8500) {
+    if (i == 13000) {
       pushMatrix();
-      rotate(-radians(20));
+      rotate(-radians(7));
       scale(0.9);
-      text("sound-1", 0, 20);
+      text("sound: location 1", 0, 20);
       popMatrix();
     }
     popMatrix();
@@ -557,10 +553,10 @@ void drawPathsandArrows() {
     pushMatrix();
     translate(width*0.7 + planets_center.x, height*0.5 + planets_center.y);
     rect(0, 0, width*0.0007, width*0.0007);
-    if (i == 1) {
+    if (i == 67300) {
       pushMatrix();
       rotate(radians(90));
-      text("sound-2", 0, -10);
+      text("sound: location 2", 0, -10);
       popMatrix();
     }
     popMatrix();
@@ -570,7 +566,7 @@ void drawPathsandArrows() {
     fill(#e10098);
     translate(width*0.5+splash_center.x, height*0.5+splash_center.y, splash_center.z );
     rect(0, 0, width*0.0007, width*0.0007);
-    if (i == 17000) {
+    if (i == 14700) {
       pushMatrix();
       rotate(radians(28));
       scale(0.6);
@@ -603,11 +599,19 @@ void drawPathsandArrows() {
   popMatrix();
 
   fill(#fe5000);
-  Point Darrow_center = getEllipsePoint((index+100) % MAX_COUNTER, height*0.5, 1.0426, 0.1895);
-  Point Dnext_center = getEllipsePoint((index+101) % MAX_COUNTER, height*0.5, 1.0426, 0.1895);
+  Point Darrow_center = getEllipsePoint((index+100) % MAX_COUNTER, height*0.5, 1.045, 0.197);
+  Point Dnext_center = getEllipsePoint((index+101) % MAX_COUNTER, height*0.5, 1.045, 0.197);
+  //debug 
+  /*for (int i=1; i<MAX_COUNTER; i+=1) {
+    fill(150);
+    pushMatrix();
+    Point D = getEllipsePoint(i, height*0.5, 1.045, 0.197 );
+    rect(width/2 + D.x, height*0.83 +D.y, 2, 2);
+    popMatrix();}*/
+  //debug 
   float angD = atan2(Dnext_center.y - Darrow_center.y, Dnext_center.x - Darrow_center.x);
   pushMatrix();
-  translate(width/2 + Darrow_center.x, height*0.827 + Darrow_center.y);
+  translate(width/2 + Darrow_center.x, height*0.83 + Darrow_center.y);
   rotate(angD);
   fill(#fe5000);
   shape(arrow, 0, 0);
@@ -635,6 +639,8 @@ void drawPathsandArrows() {
 
   fill(255);//reset
   shapeMode(CORNER);//reset
+
+  popMatrix();
 }
 
 float R = 100.0;

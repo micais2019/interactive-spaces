@@ -19,7 +19,7 @@ int getIndexFromArgs() {
     return parseInt(args[0]);
   } else {
     // unix epoch timestamp
-    return floor(random(75000));
+    return floor(random(68000));
   }
 }
 

@@ -177,7 +177,7 @@ class DataLoader {
         str(current.getFloat("temperature")),
         str(current.getFloat("dewPoint")),
         str(current.getFloat("cloudCover") * 100 ),
-        str(current.getFloat("uvIndex")*10),
+        str(current.getFloat("uvIndex")*15 ),
         str(current.getFloat("visibility")*10),
         str(constrain(current.getFloat("windSpeed") * 10, 10, 100)),
       };
