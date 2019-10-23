@@ -14,17 +14,17 @@ final boolean DEBUG = false;
 boolean ONE_SHOT = false;
 final boolean MULTI_SHOT = true;
 
-final boolean SKIP_DONUT = true;
-final boolean SKIP_CLOTH = true;
-final boolean SKIP_PLANETS = true;
-final boolean SKIP_TEXT = true;
-final boolean SKIP_WORDS =  true;
-final boolean SKIP_SPLASH = true;
-final boolean SKIP_WEATHER = true;
-final boolean SKIP_LOGO = true;
+final boolean SKIP_DONUT = false;
+final boolean SKIP_CLOTH = false;
+final boolean SKIP_PLANETS = false;
+final boolean SKIP_TEXT = false;
+final boolean SKIP_WORDS =  false;
+final boolean SKIP_SPLASH = false;
+final boolean SKIP_WEATHER = false;
+final boolean SKIP_LOGO = false;
 final boolean SKIP_PATHS = false;
-final boolean SKIP_TIME = true;
-final boolean SKIP_COUNTER = true;
+final boolean SKIP_TIME = false;
+final boolean SKIP_COUNTER = false;
 
 final color BACKGROUND = color(255, 255, 255);
 
@@ -379,7 +379,7 @@ void drawWords() {
   pushMatrix();
   imageMode(CORNER);
   scale(1);
-  image(wordart.draw(), zig_center.x - width*0.05, zig_center.y + height*0.007);
+  image(wordart.draw(), zig_center.x - width*0.05, zig_center.y + height*0.01);
   popMatrix();
   noStroke();
 }
@@ -504,10 +504,10 @@ void drawPathsandArrows() {
     fill(#0000FF);
     translate(zig_center.x, zig_center.y);
     rect(0, 0, width*0.0007, width*0.0007);
-    if (i == 61800) {
+    if (i == 61820) {
       pushMatrix();
       rotate(radians(90));
-      text("image recognition labels", 0, -10);
+      text("IMAGE DESCRIPTORS", 0, -10);
       popMatrix();
     }
     popMatrix();
@@ -529,7 +529,7 @@ void drawPathsandArrows() {
     if (i == 61000) {
       pushMatrix();
       rotate(radians(39));
-      text("weather", 0, -10);
+      text("WEATHER", 0, -10);
       popMatrix();
     }
     popMatrix();
@@ -541,9 +541,9 @@ void drawPathsandArrows() {
     rect(0, 0, width*0.0007, width*0.0007);
     if (i == 13000) {
       pushMatrix();
-      rotate(-radians(7));
-      scale(0.9);
-      text("sound: location 1", 0, 20);
+      rotate(-radians(8));
+      scale(0.8);
+      text("SOUND: LOCATION #1", 0, 25);
       popMatrix();
     }
     popMatrix();
@@ -556,7 +556,7 @@ void drawPathsandArrows() {
     if (i == 67300) {
       pushMatrix();
       rotate(radians(90));
-      text("sound: location 2", 0, -10);
+      text("SOUND: LOCATION #2", 0, -10);
       popMatrix();
     }
     popMatrix();
@@ -570,7 +570,7 @@ void drawPathsandArrows() {
       pushMatrix();
       rotate(radians(28));
       scale(0.6);
-      text("motion", 0, -10);
+      text("MOTION", 0, -10);
       popMatrix();
     }
     popMatrix();
@@ -634,6 +634,7 @@ void drawPathsandArrows() {
   pushMatrix();
   translate(width*0.5+ Marrow_center.x, height*0.5 + Marrow_center.y, Marrow_center.z);
   rotate(angM);
+  scale(0.95);
   shape(arrow, 0, 0);
   popMatrix();
 
