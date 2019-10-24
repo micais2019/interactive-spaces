@@ -28,12 +28,13 @@ final boolean SKIP_COUNTER = false;
 
 final color BACKGROUND = color(255, 255, 255);
 
-float coverWidth = 13.25;
-float coverHeight = 9.25;
-int dpi = 300;
+float bleed = 3;
+float coverWidth  = 340 + (bleed * 2);   // mm
+float coverHeight = 235 + (bleed * 2);  // mm
+float dpmm = 11.811;
 
-int coverFinalWidth = int(coverWidth * dpi);
-int coverFinalHeight = int(coverHeight * dpi);
+int coverFinalWidth  = round(coverWidth * dpmm);
+int coverFinalHeight = round(coverHeight * dpmm);
 
 DataLoader dload;
 FloatList sound1Scores;
