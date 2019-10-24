@@ -1,6 +1,6 @@
 // Helper classes for picking a timestamp value based on a collection 
 
-final int TOTAL_STEPS = 75000;
+final int TOTAL_STEPS = 68000;
 
 // a collection of time ranges, each covering a (start, end) span of time. 
 // times in comments are in -0400 (EDT) 

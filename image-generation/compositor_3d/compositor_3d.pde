@@ -113,7 +113,7 @@ void setup() {
 
   // loading data
   dload = new DataLoader(this);
-  starting_index = getIndexFromArgs();
+  starting_index = 12530; //getIndexFromArgs();
   index = starting_index;
   resetDataAndObjects();
   generatePaths(); // create paths but don't draw them
