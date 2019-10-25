@@ -6,11 +6,17 @@ float coverHeight = 235 + (bleed * 2); // mm
 float dpmm = 11.811;
 /* end copy */
 
-float padIn = 32;   // px
-float cropLen = 26; // px
+// all crop line values start in mm and get converted to px in setup()
+float cropLine  = 20;
+float cropOverlap = 1.5;
+float border = cropLine - cropOverlap;
+float spineCropLine = border * 0.75; // shouldn't touch border
+float padIn = border + bleed;
+float spineWidth = 10; 
 
-int coverFinalWidth  = round(coverWidth * dpmm + (cropLen - 4));
-int coverFinalHeight = round(coverHeight * dpmm + (cropLen - 4));
+// copied from compositor with addition of border
+int coverFinalWidth  = round(coverWidth * dpmm + border * dpmm);
+int coverFinalHeight = round(coverHeight * dpmm + border * dpmm);
 
 void settings() {
   size(coverFinalWidth, coverFinalHeight);
@@ -20,6 +26,14 @@ void setup() {
   noLoop();
   stroke(0);
   strokeWeight(1);
+  
+  // convert
+  cropLine      = round(cropLine * dpmm);
+  cropOverlap   = round(cropOverlap * dpmm);
+  border        = round(border * dpmm);
+  spineCropLine = round(spineCropLine * dpmm);
+  padIn         = round(padIn * dpmm);
+  spineWidth    = round(spineWidth * dpmm);
 }
 
 void draw() {
@@ -27,29 +41,29 @@ void draw() {
   
   // verticals
   //   top
-  line(padIn, 0, padIn, cropLen); 
-  line(width - padIn, 0, width - padIn, cropLen);
+  line(padIn, 0, padIn, cropLine); 
+  line(width - padIn, 0, width - padIn, cropLine);
   //   bottom
-  line(padIn, height, padIn, height - cropLen);
-  line(width - padIn, height, width - padIn, height - cropLen);
+  line(padIn, height, padIn, height - cropLine);
+  line(width - padIn, height, width - padIn, height - cropLine);
 
   // horizontals
   //   left
-  line(0, padIn, cropLen, padIn);
-  line(0, height - padIn, cropLen, height - padIn);
+  line(0, padIn, cropLine, padIn);
+  line(0, height - padIn, cropLine, height - padIn);
   //   right
-  line(width, padIn, width - cropLen, padIn);
-  line(width, height - padIn, width - cropLen, height - padIn); // right
+  line(width, padIn, width - cropLine, padIn);
+  line(width, height - padIn, width - cropLine, height - padIn); // right
   
   // spine
-  float slx = width/2 - ((10 * dpmm) / 2);
-  float srx = width/2 + ((10 * dpmm) / 2);
+  float slx = width/2 - (spineWidth / 2);
+  float srx = width/2 + (spineWidth / 2);
   //   top
-  line(slx, 0, slx, 9);
-  line(srx, 0, srx, 9);
+  line(slx, 0, slx, spineCropLine);
+  line(srx, 0, srx, spineCropLine);
   //   bottom
-  line(slx, height, slx, height - 9);
-  line(srx, height, srx, height - 9);
+  line(slx, height, slx, height - spineCropLine);
+  line(srx, height, srx, height - spineCropLine);
   
   saveTransparentCanvas(#ffffff);
   exit();
