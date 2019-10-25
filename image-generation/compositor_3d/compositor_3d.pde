@@ -28,9 +28,9 @@ final boolean SKIP_COUNTER = false;
 
 final color BACKGROUND = color(255, 255, 255);
 
-float bleed = 3;
-float coverWidth  = 340 + (bleed * 2);   // mm
-float coverHeight = 235 + (bleed * 2);  // mm
+float bleed = 3; // mm
+float coverWidth  = 340 + (bleed * 2); // mm
+float coverHeight = 235 + (bleed * 2); // mm
 float dpmm = 11.811;
 
 int coverFinalWidth  = round(coverWidth * dpmm);
