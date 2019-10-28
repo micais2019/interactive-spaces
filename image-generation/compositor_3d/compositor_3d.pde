@@ -99,6 +99,12 @@ PShape arrow;
 
 PImage typeset;
 
+float DonutMultiplier = 13023;
+float SplashMultiplier = 1732;
+float PlanetMultiplier = 1550;
+float TextBoxMultiplier = 853;
+float MoodWordMultiplier = 108;
+
 //zigzag points
 Point [] zig_points = new Point [11];
 
@@ -114,7 +120,7 @@ void setup() {
 
   // loading data
   dload = new DataLoader(this);
-  starting_index = 12530; //getIndexFromArgs();
+  starting_index = 15001; //getIndexFromArgs();
   index = starting_index;
   resetDataAndObjects();
   generatePaths(); // create paths but don't draw them
@@ -318,7 +324,7 @@ void draw() {
 }
 
 void drawDonut(long ts) {
-  Point donut_center = getEllipsePoint(index % MAX_COUNTER, height*0.5, 1.0, 0.5);
+  Point donut_center = getEllipsePoint(int(index*DonutMultiplier) % MAX_COUNTER, height*0.5, 1.0, 0.5);
 
   pushMatrix();
   translate(width*0.5+donut_center.x, height*0.8, donut_center.y);
@@ -333,7 +339,7 @@ void drawDonut(long ts) {
 }
 
 void drawPlanets(long ts) {
-  Point planets_center = getEllipsePoint(index % MAX_COUNTER, width*0.27, 0.4, 1.0);
+  Point planets_center = getEllipsePoint(int(index*PlanetMultiplier) % MAX_COUNTER, width*0.27, 0.4, 1.0);
 
   pushMatrix();
   noStroke();
@@ -365,7 +371,7 @@ void drawCloth() {
 }
 
 void drawText() {
-  Point text_center = getEllipsePoint(index % MAX_COUNTER, width*0.27, 0.1, 0.45); //create points
+  Point text_center = getEllipsePoint(int(index*TextBoxMultiplier) % MAX_COUNTER, width*0.27, 0.1, 0.45); //create points
   pushMatrix();
   translate(width*0.12, height*0.25); //width*0.1 z
   scale(1);
@@ -376,7 +382,7 @@ void drawText() {
 }
 
 void drawWords() {
-  Point zig_center = zigzag.point(index % MAX_COUNTER);  //create zigzag points
+  Point zig_center = zigzag.point(int(index*MoodWordMultiplier) % MAX_COUNTER);  //create zigzag points
   pushMatrix();
   imageMode(CORNER);
   scale(1);
@@ -409,7 +415,7 @@ void drawCounter() {
 
 
 void drawSplash() {
-  Point splash_center = getMoebiusPoint(index % MAX_COUNTER, width*0.25);
+  Point splash_center = getMoebiusPoint(int(index*SplashMultiplier) % MAX_COUNTER, width*0.25);
 
   pushMatrix();
   translate(width*0.5+splash_center.x, height*0.5+splash_center.y, splash_center.z);
@@ -540,7 +546,7 @@ void drawPathsandArrows() {
     pushMatrix();
     translate(width*0.5 + donut_center.x, height*0.8, donut_center.y);
     rect(0, 0, width*0.0007, width*0.0007);
-    if (i == 13000) {
+    if (i == MAX_COUNTER*0.192) {
       pushMatrix();
       rotate(-radians(8));
       scale(0.8);
@@ -580,8 +586,8 @@ void drawPathsandArrows() {
   }
   textMode(SHAPE);
   fill(#10069f);
-  Point Zarrow_center = zigzag.point((index+1) % MAX_COUNTER);
-  Point Znext_center = zigzag.point((index+2) % MAX_COUNTER);
+  Point Zarrow_center = zigzag.point((int(index*MoodWordMultiplier)+1) % MAX_COUNTER);
+  Point Znext_center = zigzag.point((int(index*MoodWordMultiplier)+2) % MAX_COUNTER);
   float angZ = atan2(Znext_center.y - Zarrow_center.y, Znext_center.x - Zarrow_center.x);
   pushMatrix();
   translate(Zarrow_center.x, Zarrow_center.y);
@@ -600,8 +606,8 @@ void drawPathsandArrows() {
   popMatrix();
 
   fill(#fe5000);
-  Point Darrow_center = getEllipsePoint((index+100) % MAX_COUNTER, height*0.5, 1.045, 0.197);
-  Point Dnext_center = getEllipsePoint((index+101) % MAX_COUNTER, height*0.5, 1.045, 0.197);
+  Point Darrow_center = getEllipsePoint((int(index*DonutMultiplier)+100) % MAX_COUNTER, height*0.5, 1.045, 0.197);
+  Point Dnext_center = getEllipsePoint((int(index*DonutMultiplier)+101) % MAX_COUNTER, height*0.5, 1.045, 0.197);
   //debug 
   /*for (int i=1; i<MAX_COUNTER; i+=1) {
     fill(150);
@@ -619,8 +625,8 @@ void drawPathsandArrows() {
   popMatrix();
 
   fill(#fedb00);
-  Point Parrow_center = getEllipsePoint((index+100) % MAX_COUNTER, width*0.27, 0.4, 1.0);
-  Point Pnext_center = getEllipsePoint((index+101) % MAX_COUNTER, width*0.27, 0.4, 1.0);
+  Point Parrow_center = getEllipsePoint((int(index*PlanetMultiplier)+2200) % MAX_COUNTER, width*0.27, 0.4, 1.0);
+  Point Pnext_center = getEllipsePoint((int(index*PlanetMultiplier)+2201) % MAX_COUNTER, width*0.27, 0.4, 1.0);
   float angP = atan2(Pnext_center.y - Parrow_center.y, Pnext_center.x - Parrow_center.x);
   pushMatrix();
   translate(width*0.7 + Parrow_center.x, height*0.5 + Parrow_center.y);
@@ -629,8 +635,8 @@ void drawPathsandArrows() {
   popMatrix();
 
   fill(#e10098);
-  Point Marrow_center = getMoebiusPoint((index+100) % MAX_COUNTER, width*0.25);
-  Point Mnext_center =getMoebiusPoint((index+101) % MAX_COUNTER, width*0.25);
+  Point Marrow_center = getMoebiusPoint((int(index*SplashMultiplier)+800) % MAX_COUNTER, width*0.25);
+  Point Mnext_center =getMoebiusPoint((int(index*SplashMultiplier)+801) % MAX_COUNTER, width*0.25);
   float angM = atan2(Mnext_center.y - Marrow_center.y, Mnext_center.x - Marrow_center.x);
   pushMatrix();
   translate(width*0.5+ Marrow_center.x, height*0.5 + Marrow_center.y, Marrow_center.z);
