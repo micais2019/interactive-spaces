@@ -12,7 +12,11 @@ import java.io.PrintWriter;
 final boolean CONTROL_POSITION = false;
 final boolean DEBUG = false;
 boolean ONE_SHOT = false;
+
 final boolean MULTI_SHOT = true;
+final int IMAGE_GENERATION_COUNT = 10;
+
+final boolean RERENDER_FIRST_FRAME = true; // rerender the first frame to avoid blobby text
 
 final boolean SKIP_DONUT = false;
 final boolean SKIP_CLOTH = false;
@@ -81,7 +85,6 @@ MoodWords wordart;
 long now;
 int index;
 int starting_index;
-int IMAGE_GENERATION_COUNT = 10;
 
 //triangular paths
 Point origin, p1, p2, squareOrigin, ps1, ps2, ps3;
@@ -114,15 +117,15 @@ void setup() {
 
   // loading data
   dload = new DataLoader(this);
-  starting_index = 12530; //getIndexFromArgs();
+  starting_index = getIndexFromArgs();
   index = starting_index;
   resetDataAndObjects();
   generatePaths(); // create paths but don't draw them
+  
 }
 
 void resetDataAndObjects() {
   now = getTimestampFromIndex(index);
-
   println("IMAGE", index, "AT", now);
 
   // debugDataLoader(dload);
@@ -299,16 +302,19 @@ void draw() {
   hint(ENABLE_DEPTH_TEST); // stop drawing on top of all the other stuff (close loop)
 
   // save image of the current frame
-  String filename = String.format("output/%s_%d_%d_%d.png", now, index, width, height);
-  println("@" + filename);
-  saveFrame(filename);
+  if (!RERENDER_FIRST_FRAME || frameCount > 1) {
+    String filename = String.format("output/%s_%d_%d_%d.png", now, index, width, height);
+    println("@" + filename);
+    saveFrame(filename);
+  
+    if (ONE_SHOT) {
+      println("done");
+      exit();
+    }
 
-  if (ONE_SHOT) {
-    println("done");
-    exit();
+    index++;
   }
-
-  index++;
+     
   if (index < starting_index + IMAGE_GENERATION_COUNT && index <= MAX_COUNTER) {
     resetDataAndObjects();
   } else {
