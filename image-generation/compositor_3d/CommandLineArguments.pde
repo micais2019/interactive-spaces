@@ -15,6 +15,9 @@ Date getDateFromTimestamp(long ts) {
 }
 
 int getIndexFromArgs() {
+  println("getting index from arguments:");
+  printArray(args);
+  
   if (args != null) {
     return parseInt(args[0]);
   } else {

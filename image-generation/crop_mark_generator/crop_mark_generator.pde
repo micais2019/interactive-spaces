@@ -7,16 +7,16 @@ float dpmm = 11.811;
 /* end copy */
 
 // all crop line values start in mm and get converted to px in setup()
-float cropLine  = 20;
+float cropLine = 8;
 float cropOverlap = 1.5;
 float border = cropLine - cropOverlap;
 float spineCropLine = border * 0.75; // shouldn't touch border
 float padIn = border + bleed;
-float spineWidth = 10; 
+float spineWidth = 10;
 
 // copied from compositor with addition of border
-int coverFinalWidth  = round(coverWidth * dpmm + border * dpmm);
-int coverFinalHeight = round(coverHeight * dpmm + border * dpmm);
+int coverFinalWidth  = round(coverWidth * dpmm + (border * 2) * dpmm);
+int coverFinalHeight = round(coverHeight * dpmm + (border * 2) * dpmm);
 
 void settings() {
   size(coverFinalWidth, coverFinalHeight);
@@ -27,17 +27,38 @@ void setup() {
   stroke(0);
   strokeWeight(1);
   
+  println("cropLine", cropLine);
+  println("border", border);
+  println("spineCropLine", spineCropLine);
+  println("padIn", padIn);
+  println("spineWidth", spineWidth);  
+  println("coverWidth", coverWidth);
+  println("coverHeight", coverHeight);
+ 
+  
   // convert
   cropLine      = round(cropLine * dpmm);
-  cropOverlap   = round(cropOverlap * dpmm);
   border        = round(border * dpmm);
   spineCropLine = round(spineCropLine * dpmm);
   padIn         = round(padIn * dpmm);
   spineWidth    = round(spineWidth * dpmm);
+  
+  println("--------- CONVERTED ---------");
+  println("cropLine", cropLine);
+  println("border", border);
+  println("spineCropLine", spineCropLine);
+  println("padIn", padIn);
+  println("spineWidth", spineWidth);
+  println("coverFinalWidth", coverFinalWidth);
+  println("coverFinalHeight", coverFinalHeight);
+  println("cropOverlap", round(cropOverlap * dpmm));
 }
 
 void draw() {
   background(255);
+  
+  println("width", width);
+  println("height", height);
   
   // verticals
   //   top
