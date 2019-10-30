@@ -1,0 +1,7 @@
+.DS_Store
+crop/*
+final/*
+output/*
+print/*
+image-sequence-test/
+data/archive.sqlite

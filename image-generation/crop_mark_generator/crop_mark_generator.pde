@@ -1,7 +1,9 @@
 
 /* NOTE: copy this from compositor_3d */
 float bleed = 3; // mm
-float coverWidth  = 340 + (bleed * 2); // mm
+float pageWidth = 165; // mm
+float spineWidth = 13; // mm
+float coverWidth  = (pageWidth * 2) + spineWidth + (bleed * 2); // mm
 float coverHeight = 235 + (bleed * 2); // mm
 float dpmm = 11.811;
 /* end copy */
@@ -12,7 +14,6 @@ float cropOverlap = 1.5;
 float border = cropLine - cropOverlap;
 float spineCropLine = border * 0.75; // shouldn't touch border
 float padIn = border + bleed;
-float spineWidth = 10;
 
 // copied from compositor with addition of border
 int coverFinalWidth  = round(coverWidth * dpmm + (border * 2) * dpmm);
@@ -34,7 +35,6 @@ void setup() {
   println("spineWidth", spineWidth);  
   println("coverWidth", coverWidth);
   println("coverHeight", coverHeight);
- 
   
   // convert
   cropLine      = round(cropLine * dpmm);
@@ -47,15 +47,15 @@ void setup() {
   println("cropLine", cropLine);
   println("border", border);
   println("spineCropLine", spineCropLine);
+  println("cropOverlap", round(cropOverlap * dpmm));
   println("padIn", padIn);
   println("spineWidth", spineWidth);
   println("coverFinalWidth", coverFinalWidth);
   println("coverFinalHeight", coverFinalHeight);
-  println("cropOverlap", round(cropOverlap * dpmm));
 }
 
 void draw() {
-  background(255);
+  background(255, 0);
   
   println("width", width);
   println("height", height);

@@ -14,6 +14,8 @@ final boolean DEBUG = false;
 boolean ONE_SHOT = false;
 
 final boolean MULTI_SHOT = true;
+
+// how many images to generate per-run
 final int IMAGE_GENERATION_COUNT = 10;
 
 final boolean RERENDER_FIRST_FRAME = true; // rerender the first frame to avoid blobby text
@@ -33,7 +35,9 @@ final boolean SKIP_COUNTER = false;
 final color BACKGROUND = color(255, 255, 255);
 
 float bleed = 3; // mm
-float coverWidth  = 340 + (bleed * 2); // mm
+float pageWidth = 165; // mm
+float spineWidth = 13; // mm
+float coverWidth  = (pageWidth * 2) + spineWidth + (bleed * 2); // mm 
 float coverHeight = 235 + (bleed * 2); // mm
 float dpmm = 11.811;
 
@@ -193,7 +197,7 @@ void resetDataAndObjects() {
   }
 
   if (!SKIP_LOGO) {
-    MICA_logo = loadShape("mica_logo-01.svg");
+    MICA_logo = loadShape("mica_logo_new.svg");
     MICA_logo.disableStyle();
     MICA_logo.setFill(255);
   }
@@ -309,12 +313,12 @@ void draw() {
 
   // save image of the current frame
   if (!RERENDER_FIRST_FRAME || frameCount > 1) {
-    String filename = String.format("output/%s_%d_%d_%d.png", now, index, width, height);
+    String filename = String.format("output/%s_%d_%d_%d.tiff", now, index, width, height);
     println("@" + filename);
     saveFrame(filename);
   
     if (ONE_SHOT) {
-      println("done");
+      println("compositor_3d is done");
       exit();
     }
 
@@ -324,7 +328,7 @@ void draw() {
   if (index < starting_index + IMAGE_GENERATION_COUNT && index <= MAX_COUNTER) {
     resetDataAndObjects();
   } else {
-    println("done");
+    println("compositor_3d is done");
     exit();
   }
 }
@@ -479,10 +483,10 @@ void drawWeatherGraph() {
 
 void drawLogo(long ts) {
   pushMatrix();
-  translate(width*0.5, height*0.5, width*0.4);
-  scale(width*0.0005);
-  rotate(radians(90));
+  translate(width*0.5, height*0.5,width*0.4);
   shapeMode(CENTER);
+  scale(width*0.0007);
+  rotate(radians(90));
   shape(MICA_logo);
   popMatrix();
   shapeMode(CORNER);
