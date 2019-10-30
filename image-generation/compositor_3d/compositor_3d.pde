@@ -518,7 +518,7 @@ void drawPathsandArrows() {
   for (int i=1; i<MAX_COUNTER; i+=1) {
     Point zig_center = zigzag.point(i);
     pushMatrix();
-    fill(#0000FF);
+    fill(#10069f);
     translate(zig_center.x, zig_center.y);
     rect(0, 0, width*0.0007, width*0.0007);
     if (i == 61820) {
