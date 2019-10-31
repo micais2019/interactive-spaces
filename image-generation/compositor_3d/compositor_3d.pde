@@ -3,7 +3,7 @@ import java.io.PrintWriter;
 
 /*
  Calling this sketch from the command line:
- 
+
  */
 /*TODO:
  */
@@ -37,7 +37,7 @@ final color BACKGROUND = color(255, 255, 255);
 float bleed = 3; // mm
 float pageWidth = 165; // mm
 float spineWidth = 13; // mm
-float coverWidth  = (pageWidth * 2) + spineWidth + (bleed * 2); // mm 
+float coverWidth  = (pageWidth * 2) + spineWidth + (bleed * 2); // mm
 float coverHeight = 235 + (bleed * 2); // mm
 float dpmm = 11.811;
 
@@ -131,7 +131,7 @@ void setup() {
   index = starting_index;
   resetDataAndObjects();
   generatePaths(); // create paths but don't draw them
-  
+
 }
 
 void resetDataAndObjects() {
@@ -316,7 +316,7 @@ void draw() {
     String filename = String.format("output/%s_%d_%d_%d.tiff", now, index, width, height);
     println("@" + filename);
     saveFrame(filename);
-  
+
     if (ONE_SHOT) {
       println("compositor_3d is done");
       exit();
@@ -324,7 +324,7 @@ void draw() {
 
     index++;
   }
-     
+
   if (index < starting_index + IMAGE_GENERATION_COUNT && index <= MAX_COUNTER) {
     resetDataAndObjects();
   } else {
@@ -618,14 +618,14 @@ void drawPathsandArrows() {
   fill(#fe5000);
   Point Darrow_center = getEllipsePoint((int(index*DonutMultiplier)+100) % MAX_COUNTER, height*0.5, 1.045, 0.197);
   Point Dnext_center = getEllipsePoint((int(index*DonutMultiplier)+101) % MAX_COUNTER, height*0.5, 1.045, 0.197);
-  //debug 
+  //debug
   /*for (int i=1; i<MAX_COUNTER; i+=1) {
     fill(150);
     pushMatrix();
     Point D = getEllipsePoint(i, height*0.5, 1.045, 0.197 );
     rect(width/2 + D.x, height*0.83 +D.y, 2, 2);
     popMatrix();}*/
-  //debug 
+  //debug
   float angD = atan2(Dnext_center.y - Darrow_center.y, Dnext_center.x - Darrow_center.x);
   pushMatrix();
   translate(width/2 + Darrow_center.x, height*0.83 + Darrow_center.y);

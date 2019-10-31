@@ -5,3 +5,4 @@ output/*
 print/*
 image-sequence-test/
 data/archive.sqlite
+output.log

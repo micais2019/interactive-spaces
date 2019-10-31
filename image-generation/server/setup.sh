@@ -10,6 +10,12 @@ sudo apt install -y git curl libssl-dev libreadline-dev zlib1g-dev autoconf \
   libgdbm-dev
 sudo apt install -y awscli
 
+
+# nvidia
+sudo dpkg -i nvidia-driver-local-repo-ubuntu1804-418.87.01_1.0-1_amd64.deb
+apt-get update
+apt-get install cuda-drivers
+reboot
 sudo nvidia-xconfig -a --use-display-device=None --virtual=1280x1024
 
 wget http://download.processing.org/processing-3.5.3-linux64.tgz
