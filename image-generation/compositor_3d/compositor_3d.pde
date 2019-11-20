@@ -1,13 +1,4 @@
-//import controlP5.*;
 import java.io.PrintWriter;
-
-/*
- Calling this sketch from the command line:
-
- */
-/*TODO:
- */
-//import peasy.*;
 
 final boolean CONTROL_POSITION = false;
 final boolean DEBUG = false;
@@ -116,11 +107,11 @@ float MoodWordMultiplier = 108;
 Point [] zig_points = new Point [11];
 
 void settings() {
-  // 13.25" x 9.25" @ 300dpi
   size(coverFinalWidth, coverFinalHeight, P3D); //renders
-  // size(4200, 2847, P3D); // FULL3
   smooth(8);
 }
+
+PGraphics canvas;
 
 void setup() {
   getOneShotFromArgs();
@@ -131,12 +122,11 @@ void setup() {
   index = starting_index;
   resetDataAndObjects();
   generatePaths(); // create paths but don't draw them
-
 }
 
 void resetDataAndObjects() {
   now = getTimestampFromIndex(index);
-  println("IMAGE", index, "AT", now);
+  println("PREPARING IMAGE", index, "AT", now);
 
   // debugDataLoader(dload);
 
@@ -154,6 +144,14 @@ void resetDataAndObjects() {
   //println("sound2avg:" + sound2avg);
   //println("motionMax:" + motionMax);
   //println("motionAvg:" + motionavg); //gives more dynamic change to cloth width
+
+  background(255, 255, 0);
+
+  canvas = createGraphics(coverFinalWidth, coverFinalHeight, P3D);
+  canvas.beginDraw();
+  canvas.smooth(8);
+  canvas.hint(ENABLE_STROKE_PURE);
+  canvas.background(0, 0);
 
   if (!SKIP_CLOTH) {
     // w h amp detail
@@ -192,14 +190,21 @@ void resetDataAndObjects() {
   }
 
   if (!SKIP_TEXT) {
-    textPara = new TextParagraph(width*0.43, height*0.5);
+    // textPara = new TextParagraph(width*0.43, height*0.5);
     typeset = loadImage("typeset4.png");
   }
 
   if (!SKIP_LOGO) {
     MICA_logo = loadShape("mica_logo_new.svg");
+
+    // we want the height of the logo shape to be 11mm
+    int target_height = floor(11 * dpmm);
+    // the logo appears 81px wide in the current sketch without scaling
+    float scale_factor = target_height / 81.0;
+
     MICA_logo.disableStyle();
     MICA_logo.setFill(255);
+    MICA_logo.scale(scale_factor);
   }
 
   if (!SKIP_TIME) {
@@ -255,15 +260,13 @@ void generatePaths() {
 }
 
 void draw() {
-  background(BACKGROUND);
-  directionalLight(200, 200, 200, 0, 0, -1);
-  directionalLight(180, 180, 180, 1, 0, -1);
-  directionalLight(18, 18, 18, -1, 0, 0);
-  lights();
+  canvas.background(BACKGROUND);
+  canvas.directionalLight(200, 200, 200, 0, 0, -1);
+  canvas.directionalLight(180, 180, 180, 1, 0, -1);
+  canvas.directionalLight(18, 18, 18, -1, 0, 0);
+  canvas.lights();
 
-  if (!SKIP_PATHS) {
-    drawPathsandArrows();
-  }
+  hint(ENABLE_STROKE_PURE);
 
   if (!SKIP_CLOTH) {
     drawCloth();
@@ -285,37 +288,54 @@ void draw() {
     drawWeatherGraph();
   }
 
-  noLights();
+  if (!SKIP_PATHS) {
+    drawPathsandArrows();
+  }
+
+  canvas.noLights();
 
   if (!SKIP_TEXT) {
     drawText();
   }
 
-  hint(DISABLE_DEPTH_TEST); // draw on top of all the other stuff
+  canvas.endDraw();
+
+  // canvas.hint(DISABLE_DEPTH_TEST); // draw on top of all the other stuff
+  PGraphics cover = createGraphics(coverFinalWidth, coverFinalHeight, P3D);
+  cover.beginDraw();
+  cover.smooth(8);
+  cover.background(255, 0);
+
+  // hint(DISABLE_DEPTH_TEST);
+  cover.image(canvas, 0, 0);
 
   if (!SKIP_WORDS) {
-    drawWords();
+    drawWords(cover);
   }
 
   if (!SKIP_TIME) {
-    drawTimestamp(now);
+    drawTimestamp(now, cover);
   }
 
   if (!SKIP_COUNTER) {
-    drawCounter();
+    drawCounter(cover);
   }
 
   if (!SKIP_LOGO) {
-    drawLogo(now);
+    drawLogo(now, cover);
   }
 
-  hint(ENABLE_DEPTH_TEST); // stop drawing on top of all the other stuff (close loop)
+  // canvas.hint(ENABLE_DEPTH_TEST); // stop drawing on top of all the other stuff (close loop)
+  // hint(ENABLE_DEPTH_TEST);
+
+  // canvas.endDraw();
 
   // save image of the current frame
   if (!RERENDER_FIRST_FRAME || frameCount > 1) {
-    String filename = String.format("output/%s_%d_%d_%d.tiff", now, index, width, height);
+    String filename = String.format("output/%s_%d_%d_%d.tif", now, index, width, height);
     println("@" + filename);
-    saveFrame(filename);
+    cover.save(filename);
+    // canvas.save(filename);
 
     if (ONE_SHOT) {
       println("compositor_3d is done");
@@ -336,115 +356,83 @@ void draw() {
 void drawDonut(long ts) {
   Point donut_center = getEllipsePoint(int(index*DonutMultiplier) % MAX_COUNTER, height*0.5, 1.0, 0.5);
 
-  pushMatrix();
-  translate(width*0.5+donut_center.x, height*0.8, donut_center.y);
-  rotateX(index * 0.2);
-  rotateZ(index * 0.3);
-  noStroke();
-  textureMode(NORMAL);
-  scale(1);
-  shape(donut);
-
-  popMatrix();
+  canvas.pushMatrix();
+  canvas.translate(width*0.5+donut_center.x, height*0.8, donut_center.y);
+  canvas.rotateX(index * 0.2);
+  canvas.rotateZ(index * 0.3);
+  canvas.noStroke();
+  canvas.textureMode(NORMAL);
+  canvas.scale(1);
+  canvas.shape(donut);
+  canvas.popMatrix();
 }
 
 void drawPlanets(long ts) {
   Point planets_center = getEllipsePoint(int(index*PlanetMultiplier) % MAX_COUNTER, width*0.27, 0.4, 1.0);
 
-  pushMatrix();
-  noStroke();
-  translate(width*0.7 + planets_center.x, height*0.5 + planets_center.y, 40);
+  canvas.pushMatrix();
+  canvas.noStroke();
+  canvas.translate(width*0.7 + planets_center.x, height*0.5 + planets_center.y, 40);
 
   orb = planet.create();
   for (int n=0; n < planet.offsets.size(); n++) {
-    pushMatrix();
-    rotateX(PI);
-    rotateZ(planet.rotations.get(n) + (index * 0.01));
-    translate(planet.offsets.get(n), 0, 0);
-    scale(planet.scales.get(n));
-    shape(orb);
-    popMatrix();
+    canvas.pushMatrix();
+    canvas.rotateX(PI);
+    canvas.rotateZ(planet.rotations.get(n) + (index * 0.01));
+    canvas.translate(planet.offsets.get(n), 0, 0);
+    canvas.scale(planet.scales.get(n));
+    canvas.shape(orb);
+    canvas.popMatrix();
   }
 
-  popMatrix();
+  canvas.popMatrix();
 }
 
 void drawCloth() {
-  pushMatrix();
-  translate(width * 0.49, height*0.125, -width*0.42);
-  rotateY(-1.649); //rotate it sideways
-  rotateX(2.989);
-  noStroke();
-  textureMode(NORMAL);
-  shape(fabric);
-  popMatrix();
+  canvas.pushMatrix();
+  canvas.translate(width * 0.49, height*0.125, -width*0.42);
+  canvas.rotateY(-1.649); //rotate it sideways
+  canvas.rotateX(2.989);
+  canvas.noStroke();
+  canvas.textureMode(NORMAL);
+  canvas.shape(fabric);
+  canvas.popMatrix();
 }
 
 void drawText() {
   Point text_center = getEllipsePoint(int(index*TextBoxMultiplier) % MAX_COUNTER, width*0.27, 0.1, 0.45); //create points
-  pushMatrix();
-  translate(width*0.12, height*0.25); //width*0.1 z
-  scale(1);
-  imageMode(CORNER);
-  image(typeset, text_center.x, text_center.y); // from image
-  popMatrix();
-  noStroke();
+  canvas.pushMatrix();
+  canvas.translate(width*0.12, height*0.25, 1); //  z
+  canvas.scale(1);
+  canvas.imageMode(CORNER);
+  canvas.image(typeset, text_center.x, text_center.y); // from image
+  canvas.popMatrix();
+  canvas.noStroke();
 }
 
-void drawWords() {
-  Point zig_center = zigzag.point(int(index*MoodWordMultiplier) % MAX_COUNTER);  //create zigzag points
-  pushMatrix();
-  imageMode(CORNER);
-  scale(1);
-  image(wordart.draw(), zig_center.x - width*0.05, zig_center.y + height*0.01);
-  popMatrix();
-  noStroke();
-}
-
-void drawTimestamp(long ts) {
-  Point tri_center = triangle.point(index % MAX_COUNTER);
-  timestamp.draw(ts);
-  pushMatrix();
-  //translate(width*0.17,height*0.17, width*0.2);
-  imageMode(CENTER);
-  scale(1);
-  image(timestamp.surface, tri_center.x, tri_center.y);
-  popMatrix();
-}
-
-void drawCounter() {
-  Point square_center = square.point(index % MAX_COUNTER);
-  counter.draw(index);
-  pushMatrix();
-  //translate(width*0.17,height*0.19, width*0.2);
-  imageMode(CENTER);
-  scale(1);
-  image(counter.surface, square_center.x, square_center.y);
-  popMatrix();
-}
 
 
 void drawSplash() {
   Point splash_center = getMoebiusPoint(int(index*SplashMultiplier) % MAX_COUNTER, width*0.25);
 
-  pushMatrix();
-  translate(width*0.5+splash_center.x, height*0.5+splash_center.y, splash_center.z);
-  rotateY(index * 0.4);
-  rotateZ(index * 0.6);
-  rotateX(index * 0.8);
-  scale(0.8);
+  canvas.pushMatrix();
+  canvas.translate(width*0.5+splash_center.x, height*0.5+splash_center.y, splash_center.z);
+  canvas.rotateY(index * 0.4);
+  canvas.rotateZ(index * 0.6);
+  canvas.rotateX(index * 0.8);
+  canvas.scale(0.8);
   //specular(255, 255, 255);
-  directionalLight(255, 255, 255, 0, -1, -1);
-  shape(splash);
+  canvas.directionalLight(255, 255, 255, 0, -1, -1);
+  canvas.shape(splash);
 
   //specular(30,30,30);
-  popMatrix();
-  fill(255);
+  canvas.popMatrix();
+  canvas.fill(255);
 }
 
 
 void drawWeatherGraph() {
-  noStroke();
+  canvas.noStroke();
 
   //relative adjustments for weathergraph
   float tolerance1 = (weatherScores.get(0)-weatherScores.get(1))/2;
@@ -455,79 +443,101 @@ void drawWeatherGraph() {
 
   Point weather_center = getEllipsePoint(index % MAX_COUNTER, width*0.35, 1, 0.65);
 
-  pushMatrix();
+  canvas.pushMatrix();
   // primary positioning
-  translate(width/2+ weather_center.x, height/2 + weather_center.y, width*0.05);
-  scale(2.5);
-  rotateX(index * 0.2);
-  rotateZ(index * 0.1);
+  canvas.translate(width/2+ weather_center.x, height/2 + weather_center.y, width*0.05);
+  canvas.scale(2.5);
+  canvas.rotateX(index * 0.2);
+  canvas.rotateZ(index * 0.1);
 
-  pushMatrix();
-  // draw each shape
-  shape(weatherObjects[0]);
-  translate(20, tolerance1);
-  shape(weatherObjects[1]);
-  translate(20, tolerance2);
-  shape(weatherObjects[2]);
-  translate(20, tolerance3);
-  shape(weatherObjects[3]);
-  translate(20, tolerance4);
-  shape(weatherObjects[4]);
-  rotateZ(radians(90));
-  translate(tolerance5, 40);
-  shape(weatherObjects[5]);
-  popMatrix();
+    canvas.pushMatrix();
+    // draw each shape
+    canvas.shape(weatherObjects[0]);
+    canvas.translate(20, tolerance1);
+    canvas.shape(weatherObjects[1]);
+    canvas.translate(20, tolerance2);
+    canvas.shape(weatherObjects[2]);
+    canvas.translate(20, tolerance3);
+    canvas.shape(weatherObjects[3]);
+    canvas.translate(20, tolerance4);
+    canvas.shape(weatherObjects[4]);
+    canvas.rotateZ(radians(90));
+    canvas.translate(tolerance5, 40);
+    canvas.shape(weatherObjects[5]);
+    canvas.popMatrix();
 
-  popMatrix();
+  canvas.popMatrix();
 }
 
-void drawLogo(long ts) {
-  pushMatrix();
-  translate(width*0.5, height*0.5,width*0.4);
-  shapeMode(CENTER);
-  scale(width*0.0007);
-  rotate(radians(90));
-  shape(MICA_logo);
-  popMatrix();
-  shapeMode(CORNER);
+void drawWords(PGraphics cvs) {
+  Point zig_center = zigzag.point(int(index*MoodWordMultiplier) % MAX_COUNTER);  //create zigzag points
+  cvs.pushMatrix();
+  cvs.imageMode(CORNER);
+  cvs.scale(1);
+  cvs.image(wordart.draw(), zig_center.x - width*0.05, zig_center.y + height*0.01);
+  cvs.popMatrix();
+  cvs.noStroke();
 }
 
-
-void mouseClicked() {
-  long t = (new Date()).getTime() / 1000;
-  String filename = String.format("snap_%d.png", t);
-  saveFrame(filename);
+void drawTimestamp(long ts, PGraphics cvs) {
+  Point tri_center = triangle.point(index % MAX_COUNTER);
+  timestamp.draw(ts);
+  cvs.pushMatrix();
+  //translate(width*0.17,height*0.17, width*0.2);
+  cvs.imageMode(CENTER);
+  cvs.scale(1);
+  cvs.image(timestamp.surface, tri_center.x, tri_center.y);
+  cvs.popMatrix();
 }
 
+void drawCounter(PGraphics cvs) {
+  Point square_center = square.point(index % MAX_COUNTER);
+  counter.draw(index);
+  cvs.pushMatrix();
+  //translate(width*0.17,height*0.19, width*0.2);
+  cvs.imageMode(CENTER);
+  cvs.scale(1);
+  cvs.image(counter.surface, square_center.x, square_center.y);
+  cvs.popMatrix();
+}
+
+void drawLogo(long ts, PGraphics cvs) {
+  cvs.pushMatrix();
+  cvs.translate(width*0.5, height*0.5, width*0.4); // FIXME: scaling is funny because there's a Z-axis translation here
+  cvs.shapeMode(CENTER);
+  cvs.rotate(radians(90));
+  cvs.shape(MICA_logo);
+  cvs.popMatrix();
+  cvs.shapeMode(CORNER);
+}
 
 void drawPathsandArrows() {
-
   PFont font;
   font = createFont("Pitch-Bold.otf", 10);
-  noStroke();
-  shapeMode(CENTER); //for arrows
+  canvas.noStroke();
+  canvas.shapeMode(CENTER); //for arrows
 
- pushMatrix();
-  translate(-width*0.1, -height*0.1, -width*0.1);
-  scale(1.2);
+  canvas.pushMatrix();
+  canvas.translate(-width*0.1, -height*0.1, -width*0.1);
+  canvas.scale(1.2);
 
   //ZIGZAG
   zigzag = new PolygonPath(zig_points, MAX_COUNTER);
-  textFont(font, 20);
+  canvas.textFont(font, 20);
 
   for (int i=1; i<MAX_COUNTER; i+=1) {
     Point zig_center = zigzag.point(i);
-    pushMatrix();
-    fill(#10069f);
-    translate(zig_center.x, zig_center.y);
-    rect(0, 0, width*0.0007, width*0.0007);
+    canvas.pushMatrix();
+    canvas.fill(#10069f);
+    canvas.translate(zig_center.x, zig_center.y);
+    canvas.rect(0, 0, width*0.0007, width*0.0007);
     if (i == 61820) {
-      pushMatrix();
-      rotate(radians(90));
-      text("IMAGE DESCRIPTORS", 0, -10);
-      popMatrix();
+      canvas.pushMatrix();
+      canvas.rotate(radians(90));
+      canvas.text("IMAGE DESCRIPTORS", 0, -10);
+      canvas.popMatrix();
     }
-    popMatrix();
+    canvas.popMatrix();
   }
 
   for (int i=1; i< MAX_COUNTER; i+=1) {
@@ -537,85 +547,85 @@ void drawPathsandArrows() {
     Point planets_center = getEllipsePoint(i, width*0.27, 0.4, 1.0);
     Point splash_center = getMoebiusPoint(i, width*0.25);
 
-    noStroke();
+    canvas.noStroke();
     //weather path
-    fill(#2dc84d);
-    pushMatrix();
-    translate(width*0.5 + weather_center.x, height*0.5 + weather_center.y);
-    rect(0, 0, width*0.0007, width*0.0007);
+    canvas.fill(#2dc84d);
+    canvas.pushMatrix();
+    canvas.translate(width*0.5 + weather_center.x, height*0.5 + weather_center.y);
+    canvas.rect(0, 0, width*0.0007, width*0.0007);
     if (i == 61000) {
-      pushMatrix();
-      rotate(radians(39));
-      text("WEATHER", 0, -10);
-      popMatrix();
+      canvas.pushMatrix();
+      canvas.rotate(radians(39));
+      canvas.text("WEATHER", 0, -10);
+      canvas.popMatrix();
     }
-    popMatrix();
+    canvas.popMatrix();
 
     //donut path
-    fill(#fe5000);
-    pushMatrix();
-    translate(width*0.5 + donut_center.x, height*0.8, donut_center.y);
-    rect(0, 0, width*0.0007, width*0.0007);
+    canvas.fill(#fe5000);
+    canvas.pushMatrix();
+    canvas.translate(width*0.5 + donut_center.x, height*0.8, donut_center.y);
+    canvas.rect(0, 0, width*0.0007, width*0.0007);
     if (i == MAX_COUNTER*0.192) {
-      pushMatrix();
-      rotate(-radians(8));
-      scale(0.8);
-      text("SOUND: LOCATION #1", 0, 25);
-      popMatrix();
+      canvas.pushMatrix();
+      canvas.rotate(-radians(8));
+      canvas.scale(0.8);
+      canvas.text("SOUND: LOCATION #1", 0, 25);
+      canvas.popMatrix();
     }
-    popMatrix();
+    canvas.popMatrix();
 
     //planets path
-    fill(#fedb00);
-    pushMatrix();
-    translate(width*0.7 + planets_center.x, height*0.5 + planets_center.y);
-    rect(0, 0, width*0.0007, width*0.0007);
+    canvas.fill(#fedb00);
+    canvas.pushMatrix();
+    canvas.translate(width*0.7 + planets_center.x, height*0.5 + planets_center.y);
+    canvas.rect(0, 0, width*0.0007, width*0.0007);
     if (i == 67300) {
-      pushMatrix();
-      rotate(radians(90));
-      text("SOUND: LOCATION #2", 0, -10);
-      popMatrix();
+      canvas.pushMatrix();
+      canvas.rotate(radians(90));
+      canvas.text("SOUND: LOCATION #2", 0, -10);
+      canvas.popMatrix();
     }
-    popMatrix();
+    canvas.popMatrix();
 
     //moebius path, splash
-    pushMatrix();
-    fill(#e10098);
-    translate(width*0.5+splash_center.x, height*0.5+splash_center.y, splash_center.z );
-    rect(0, 0, width*0.0007, width*0.0007);
+    canvas.pushMatrix();
+    canvas.fill(#e10098);
+    canvas.translate(width*0.5+splash_center.x, height*0.5+splash_center.y, splash_center.z );
+    canvas.rect(0, 0, width*0.0007, width*0.0007);
     if (i == 14700) {
-      pushMatrix();
-      rotate(radians(28));
-      scale(0.6);
-      text("MOTION", 0, -10);
-      popMatrix();
+      canvas.pushMatrix();
+      canvas.rotate(radians(28));
+      canvas.scale(0.6);
+      canvas.text("MOTION", 0, -10);
+      canvas.popMatrix();
     }
-    popMatrix();
+    canvas.popMatrix();
 
-    fill(255);
+    canvas.fill(255);
   }
-  textMode(SHAPE);
-  fill(#10069f);
+  canvas.textMode(SHAPE);
+  canvas.fill(#10069f);
   Point Zarrow_center = zigzag.point((int(index*MoodWordMultiplier)+1) % MAX_COUNTER);
   Point Znext_center = zigzag.point((int(index*MoodWordMultiplier)+2) % MAX_COUNTER);
   float angZ = atan2(Znext_center.y - Zarrow_center.y, Znext_center.x - Zarrow_center.x);
-  pushMatrix();
-  translate(Zarrow_center.x, Zarrow_center.y);
-  rotate(angZ);
-  shape(arrow, 0, 0);
-  popMatrix();
+  canvas.pushMatrix();
+  canvas.translate(Zarrow_center.x, Zarrow_center.y);
+  canvas.rotate(angZ);
+  canvas.shape(arrow, 0, 0);
+  canvas.popMatrix();
 
-  fill(#2dc84d);
+  canvas.fill(#2dc84d);
   Point Warrow_center = getEllipsePoint((index+300) % MAX_COUNTER, width*0.5, 0.85, 0.5);
   Point Wnext_center = getEllipsePoint((index+301) % MAX_COUNTER, width*0.5, 0.85, 0.5);
   float angW = atan2(Wnext_center.y - Warrow_center.y, Wnext_center.x - Warrow_center.x);
-  pushMatrix();
-  translate(width*0.5 +  Warrow_center.x, height*0.5 + Warrow_center.y);
-  rotate(angW);
-  shape(arrow, 0, 0);
-  popMatrix();
+  canvas.pushMatrix();
+  canvas.translate(width*0.5 +  Warrow_center.x, height*0.5 + Warrow_center.y);
+  canvas.rotate(angW);
+  canvas.shape(arrow, 0, 0);
+  canvas.popMatrix();
 
-  fill(#fe5000);
+  canvas.fill(#fe5000);
   Point Darrow_center = getEllipsePoint((int(index*DonutMultiplier)+100) % MAX_COUNTER, height*0.5, 1.045, 0.197);
   Point Dnext_center = getEllipsePoint((int(index*DonutMultiplier)+101) % MAX_COUNTER, height*0.5, 1.045, 0.197);
   //debug
@@ -627,38 +637,38 @@ void drawPathsandArrows() {
     popMatrix();}*/
   //debug
   float angD = atan2(Dnext_center.y - Darrow_center.y, Dnext_center.x - Darrow_center.x);
-  pushMatrix();
-  translate(width/2 + Darrow_center.x, height*0.83 + Darrow_center.y);
-  rotate(angD);
-  fill(#fe5000);
-  shape(arrow, 0, 0);
-  popMatrix();
+  canvas.pushMatrix();
+  canvas.translate(width/2 + Darrow_center.x, height*0.83 + Darrow_center.y);
+  canvas.rotate(angD);
+  canvas.fill(#fe5000);
+  canvas.shape(arrow, 0, 0);
+  canvas.popMatrix();
 
-  fill(#fedb00);
+  canvas.fill(#fedb00);
   Point Parrow_center = getEllipsePoint((int(index*PlanetMultiplier)+2200) % MAX_COUNTER, width*0.27, 0.4, 1.0);
   Point Pnext_center = getEllipsePoint((int(index*PlanetMultiplier)+2201) % MAX_COUNTER, width*0.27, 0.4, 1.0);
   float angP = atan2(Pnext_center.y - Parrow_center.y, Pnext_center.x - Parrow_center.x);
-  pushMatrix();
-  translate(width*0.7 + Parrow_center.x, height*0.5 + Parrow_center.y);
-  rotate(angP);
-  shape(arrow, 0, 0);
-  popMatrix();
+  canvas.pushMatrix();
+  canvas.translate(width*0.7 + Parrow_center.x, height*0.5 + Parrow_center.y);
+  canvas.rotate(angP);
+  canvas.shape(arrow, 0, 0);
+  canvas.popMatrix();
 
-  fill(#e10098);
+  canvas.fill(#e10098);
   Point Marrow_center = getMoebiusPoint((int(index*SplashMultiplier)+800) % MAX_COUNTER, width*0.25);
   Point Mnext_center =getMoebiusPoint((int(index*SplashMultiplier)+801) % MAX_COUNTER, width*0.25);
   float angM = atan2(Mnext_center.y - Marrow_center.y, Mnext_center.x - Marrow_center.x);
-  pushMatrix();
-  translate(width*0.5+ Marrow_center.x, height*0.5 + Marrow_center.y, Marrow_center.z);
-  rotate(angM);
-  scale(0.95);
-  shape(arrow, 0, 0);
-  popMatrix();
+  canvas.pushMatrix();
+  canvas.translate(width*0.5+ Marrow_center.x, height*0.5 + Marrow_center.y, Marrow_center.z);
+  canvas.rotate(angM);
+  canvas.scale(0.95);
+  canvas.shape(arrow, 0, 0);
+  canvas.popMatrix();
 
-  fill(255);//reset
-  shapeMode(CORNER);//reset
+  canvas.fill(255);//reset
+  canvas.shapeMode(CORNER);//reset
 
-  popMatrix();
+  canvas.  popMatrix();
 }
 
 float R = 100.0;

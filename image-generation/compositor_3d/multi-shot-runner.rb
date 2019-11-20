@@ -4,18 +4,20 @@ require 'concurrent'
 require 'fileutils'
 require 'socket'
 require 'logger'
+require 'rbconfig'
 
 start = Time.now
-# change
 
 REMOTE = /^ip-1/ =~ Socket.gethostname
+WINDOWS = /mswin|msys|mingw|cygwin|bccwin|wince|emc/ =~ RbConfig::CONFIG['host_os'] 
 
 if REMOTE
   # AWS server
   PATH = File.expand_path "~/interactive-spaces/image-generation/compositor_3d"
 else
   # my machine
-  PATH = File.expand_path "~/projects/MICA/interactive-spaces-code/image-generation/compositor_3d"
+  # PATH = File.expand_path "~/projects/MICA/interactive-spaces-code/image-generation/compositor_3d"
+  PATH = File.join "B:","Interactive Arts", "ia2-spring-2019-image-generation", "compositor_3d"
 end
 
 def log(*msg_args)
@@ -24,19 +26,20 @@ def log(*msg_args)
   $logger.debug(message)
 end
 
-$logger = Logger.new(File.join(PATH, 'output.log'), 10, 1024000)
+$logger = Logger.new(File.join(PATH, 'output.log'), 10, 2048000)
 
 GENERATE_IMAGES = true
 CONVERT_IMAGES = true
 BUNDLE_PDF = true
-UPLOAD_PDF = true # && REMOTE
+UPLOAD_PDF = false # && REMOTE
 
-QUANTITY_PER_GENERATION = 10 # number of images the processing sketch will generate on a single run
-GENERATION_SKIP_FACTOR = 100
-GENERATIONS = 68
-STARTING_INDEX = 1
+QUANTITY_PER_GENERATION = 10  # number of images the processing sketch will generate on a single run. final: 10
+GENERATION_SKIP_FACTOR = 1    # multiplier to use between runs. final: 1
+GENERATIONS = 160             # number of times the processing sketch should be run. final: 6800
+STARTING_INDEX = 32501        # first index to pass to generator. final: 1
 EXPECTED_QUANTITY = QUANTITY_PER_GENERATION * GENERATIONS # total number of images to be generated
-BUNDLE_GROUPS_OF = 50
+BUNDLE_GROUPS_OF = 100
+GENERATOR_SKIP = 110          # on restart, skip generating this many images (because print quality images are already available)
 
 # passing images from converter to bundler
 bundle_queue = Concurrent::Array.new
@@ -73,23 +76,42 @@ log("UPLOADING") if UPLOAD_PDF
 
 generator = Concurrent::FixedThreadPool.new(1)
 
-log "preparing #{TOTAL_BUNDLE_QUANTITY} bundled PDFs of #{BUNDLE_GROUPS_OF} images each"
+if BUNDLE_PDF
+  log "preparing #{TOTAL_BUNDLE_QUANTITY} bundled PDFs of #{BUNDLE_GROUPS_OF} images each"
+  # require 'json'
+  # log JSON.pretty_generate(bundle_map)
+end
+
+# exit 0
 
 if GENERATE_IMAGES
+  
+  if GENERATOR_SKIP
+    starting_index = STARTING_INDEX + GENERATOR_SKIP
+  else 
+    starting_index = STARTING_INDEX
+  end
+
   GENERATIONS.times do |n|
-    start_index = STARTING_INDEX + (QUANTITY_PER_GENERATION * n) * GENERATION_SKIP_FACTOR
+    start_index = starting_index + (QUANTITY_PER_GENERATION * n) * GENERATION_SKIP_FACTOR 
 
     generator << Proc.new do
       # log "LAUNCH #{start_index}"
       begin
         # the processing sketch includes logic for generating a sequence of images
-        if REMOTE
+        if WINDOWS
+          cmd = %("C:\\Program Files\\processing-3.5.3\\processing-java.exe" --sketch="B:\\Interactive Arts\\ia2-spring-2019-image-generation\\compositor_3d" --run #{start_index})
+        elsif REMOTE
           cmd = "xvfb-run -a -e /dev/stdout ~/processing-3.5.3/processing-java --sketch=#{PATH} --run #{start_index}"
         else
-          cmd = "processing-java --sketch=#{PATH} --run #{start_index}"
+          cmd = %(processing-java --sketch='#{PATH}' --run #{start_index})
         end
         log "RUN #{cmd}"
-        system(cmd)
+        begin
+          system(cmd)
+        rescue => ex
+          puts "ERROR #{ex.message}"
+        end
 
         sleep 3
       rescue => ex
@@ -101,14 +123,22 @@ if GENERATE_IMAGES
   end
 end
 
+# add all files already in print/ to bundle_queue
+print_path = File.join(PATH, "print", "*.tif")
+Dir[print_path].each do |fn|
+  log "append #{fn} to bundle_queue"
+  bundle_queue << fn
+end
+bundle_queue << :end
+
 conversion_worker = nil
 if CONVERT_IMAGES
-  converter = Concurrent::FixedThreadPool.new(6)
+  converter = Concurrent::FixedThreadPool.new(4)
   counter = Concurrent::AtomicFixnum.new(0)
 
   conversion_worker = Thread.new do
     # organize
-    output_path = File.join(PATH, "output/*.tiff")
+    output_path = File.join(PATH, "output", "*.tif")
 
     loop do
       puts "[#{Time.now}] CHECKING FOR OUTPUT #{output_path}"
@@ -121,52 +151,62 @@ if CONVERT_IMAGES
           name, ftype = fn.split('.')
           time, idx, _, _ = name.split('_')
 
-          # overlay
-          crop_name  = File.join PATH, "crop",  "%i_%i.%s" % [time, idx, ftype]
-          if !File.exists?(crop_name)
-            log "add crops to #{image}"
+          converted_name = "%i_%i.%s" % [time, idx, ftype]
 
-            # geometry values here come from crop_marks_generator
-            #  actual crops.png file:
-            #    Oct 30 10:43 data/crops.png PNG 4276x3000 4276x3000+0+0 8-bit sRGB 56392B 0.000u 0:00.001
-            #  output from crops sketch:
-            #    border 77.0
-            overlay_command = "convert -size 4276x3000 xc:white \\( #{image} \\) -geometry +77+77 -composite \\( data/crops.png \\) -geometry +0+0 -composite #{crop_name}"
-            success = system(overlay_command)
+          # overlay
+          print_name = File.join PATH, "print", converted_name
+
+          # geometry values here come from crop_marks_generator
+          #  actual crops.png file:
+          #    Oct 30 10:43 data/crops.png PNG 4276x3000 4276x3000+0+0 8-bit sRGB 56392B 0.000u 0:00.001
+          #  output from crops sketch:
+          #    border 77.0
+          
+          # occasional conversion errors leave 8 byte files with the correct name, but unusable data 
+          if File.exists?(print_name) && File.size(print_name) < 1024
+            FileUtils.rm(print_name)
+          end
+
+          if !File.exists?(print_name) 
+            if WINDOWS
+              convert_command = %(magick convert -size 4276x3000 xc:white "#{image}" -geometry +77+77 -composite ( data\\crops.png ) -composite -profile data\\sRGB2014.icc -profile data\\psocoated-v3.icc -density 300 "#{print_name}")
+            else 
+              convert_command = %(magick convert -size 4276x3000 xc:white "#{image}" -geometry +77+77 -composite ( data/crops.png ) -composite -profile data/sRGB2014.icc -profile data/psocoated-v3.icc -density 300 "#{print_name}")
+            end
+
+            log "crop and convert #{image} to #{print_name}"
+            success = false
+            begin
+              success = system(convert_command)
+            rescue => ex
+              log "ERROR CONVERTING", image, ex.message
+              $logger.error "failed to add crops to #{image} #{ex.message}"
+            end
 
             # only delete last stage when next stage is available
-            if success && File.exists?(crop_name)
+            if success && File.exists?(print_name)
               log "removing #{image}"
               FileUtils.rm(image)
             else
+              # system() sometimes returns false process success status, if this happens, delete 
+              # the print_name file so the output file will get picked up again
               log "ERROR ADDING CROPS TO #{image}"
               $logger.error "failed to add crops to #{image}"
+              if File.exists?(print_name)
+                log "clearing #{print_name} to retry"
+                FileUtils.rm(print_name)
+              end
             end
           end
-
-          # colorspace
-          print_name = File.join PATH, "print", "%i_%i.%s" % [time, idx, ftype]
-          if !File.exists?(print_name)
-            log "convert colorspace of #{crop_name}"
-            convert_command = "convert #{crop_name} -profile data/sRGB2014.icc -profile data/psocoated-v3.icc #{print_name}"
-            success = system(convert_command)
-
-            if success && File.exists?(print_name)
-              log "removing #{crop_name}"
-              FileUtils.rm(crop_name)
-            else
-              log "ERROR CHANGING COLOR PROFILE OF #{crop_name}"
-              $logger.error  "error changing color profile of #{crop_name}"
-            end
-          end
-
+               
           # append print-ready filename to bundle queue
-          if File.exists?(print_name)
+          if File.exists?(print_name) && bundle_queue.index(print_name).nil? && File.size(print_name) > 1_000_000
             log "append #{print_name} to bundle queue"
             bundle_queue << print_name
+            
+            # only count this file as complete when it has been "handed off" to the bundler
+            counter.increment
           end
-
-          counter.increment
         end
       end
 
@@ -182,14 +222,8 @@ if CONVERT_IMAGES
         end
       end
 
-      sleep 10
+      sleep 5
     end
-  end
-else
-  # add all files in print/ to bundle_queue
-  print_path = File.join(PATH, "print/*.tiff")
-  Dir[print_path].each do |fn|
-    bundle_queue << fn
   end
 end
 
@@ -211,7 +245,7 @@ if BUNDLE_PDF
             # search the whole list of prepared files
             okaygo = true
             bmap.each do |bidx|
-              idx_in_queue = bundle_queue.find_index {|fname| /\d+_#{bidx}.tiff/ =~ fname}
+              idx_in_queue = bundle_queue.find_index {|fname| /\d+_#{bidx}.tif/ =~ fname}
               if idx_in_queue.nil?
                 okaygo = false
               end
@@ -222,7 +256,7 @@ if BUNDLE_PDF
               slice = []
 
               bmap.each do |bidx|
-                idx_in_queue = bundle_queue.find_index {|fname| /\d+_#{bidx}.tiff/ =~ fname}
+                idx_in_queue = bundle_queue.find_index {|fname| /\d+_#{bidx}.tif/ =~ fname}
                 unless idx_in_queue.nil?
                   slice << bundle_queue.delete_at(idx_in_queue)
                 end
@@ -236,7 +270,7 @@ if BUNDLE_PDF
         end
 
         if slice
-          ## if a complete bundle worth of files in print/*.tiff exists...
+          ## if a complete bundle worth of files in print/*.tif exists...
           bundler << Proc.new do
             log "BUNDLING #{slice.size} FILES"
             sorted = slice.sort
@@ -245,41 +279,63 @@ if BUNDLE_PDF
             first_file = first_file.split('.')[0]
             last_file  = File.basename(sorted.last)
             last_file  = last_file.split('.')[0]
-
             start_idx  = first_file.split('_')[1]
             end_idx    = last_file.split('_')[1]
-
-            log "  #{start_idx} - #{end_idx}"
-
             pdf_name   = "#{start_idx}-#{end_idx}-cmyk.pdf"
+            
+            log "BUNDLING #{slice.size} FILES #{start_idx} - #{end_idx} INTO #{pdf_name}"
 
-            slice_file_paths = slice.join(' ')
+            slice_file_name = File.join("tmp", "#{start_idx}-#{end_idx}-files.txt")
+            open(slice_file_name, 'w') do |f|
+              slice.each do |s|
+                if WINDOWS 
+                  f.puts %("#{ s.gsub(/^[A-Z]:/, '') }")
+                else
+                  f.puts s
+                end
+              end
+            end
             final_path = File.join(PATH, "final", pdf_name)
 
-            bundle_command = "convert #{slice_file_paths} #{final_path}"
-            log "bundle .tiff files into PDF: #{bundle_command}"
-            system(bundle_command)
+            if WINDOWS
+              bundle_command = %(magick convert @#{slice_file_name} "#{final_path}")
+            else
+              bundle_command = "convert @#{slice_file_name} #{final_path}"
+            end
+            log "bundle .tif files into PDF: #{bundle_command}"
+            begin
+              system(bundle_command)
+            rescue => ex
+              log "ERROR", ex.message
+            end
 
             if File.exists?(final_path)
-              removal_command = "rm #{slice_file_paths}"
-              log "remove files #{removal_command}"
-              system(removal_command)
+              slice.each do |s|
+                log "remove", s
+                FileUtils.rm(s)
+              end
+              FileUtils.rm(slice_file_name)
             end
 
             if UPLOAD_PDF
               uploader << Proc.new do
-                if REMOTE
-                  upload_command = "aws s3 cp #{final_path} s3://micavibe/print-final-pdfs/ --acl public-read"
+                if WINDOWS
+                  log "moving #{final_path} to Z:"
+                  FileUtils.mv final_path, File.expand_path("Z:"), force: true
                 else
-                  upload_command = "aws --profile micavibe s3 cp #{final_path} s3://micavibe/print-final-pdfs/ --acl public-read"
+                  if REMOTE
+                    upload_command = "aws s3 cp #{final_path} s3://micavibe/print-final-pdfs/ --acl public-read"
+                  else
+                    upload_command = "aws --profile micavibe s3 cp #{final_path} s3://micavibe/print-final-pdfs/ --acl public-read"
+                  end
+
+                  log "uploading #{upload_command}"
+                  system(upload_command)
+  
+                  pdf_removal_command = "rm #{final_path}"
+                  log "remove files #{pdf_removal_command}"
+                  system(pdf_removal_command)
                 end
-
-                log "uploading #{upload_command}"
-                system(upload_command)
-
-                pdf_removal_command = "rm #{final_path}"
-                log "remove files #{pdf_removal_command}"
-                system(pdf_removal_command)
               end
             end
           end
@@ -292,7 +348,7 @@ if BUNDLE_PDF
       end
 
       log "bundler waiting for files..."
-      sleep 15
+      sleep 5
     end
   end
 end
